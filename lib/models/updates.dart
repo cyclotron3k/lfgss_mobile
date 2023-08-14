@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lfgss_mobile/models/unknown_item.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer' as developer;
 
 import '../widgets/future_item_tile.dart';
@@ -22,7 +23,7 @@ typedef Json = Map<String, dynamic>;
 
 class Updates extends ItemWithChildren {
   final int _totalChildren;
-  final Map<int, Item> _children = {};
+  final Map<int, Update> _children = {};
 
   Updates.fromJson(Json json) : _totalChildren = json["updates"]["total"] {
     parsePage(json);
@@ -38,6 +39,61 @@ class Updates extends ItemWithChildren {
     Json json = await MicrocosmClient().getJson(uri);
 
     return Updates.fromJson(json);
+  }
+
+  // Future<int> getNewUpdateCount() async {
+  //   final sharedPreference =
+  //       await SharedPreferences.getInstance(); //Initialize dependency
+
+  //   final int lastUpdateId = sharedPreference.getInt("lastUpdateId") ?? 0;
+
+  //   final Iterable<int> newIds = _children.values
+  //       .map<int>((update) => update.id)
+  //       .where((id) => id > lastUpdateId);
+
+  //   final int newUpdateCount = newIds.length;
+
+  //   if (newUpdateCount > 0) {
+  //     final int latestId = newIds.first;
+  //     await sharedPreference.setInt(
+  //       "lastUpdateId",
+  //       latestId,
+  //     );
+  //   }
+
+  //   return newUpdateCount;
+  // }
+
+  Future<List<Update>> getNewUpdates() async {
+    final sharedPreference =
+        await SharedPreferences.getInstance(); //Initialize dependency
+
+    final int lastUpdateId = sharedPreference.getInt("lastUpdateId") ?? 0;
+
+    final Iterable<Update> newUpdates =
+        _children.values.where((update) => update.id > lastUpdateId);
+
+    if (newUpdates.isNotEmpty) {
+      await sharedPreference.setInt(
+        "lastUpdateId",
+        newUpdates.first.id,
+      );
+    }
+
+    return newUpdates.toList();
+  }
+
+  Future<Map<int, String>> updatesAsNotifications() async {
+    var newUpdates = await getNewUpdates();
+    Map<int, String> resultMap = newUpdates.fold({}, (
+      Map<int, String> map,
+      Update obj,
+    ) {
+      map[obj.id] = obj.description;
+      return map;
+    });
+
+    return resultMap;
   }
 
   @override
@@ -57,7 +113,7 @@ class Updates extends ItemWithChildren {
 
   @override
   void parsePage(Json json) {
-    List<Item> items = json["updates"]["items"]
+    List<Update> items = json["updates"]["items"]
         .map(
           (item) {
             Item child;
@@ -137,7 +193,8 @@ class Updates extends ItemWithChildren {
               default:
                 {
                   developer.log(
-                      "Don't know how to handle parentItemType of ${item["parentItemType"]}");
+                    "Don't know how to handle parentItemType of ${item["parentItemType"]}",
+                  );
                   return null;
                 }
             }
@@ -145,6 +202,7 @@ class Updates extends ItemWithChildren {
             var flags = Flags.fromJson(json: item["meta"]["flags"]);
 
             return Update(
+              id: item["id"],
               updateType: item["updateType"],
               child: child,
               parent: parent,
@@ -152,7 +210,7 @@ class Updates extends ItemWithChildren {
             );
           },
         )
-        .whereType<Item>()
+        .whereType<Update>()
         .toList();
 
     for (final (index, item) in items.indexed) {

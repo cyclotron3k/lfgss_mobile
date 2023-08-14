@@ -41,6 +41,9 @@ dependencies:
   html_unescape: ^2.0.0
   flutter_html: 3.0.0-beta.2
   image_picker:
+  workmanager: ^0.5.1
+  shared_preferences: ^2.2.0
+  flutter_local_notifications: ^15.1.0+1
 
 dev_dependencies:
   flutter_test:

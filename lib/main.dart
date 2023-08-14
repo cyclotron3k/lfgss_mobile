@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:lfgss_mobile/widgets/future_microcosm_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
+import 'dart:developer' as developer;
 
 import 'models/huddles.dart';
 import 'models/microcosm.dart';
@@ -12,9 +16,130 @@ import 'widgets/future_search_screen.dart';
 import 'widgets/future_updates_screen.dart';
 import 'widgets/profile_screen.dart';
 
-void main() {
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    int totalExecutions;
+    final sharedPreference =
+        await SharedPreferences.getInstance(); //Initialize dependency
+
+    try {
+      Updates updates = await Updates.root();
+      Map<int, String> notifications = await updates.updatesAsNotifications();
+      developer.log("New updates: ${notifications.length}");
+
+      for (var entry in notifications.entries) {
+        final id = entry.key;
+        final description = entry.value;
+
+        const AndroidNotificationDetails androidNotificationDetails =
+            AndroidNotificationDetails(
+          'lfgss_updates',
+          'LFGSS Updates',
+          channelDescription: 'Updates from LFGSS',
+          importance: Importance.max,
+          priority: Priority.high,
+          ticker: 'ticker',
+        );
+
+        const NotificationDetails notificationDetails = NotificationDetails(
+          android: androidNotificationDetails,
+        );
+
+        FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+            await initNotifications();
+
+        await flutterLocalNotificationsPlugin.show(
+          id,
+          description,
+          "$description ($id)",
+          notificationDetails,
+          payload: "$id, $description",
+        );
+      }
+
+      totalExecutions = sharedPreference.getInt("totalExecutions") ?? 0;
+      totalExecutions++;
+      sharedPreference.setInt(
+        "totalExecutions",
+        totalExecutions,
+      );
+      developer.log("Total executions: $totalExecutions");
+    } catch (err) {
+      developer.log(
+        err.toString(),
+      );
+      throw Exception(err);
+    }
+
+    return Future.value(true);
+  });
+}
+
+Future<FlutterLocalNotificationsPlugin> initNotifications() async {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('favicon_alpha');
+
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse nr) {
+      developer.log("Recieved a notification response");
+    },
+  );
+
+  return flutterLocalNotificationsPlugin;
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(
+    callbackDispatcher, // The top level function, aka callbackDispatcher
+    // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+    isInDebugMode: false,
+  );
+  Workmanager().registerPeriodicTask(
+    "periodic-task-identifier",
+    "updateChecker",
+    existingWorkPolicy: ExistingWorkPolicy.replace,
+    constraints: Constraints(
+      networkType: NetworkType.connected,
+      requiresBatteryNotLow: true,
+      requiresCharging: false,
+      requiresDeviceIdle: false,
+      requiresStorageNotLow: true,
+    ),
+    // tag: "my-tag",
+    // backoffPolicy: BackoffPolicy.exponential,
+    // frequency: Duration(minutes: 15),
+  );
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      await initNotifications();
+  flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.requestPermission();
+
   runApp(const MyApp());
 }
+
+// void onDidReceiveNotificationResponse(
+//     NotificationResponse notificationResponse) async {
+//   final String? payload = notificationResponse.payload;
+//   if (notificationResponse.payload != null) {
+//     debugPrint('notification payload: $payload');
+//   }
+//   await Navigator.push(
+//     context,
+//     MaterialPageRoute<void>(builder: (context) => SecondScreen(payload)),
+//   );
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

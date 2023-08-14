@@ -19,8 +19,10 @@
 - Create huddle
 - Caching (json, images, thumbnails, metrics)
 - Instrumentation
-- Swipe to reply `Draggable(axis: ...)`
+- Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
 - Animated containers for loading content?
+- https://docs.flutter.dev/cookbook/effects/expandable-fab
+- Use FlutterSecureStorage
 
 ## TBD
 
