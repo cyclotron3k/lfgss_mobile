@@ -342,15 +342,7 @@ class _HomePageState extends State<HomePage> {
         index: _currentIndex,
         children: <Widget>[
           FutureMicrocosmScreen(microcosm: Microcosm.root()),
-          FutureSearchScreen(
-            search: Search.search(
-              searchParameters: SearchParameters(
-                query: "",
-                since: -1,
-                type: {'conversation', 'event', 'profile', 'huddle'},
-              ),
-            ),
-          ),
+          FutureSearchScreen(search: Search.today()),
           FutureUpdatesScreen(updates: Updates.root()),
           FutureHuddlesScreen(huddles: Huddles.root()),
           ProfileScreen(profile: Profile.getProfile()),

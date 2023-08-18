@@ -66,14 +66,11 @@ class Conversation implements ItemWithChildren {
   int get totalChildren => _totalChildren;
 
   static Future<Conversation> getById(int id) async {
-    // int pageId = await getFirstUnreadPage(id);
-
     Uri uri = Uri.https(
       HOST,
       "/api/v1/conversations/$id/newcomment",
       {
         "limit": PAGE_SIZE.toString(),
-        // "offset": (PAGE_SIZE * pageId).toString(),
       },
     );
 
@@ -111,9 +108,17 @@ class Conversation implements ItemWithChildren {
   Item? get context => _context;
 
   @override
+  Future<void> resetChildren() async {
+    await getPageOfChildren(0);
+    _children.removeWhere((key, _) => key >= PAGE_SIZE);
+  }
+
+  @override
   Widget renderAsTile({bool? overrideUnreadFlag}) {
     return ConversationTile(
-        conversation: this, overrideUnreadFlag: overrideUnreadFlag);
+      conversation: this,
+      overrideUnreadFlag: overrideUnreadFlag,
+    );
   }
 
   @override

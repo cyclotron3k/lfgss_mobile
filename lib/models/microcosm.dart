@@ -163,6 +163,12 @@ class Microcosm implements ItemWithChildren {
   }
 
   @override
+  Future<void> resetChildren() async {
+    await getPageOfChildren(0);
+    _children.removeWhere((key, _) => key >= PAGE_SIZE);
+  }
+
+  @override
   Future<Item> getChild(int i) async {
     if (_children.containsKey(i)) {
       return _children[i]!;

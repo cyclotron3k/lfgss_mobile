@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import '../models/huddles.dart';
 
-class HuddlesScreen extends StatelessWidget {
+class HuddlesScreen extends StatefulWidget {
+  final Huddles huddles;
   const HuddlesScreen({
     super.key,
     required this.huddles,
   });
 
-  final Huddles huddles;
+  @override
+  State<HuddlesScreen> createState() => _HuddlesScreenState();
+}
 
+class _HuddlesScreenState extends State<HuddlesScreen> {
   @override
   Widget build(BuildContext context) {
     final Widget fab = FloatingActionButton(
@@ -28,19 +32,8 @@ class HuddlesScreen extends StatelessWidget {
       floatingActionButton: fab,
       body: RefreshIndicator(
         onRefresh: () async {
-          // TODO
-          return Future.delayed(
-            const Duration(milliseconds: 1000),
-            () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Not implemented yet'),
-                  duration: Duration(milliseconds: 1500),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
-          );
+          await widget.huddles.resetChildren();
+          setState(() {});
         },
         child: CustomScrollView(
           // cacheExtent: 400.0,
@@ -49,9 +42,9 @@ class HuddlesScreen extends StatelessWidget {
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
-                  return huddles.childTile(index);
+                  return widget.huddles.childTile(index);
                 },
-                childCount: huddles.totalChildren,
+                childCount: widget.huddles.totalChildren,
               ),
             ),
           ],

@@ -86,6 +86,16 @@ class Search extends ItemWithChildren {
     }
   }
 
+  static Future<Search> today() {
+    return search(
+      searchParameters: SearchParameters(
+        query: "",
+        since: -1,
+        type: {'conversation', 'event', 'profile', 'huddle'},
+      ),
+    );
+  }
+
   static Future<Search> search({
     required SearchParameters searchParameters,
   }) async {
@@ -99,7 +109,7 @@ class Search extends ItemWithChildren {
       parameters,
     );
 
-    Json json = await MicrocosmClient().getJson(uri);
+    Json json = await MicrocosmClient().getJson(uri, ttl: 5);
 
     return Search.fromJson(
       searchParameters: searchParameters,
@@ -124,7 +134,7 @@ class Search extends ItemWithChildren {
       parameters,
     );
 
-    Json json = await MicrocosmClient().getJson(uri);
+    Json json = await MicrocosmClient().getJson(uri, ttl: 5);
     parsePage(json);
   }
 
@@ -268,6 +278,12 @@ class Search extends ItemWithChildren {
   @override
   set context(Item? tmp) {
     _context = tmp;
+  }
+
+  @override
+  Future<void> resetChildren() async {
+    await getPageOfChildren(0);
+    _children.removeWhere((key, _) => key >= PAGE_SIZE);
   }
 
   @override

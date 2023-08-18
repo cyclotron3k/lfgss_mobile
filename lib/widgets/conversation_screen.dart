@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:lfgss_mobile/widgets/new_comment.dart';
 
 import '../constants.dart';
@@ -50,22 +49,17 @@ class _ConversationScreenState extends State<ConversationScreen> {
       body: Column(
         children: [
           Expanded(
-            child: Scrollable(
-              viewportBuilder: (BuildContext context, ViewportOffset offset) {
-                return Viewport(
-                  offset: offset,
-                  center: forwardListKey,
-                  slivers: [
-                    SliverAppBar(
-                      // TODO: fix floating behaviour
-                      floating: true,
-                      title: Text(widget.conversation.title),
-                    ),
-                    reverseList,
-                    forwardList,
-                  ],
-                );
-              },
+            child: CustomScrollView(
+              center: forwardListKey,
+              slivers: [
+                SliverAppBar(
+                  // TODO: https://github.com/flutter/flutter/issues/132841
+                  floating: true,
+                  title: Text(widget.conversation.title),
+                ),
+                reverseList,
+                forwardList,
+              ],
             ),
           ),
           if (widget.conversation.flags.open)

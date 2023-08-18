@@ -111,5 +111,11 @@ class Huddle extends ItemWithChildren {
   }
 
   @override
+  Future<void> resetChildren() async {
+    await getPageOfChildren(0);
+    _children.removeWhere((key, _) => key >= PAGE_SIZE);
+  }
+
+  @override
   int get totalChildren => _totalChildren;
 }

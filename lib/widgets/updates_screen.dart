@@ -5,36 +5,24 @@ import '../models/updates.dart';
 // enum Sizes { extraSmall, small, medium, large, extraLarge }
 
 class UpdatesScreen extends StatefulWidget {
+  final Updates updates;
   const UpdatesScreen({
     super.key,
     required this.updates,
   });
-
-  final Updates updates;
 
   @override
   State<UpdatesScreen> createState() => _UpdatesScreenState();
 }
 
 class _UpdatesScreenState extends State<UpdatesScreen> {
-  late Updates updates;
-
-  @override
-  void initState() {
-    super.initState();
-    updates = widget.updates;
-  }
-
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
         developer.log("Refreshing updates screen...");
-        Updates newUpdates = await Updates.root();
-        setState(() {
-          developer.log("Refresh complete.");
-          updates = newUpdates;
-        });
+        widget.updates.resetChildren();
+        setState(() {});
       },
       child: CustomScrollView(
         // cacheExtent: 400.0,
@@ -79,9 +67,9 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
-                return updates.childTile(index);
+                return widget.updates.childTile(index);
               },
-              childCount: updates.totalChildren,
+              childCount: widget.updates.totalChildren,
             ),
           ),
         ],

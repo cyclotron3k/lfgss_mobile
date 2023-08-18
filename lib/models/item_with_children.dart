@@ -14,4 +14,6 @@ abstract class ItemWithChildren implements Item {
   Future<Item> getChild(int i);
 
   void parsePage(Json json);
+
+  Future<void> resetChildren();
 }

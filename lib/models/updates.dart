@@ -247,6 +247,12 @@ class Updates extends ItemWithChildren {
   }
 
   @override
+  Future<void> resetChildren() async {
+    await getPageOfChildren(0);
+    _children.removeWhere((key, _) => key >= PAGE_SIZE);
+  }
+
+  @override
   Widget renderAsTile({bool? overrideUnreadFlag}) {
     throw UnimplementedError();
   }
