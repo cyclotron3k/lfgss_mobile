@@ -274,7 +274,7 @@ class Search extends ItemWithChildren {
   Item? get context => _context;
 
   @override
-  Widget renderAsTile() {
+  Widget renderAsTile({bool? overrideUnreadFlag}) {
     // TODO: implement renderAsTile
     return const Placeholder();
   }

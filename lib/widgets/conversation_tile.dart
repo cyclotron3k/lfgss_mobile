@@ -7,7 +7,13 @@ import 'future_conversation_screen.dart';
 
 class ConversationTile extends StatefulWidget {
   final Conversation conversation;
-  const ConversationTile({super.key, required this.conversation});
+  final bool? overrideUnreadFlag;
+
+  const ConversationTile({
+    super.key,
+    required this.conversation,
+    this.overrideUnreadFlag,
+  });
 
   @override
   State<ConversationTile> createState() => _ConversationTileState();
@@ -17,6 +23,7 @@ class _ConversationTileState extends State<ConversationTile> {
   @override
   Widget build(BuildContext context) {
     final unescape = HtmlUnescape();
+
     return Card(
       key: ValueKey(widget.conversation.id),
       child: InkWell(
@@ -34,9 +41,9 @@ class _ConversationTileState extends State<ConversationTile> {
         },
         child: ListTile(
           leading: (widget.conversation.flags.sticky
-              ? const Icon(
+              ? Icon(
                   Icons.push_pin_outlined,
-                  color: Colors.blue,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 28,
                 )
               : const Icon(
@@ -46,10 +53,14 @@ class _ConversationTileState extends State<ConversationTile> {
           title: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.conversation.flags.unread)
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
-                  child: Icon(Icons.circle, size: 10.0, color: Colors.blue),
+              if (widget.overrideUnreadFlag ?? widget.conversation.flags.unread)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
+                  child: Icon(
+                    Icons.circle,
+                    size: 10.0,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               Expanded(
                 child: Text(

@@ -106,7 +106,7 @@ class Huddle extends ItemWithChildren {
   }
 
   @override
-  Widget renderAsTile() {
+  Widget renderAsTile({bool? overrideUnreadFlag}) {
     return HuddleTile(huddle: this);
   }
 

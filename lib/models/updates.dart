@@ -36,7 +36,7 @@ class Updates extends ItemWithChildren {
       {"limit": PAGE_SIZE.toString(), "offset": "0"},
     );
 
-    Json json = await MicrocosmClient().getJson(uri);
+    Json json = await MicrocosmClient().getJson(uri, ttl: 5);
 
     return Updates.fromJson(json);
   }
@@ -107,7 +107,7 @@ class Updates extends ItemWithChildren {
       },
     );
 
-    Json json = await MicrocosmClient().getJson(uri);
+    Json json = await MicrocosmClient().getJson(uri, ttl: 5);
     parsePage(json);
   }
 
@@ -247,7 +247,7 @@ class Updates extends ItemWithChildren {
   }
 
   @override
-  Widget renderAsTile() {
+  Widget renderAsTile({bool? overrideUnreadFlag}) {
     throw UnimplementedError();
   }
 

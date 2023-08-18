@@ -150,7 +150,7 @@ class Microcosm implements ItemWithChildren {
   Item? get context => _context;
 
   @override
-  Widget renderAsTile() {
+  Widget renderAsTile({bool? overrideUnreadFlag}) {
     return MicrocosmTile(microcosm: this);
   }
 

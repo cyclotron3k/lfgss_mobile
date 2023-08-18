@@ -58,7 +58,7 @@ class Profile extends Item {
   Item? get context => throw UnimplementedError();
 
   @override
-  Widget renderAsTile() {
+  Widget renderAsTile({bool? overrideUnreadFlag}) {
     return const Placeholder();
   }
 }

@@ -3,5 +3,5 @@ import 'package:flutter/material.dart';
 abstract class Item {
   Item? context;
 
-  Widget renderAsTile();
+  Widget renderAsTile({bool? overrideUnreadFlag});
 }

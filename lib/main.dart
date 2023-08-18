@@ -1,37 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:lfgss_mobile/widgets/future_conversation_screen.dart';
 import 'package:lfgss_mobile/widgets/future_microcosm_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'dart:developer' as developer;
 
+import 'models/conversation.dart';
 import 'models/huddles.dart';
 import 'models/microcosm.dart';
 import 'models/profile.dart';
 import 'models/search.dart';
 import 'models/search_parameters.dart';
+import 'models/update.dart';
 import 'models/updates.dart';
 import 'widgets/future_huddles_screen.dart';
 import 'widgets/future_search_screen.dart';
 import 'widgets/future_updates_screen.dart';
 import 'widgets/profile_screen.dart';
+import 'widgets/settings_screen.dart';
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     int totalExecutions;
     final sharedPreference =
-        await SharedPreferences.getInstance(); //Initialize dependency
+        await SharedPreferences.getInstance(); // Initialize dependency
 
     try {
       Updates updates = await Updates.root();
-      Map<int, String> notifications = await updates.updatesAsNotifications();
+      List<Update> notifications = await updates.getNewUpdates();
       developer.log("New updates: ${notifications.length}");
 
-      for (var entry in notifications.entries) {
-        final id = entry.key;
-        final description = entry.value;
-
+      for (var update in notifications) {
         const AndroidNotificationDetails androidNotificationDetails =
             AndroidNotificationDetails(
           'lfgss_updates',
@@ -50,11 +51,11 @@ void callbackDispatcher() {
             await initNotifications();
 
         await flutterLocalNotificationsPlugin.show(
-          id,
-          description,
-          "$description ($id)",
+          update.topicId,
+          update.title,
+          update.body,
           notificationDetails,
-          payload: "$id, $description",
+          payload: update.conversationId,
         );
       }
 
@@ -151,12 +152,15 @@ class MyApp extends StatelessWidget {
       title: 'LFGSS',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromRGBO(30, 114, 196, 1.0),
+          seedColor: const Color.fromARGB(255, 77, 134, 219),
         ),
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
-        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          brightness: Brightness.dark,
+          seedColor: const Color.fromARGB(255, 60, 41, 230),
+        ),
         useMaterial3: true,
       ),
       home: const HomePage(title: 'LFGSS'),
@@ -184,6 +188,42 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _runWhileAppIsTerminated();
+  }
+
+  void _runWhileAppIsTerminated() async {
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        await initNotifications();
+    var details =
+        await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+
+    if (details == null) return;
+
+    if (details.didNotificationLaunchApp) {
+      if (details.notificationResponse?.payload == null) return;
+      String payload = details.notificationResponse?.payload ?? "0";
+
+      developer.log("Payload: $payload");
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          maintainState: true,
+          builder: (context) => FutureConversationScreen(
+            conversation: Conversation.getById(
+              int.parse(payload),
+            ),
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -194,11 +234,60 @@ class _HomePageState extends State<HomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+      key: _scaffoldKey,
       // appBar: AppBar(
       //   // Here we take the value from the MyHomePage object that was created by
       //   // the App.build method, and use it to set our appbar title.
       //   title: Text(unescape.convert(widget.microcosm.title)),
       // ),
+      endDrawer: Drawer(
+        // Add a ListView to the drawer. This ensures the user can scroll
+        // through the options in the drawer if there isn't enough vertical
+        // space to fit everything.
+        child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              child: const Text('LFGSS'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    fullscreenDialog: true,
+                    maintainState: true,
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.bookmark),
+              title: const Text('Bookmarks'),
+              onTap: () {
+                // Update the state of the app.
+                // ...
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                // Update the state of the app.
+                // ...
+              },
+            ),
+          ],
+        ),
+      ),
+
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
@@ -223,17 +312,30 @@ class _HomePageState extends State<HomePage> {
             // backgroundColor: Colors.black,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'You',
+            icon: Icon(Icons.menu),
+            label: '',
             // backgroundColor: Colors.black,
           ),
         ],
         currentIndex: _currentIndex,
-        selectedItemColor: Colors.blue[400],
+        selectedItemColor: Theme.of(context).colorScheme.primary,
         onTap: (value) {
-          setState(() {
-            _currentIndex = value;
-          });
+          if (value == 4) {
+            // var scaffold = Scaffold.of(context);
+            var scaffold = _scaffoldKey.currentState;
+            if (scaffold == null) {
+              return;
+            }
+            if (scaffold.isEndDrawerOpen) {
+              scaffold.closeEndDrawer();
+            } else {
+              scaffold.openEndDrawer();
+            }
+          } else {
+            setState(() {
+              _currentIndex = value;
+            });
+          }
         },
       ),
       body: IndexedStack(

@@ -84,6 +84,14 @@ class _CommentTileState extends State<CommentTile> {
                 ),
               ),
             ),
+            if (widget.comment.inReplyTo != null)
+              Tooltip(
+                message: "Reply to ${widget.comment.inReplyTo}",
+                child: Icon(
+                  Icons.reply,
+                  color: Theme.of(context).hintColor,
+                ),
+              ),
             if (widget.comment.revisions > 1)
               Tooltip(
                 message: "Edited",

@@ -2,25 +2,27 @@
 
 ## TODO
 
+- Pull to reload
+- Download dots
 - Notifications
-- Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
 - Upload files
 - Login
-- Persistent connections & HTTP3
-- Pull to reload
-- Page navigation (losenge or indexed scroller?)
+- Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
 - Events
-- DRY (future_x widgets, mixins, codegen?)
-- Photo gallery (download, share, navigate)
-- Privacy settings
-- User selector
 - Send huddle comment
 - Create post
 - Create huddle
+- Page navigation (losenge or indexed scroller?)
 - Caching (json, images, thumbnails, metrics)
-- Instrumentation
-- Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
 - Animated containers for loading content?
+- Photo gallery (download, share, navigate)
+- Social sharing
+- User selector
+- Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
+- Persistent connections & HTTP3
+- DRY (future_x widgets, mixins, codegen?)
+- Keys
+- Instrumentation
 - https://docs.flutter.dev/cookbook/effects/expandable-fab
 - Use FlutterSecureStorage
 

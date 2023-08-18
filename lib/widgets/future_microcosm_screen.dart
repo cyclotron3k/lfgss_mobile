@@ -20,10 +20,10 @@ class _FutureMicrocosmScreenState extends State<FutureMicrocosmScreen> {
         if (snapshot.hasData) {
           return MicrocosmScreen(microcosm: snapshot.data!);
         } else if (snapshot.hasError) {
-          return const Center(
+          return Center(
             child: Icon(
               Icons.error_outline,
-              color: Colors.red,
+              color: Theme.of(context).colorScheme.error,
               size: 64.0,
             ),
           );

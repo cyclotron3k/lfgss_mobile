@@ -34,9 +34,9 @@ class _HuddleTileState extends State<HuddleTile> {
         },
         child: ListTile(
           leading: (widget.huddle.flags.sticky
-              ? const Icon(
+              ? Icon(
                   Icons.push_pin_outlined,
-                  color: Colors.blue,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 28,
                 )
               : const Icon(
@@ -47,9 +47,10 @@ class _HuddleTileState extends State<HuddleTile> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (widget.huddle.flags.unread)
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
-                  child: Icon(Icons.circle, size: 10.0, color: Colors.blue),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
+                  child: Icon(Icons.circle,
+                      size: 10.0, color: Theme.of(context).colorScheme.primary),
                 ),
               Expanded(
                 child: Text(

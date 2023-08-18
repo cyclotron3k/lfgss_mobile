@@ -39,9 +39,9 @@ class _MicrocosmTileState extends State<MicrocosmTile> {
                   color: Colors.grey,
                 )
               : (widget.microcosm.logoUrl.endsWith('.svg')
-                  ? const Icon(
+                  ? Icon(
                       Icons.error_outline,
-                      color: Colors.red,
+                      color: Theme.of(context).colorScheme.error,
                     )
                   : ClipRRect(
                       borderRadius: BorderRadius.circular(6.0),
@@ -60,9 +60,9 @@ class _MicrocosmTileState extends State<MicrocosmTile> {
           title: Row(
             children: [
               // if (unread)
-              //   const Row(
+              //   Row(
               //     children: [
-              //       Icon(Icons.circle, size: 10.0, color: Colors.blue),
+              //       Icon(Icons.circle, size: 10.0, color: Theme.of(context).colorScheme.primary),
               //       SizedBox(width: 5.0, height: 5.0),
               //     ],
               //   ),

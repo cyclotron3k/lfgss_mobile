@@ -57,6 +57,14 @@ class Update extends Item {
     } else {
       return id;
     }
+  }
+
+  String get conversationId {
+    if (parent is Conversation) {
+      return (parent as Conversation).id.toString();
+    } else {
+      return "";
+    }
   } // TODO promote id
 
   String get description {
@@ -106,7 +114,7 @@ class Update extends Item {
   }
 
   @override
-  Widget renderAsTile() {
-    return UpdateTile(child: child, parent: parent, description: description);
+  Widget renderAsTile({bool? overrideUnreadFlag}) {
+    return UpdateTile(update: this);
   }
 }

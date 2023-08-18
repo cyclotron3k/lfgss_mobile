@@ -17,7 +17,7 @@ class UnknownItem implements Item {
   Item? get context => _context;
 
   @override
-  Widget renderAsTile() {
+  Widget renderAsTile({bool? overrideUnreadFlag}) {
     return Card(
       surfaceTintColor: Colors.black,
       child: ListTile(

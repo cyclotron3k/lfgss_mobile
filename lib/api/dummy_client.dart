@@ -7,7 +7,7 @@ class DummyClient implements ApiClient {
   }
 
   @override
-  Future<Map<String, dynamic>> post(Uri url, {int ttl = 0}) async {
+  Future<Map<String, dynamic>> post(Uri url) async {
     return {};
   }
 }

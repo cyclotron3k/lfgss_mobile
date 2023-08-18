@@ -14,6 +14,7 @@ class Comment implements Item {
   final int itemId;
   final int revisions;
   final int attachments;
+  final int? inReplyTo;
   final String markdown;
   final String html;
 
@@ -36,7 +37,7 @@ class Comment implements Item {
   Item? get context => _context;
 
   @override
-  Widget renderAsTile() {
+  Widget renderAsTile({bool? overrideUnreadFlag}) {
     return CommentTile(comment: this);
   }
 
@@ -47,6 +48,7 @@ class Comment implements Item {
         revisions = json["revisions"],
         attachments = json["attachments"] ?? 0,
         markdown = json["markdown"],
+        inReplyTo = json["inReplyTo"],
         html = json["html"],
         createdBy = PartialProfile.fromJson(json: json["meta"]["createdBy"]),
         // editedBy = Profile.fromJson(json: json['meta']['editedBy']),

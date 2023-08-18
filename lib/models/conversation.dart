@@ -111,8 +111,9 @@ class Conversation implements ItemWithChildren {
   Item? get context => _context;
 
   @override
-  Widget renderAsTile() {
-    return ConversationTile(conversation: this);
+  Widget renderAsTile({bool? overrideUnreadFlag}) {
+    return ConversationTile(
+        conversation: this, overrideUnreadFlag: overrideUnreadFlag);
   }
 
   @override

@@ -83,7 +83,7 @@ class Huddles extends ItemWithChildren {
   }
 
   @override
-  Widget renderAsTile() {
+  Widget renderAsTile({bool? overrideUnreadFlag}) {
     // TODO: implement renderAsTile
     return const Placeholder();
   }

@@ -21,10 +21,10 @@ class _FutureConversationScreenState extends State<FutureConversationScreen> {
         if (snapshot.hasData) {
           return ConversationScreen(conversation: snapshot.data!);
         } else if (snapshot.hasError) {
-          return const Center(
+          return Center(
             child: Icon(
               Icons.error_outline,
-              color: Colors.red,
+              color: Theme.of(context).colorScheme.error,
               size: 64.0,
             ),
           );

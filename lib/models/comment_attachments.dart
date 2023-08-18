@@ -44,9 +44,9 @@ class CommentAttachments {
           // return const SizedBox(width: 100.0, height: 158.0);
           return snapshot.data![index].build(context);
         } else if (snapshot.hasError) {
-          return const Icon(
+          return Icon(
             Icons.error_outline,
-            color: Colors.red,
+            color: Theme.of(context).colorScheme.error,
             size: 64.0,
           );
         } else {

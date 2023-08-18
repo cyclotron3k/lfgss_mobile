@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../models/item.dart';
+import '../models/update.dart';
 
 class UpdateTile extends StatefulWidget {
-  final Item child;
-  final Item parent;
-  final String description;
+  final Update update;
 
   const UpdateTile({
     super.key,
-    required this.child,
-    required this.parent,
-    required this.description,
+    required this.update,
   });
 
   @override
@@ -28,12 +24,14 @@ class _UpdateTileState extends State<UpdateTile> {
           height: 28.0,
           padding: const EdgeInsets.only(left: 64.0),
           child: Text(
-            widget.description,
+            widget.update.description,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: Colors.grey),
           ),
         ),
-        widget.parent.renderAsTile(),
+        widget.update.parent.renderAsTile(
+          overrideUnreadFlag: widget.update.flags.unread,
+        ),
       ],
     );
   }

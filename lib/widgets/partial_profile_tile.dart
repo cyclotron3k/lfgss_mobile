@@ -28,9 +28,9 @@ class PartialProfileTile extends StatelessWidget {
                   color: Colors.grey,
                 )
               : (partialProfile.avatar.endsWith('.svg')
-                  ? const Icon(
+                  ? Icon(
                       Icons.error_outline,
-                      color: Colors.red,
+                      color: Theme.of(context).colorScheme.error,
                     )
                   : CachedNetworkImage(
                       imageUrl: partialProfile.avatar,

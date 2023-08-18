@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dart:developer' as developer;
 import '../models/updates.dart';
 
-enum Sizes { extraSmall, small, medium, large, extraLarge }
+// enum Sizes { extraSmall, small, medium, large, extraLarge }
 
 class UpdatesScreen extends StatefulWidget {
   const UpdatesScreen({
@@ -16,25 +17,24 @@ class UpdatesScreen extends StatefulWidget {
 }
 
 class _UpdatesScreenState extends State<UpdatesScreen> {
-  // Set<Sizes> selection = <Sizes>{Sizes.large, Sizes.extraLarge};
+  late Updates updates;
+
+  @override
+  void initState() {
+    super.initState();
+    updates = widget.updates;
+  }
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        // TODO
-        return Future.delayed(
-          const Duration(milliseconds: 1000),
-          () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Not implemented yet'),
-                duration: Duration(milliseconds: 1500),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          },
-        );
+        developer.log("Refreshing updates screen...");
+        Updates newUpdates = await Updates.root();
+        setState(() {
+          developer.log("Refresh complete.");
+          updates = newUpdates;
+        });
       },
       child: CustomScrollView(
         // cacheExtent: 400.0,
@@ -79,9 +79,9 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
-                return widget.updates.childTile(index);
+                return updates.childTile(index);
               },
-              childCount: widget.updates.totalChildren,
+              childCount: updates.totalChildren,
             ),
           ),
         ],
