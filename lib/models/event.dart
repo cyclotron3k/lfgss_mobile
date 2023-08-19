@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
-import 'package:lfgss_mobile/models/partial_profile.dart';
-import 'package:lfgss_mobile/models/unknown_item.dart';
+// import 'package:timezone/data/latest_10y.dart';
 
+import 'partial_profile.dart';
+import 'unknown_item.dart';
 import '../api/microcosm_client.dart';
 import '../constants.dart';
 import '../widgets/event_tile.dart';

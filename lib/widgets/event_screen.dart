@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/widgets/new_comment.dart';
+import 'package:intl/intl.dart';
 
+import 'new_comment.dart';
 import '../constants.dart';
 import '../models/event.dart';
 
@@ -53,7 +54,47 @@ class _EventScreenState extends State<EventScreen> {
                 SliverAppBar(
                   // TODO: https://github.com/flutter/flutter/issues/132841
                   floating: true,
+                  // expandedHeight: 200.0,
+                  // flexibleSpace: const FlexibleSpaceBar(
+                  //   title: Text('Available seats'),
+                  //   background:
+                  // ),
                   title: Text(widget.event.title),
+                ),
+                SliverToBoxAdapter(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(children: [
+                          ListTile(
+                            leading: const Icon(Icons.calendar_today),
+                            title: Text(
+                              DateFormat.yMMMd()
+                                  .add_jm()
+                                  .format(widget.event.when),
+                            ),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.calendar_today),
+                            title: Text(
+                              DateFormat.yMMMd()
+                                  .add_jm()
+                                  .format(widget.event.when),
+                            ),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.map),
+                            title: Text(widget.event.where),
+                          ),
+                        ]),
+                      ),
+                      const Expanded(
+                        child: Placeholder(
+                          fallbackHeight: 200.0,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 reverseList,
                 forwardList,

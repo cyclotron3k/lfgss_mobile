@@ -3,13 +3,13 @@
 ## TODO
 
 - Login
-- Events
 - Send huddle comment
 - Create post
 - Create huddle
 - Upload files
 - Download dots
 - Notifications
+- Maps
 - Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
 - Page navigation (losenge or indexed scroller?)
 - Caching (json, images, thumbnails, metrics)
@@ -33,6 +33,7 @@
 - Mobile notification preferences into API
 - Convert Polls from Item to Attachment
 - https://blurha.sh/ for images
+- TZ calcs on event timestamps
 
 ## Settings
 
@@ -47,3 +48,7 @@
   - Horizontal small
   - Horizontal big
   - Vertical
+
+## Maintenance
+
+- Automate updating the TZ db: https://pub.dev/packages/timezone
