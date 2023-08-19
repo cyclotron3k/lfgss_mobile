@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:html_unescape/html_unescape_small.dart';
 
 import '../api/microcosm_client.dart';
 import '../constants.dart';
@@ -32,7 +33,7 @@ class Profile extends Item {
       : id = json["id"],
         // siteId = json["siteId"],
         email = json["email"],
-        profileName = json["profileName"],
+        profileName = HtmlUnescape().convert(json["profileName"]),
         itemCount = json["itemCount"],
         commentCount = json["commentCount"],
         created = DateTime.parse(json['created']),

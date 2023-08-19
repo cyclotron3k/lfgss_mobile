@@ -19,10 +19,10 @@ class _FutureItemTileState extends State<FutureItemTile> {
         if (snapshot.hasData) {
           return snapshot.data!.renderAsTile();
         } else if (snapshot.hasError) {
-          return const Center(
+          return Center(
             child: Icon(
               Icons.error_outline,
-              color: Colors.red,
+              color: Theme.of(context).colorScheme.error,
               size: 64.0,
             ),
           );

@@ -10,6 +10,7 @@ import '../widgets/future_item_tile.dart';
 import 'comment.dart';
 import 'conversation.dart';
 
+import 'event.dart';
 import 'microcosm.dart';
 
 import 'partial_profile.dart';
@@ -54,17 +55,17 @@ class Search extends ItemWithChildren {
                 {
                   return Conversation.fromJson(json: item["item"]);
                 }
-              // case "event":
-              //   {
-              //     return Event.fromJson(json: item["item"]);
-              //   }
+              case "event":
+                {
+                  return Event.fromJson(json: item["item"]);
+                }
               // case "poll":
               //   {
               //     return Poll.fromJson(json: item["item"]);
               //   }
               // case "huddle":
               //   {
-              //     return Poll.fromJson(json: item["item"]);
+              //     return Huddle.fromJson(json: item["item"]);
               //   }
               case "profile":
                 {
@@ -72,7 +73,7 @@ class Search extends ItemWithChildren {
                 }
               default:
                 {
-                  // TODO: log
+                  developer.log("Unknown itemType: ${item["itemType"]}");
                   return UnknownItem(type: item["itemType"]);
                 }
             }

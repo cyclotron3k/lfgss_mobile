@@ -2,16 +2,15 @@
 
 ## TODO
 
-- Pull to reload
-- Download dots
-- Notifications
-- Upload files
 - Login
-- Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
 - Events
 - Send huddle comment
 - Create post
 - Create huddle
+- Upload files
+- Download dots
+- Notifications
+- Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
 - Page navigation (losenge or indexed scroller?)
 - Caching (json, images, thumbnails, metrics)
 - Animated containers for loading content?
@@ -28,9 +27,9 @@
 
 ## TBD
 
+- Authentication
 - Firebase & push notifications
 - Separate conversation download and read pointer updates
-- Authentication
 - Mobile notification preferences into API
 - Convert Polls from Item to Attachment
 - https://blurha.sh/ for images

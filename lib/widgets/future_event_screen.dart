@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/widgets/huddle_screen.dart';
+import 'package:lfgss_mobile/widgets/event_screen.dart';
 
-import '../models/huddle.dart';
+import '../models/event.dart';
 
-class FutureHuddleScreen extends StatefulWidget {
-  final Future<Huddle> huddle;
-  const FutureHuddleScreen({super.key, required this.huddle});
+class FutureEventScreen extends StatefulWidget {
+  final Future<Event> event;
+  const FutureEventScreen({super.key, required this.event});
 
   @override
-  State<FutureHuddleScreen> createState() => _FutureHuddleScreenState();
+  State<FutureEventScreen> createState() => _FutureEventScreenState();
 }
 
-class _FutureHuddleScreenState extends State<FutureHuddleScreen> {
+class _FutureEventScreenState extends State<FutureEventScreen> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Huddle>(
-      future: widget.huddle,
+    return FutureBuilder<Event>(
+      future: widget.event,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return HuddleScreen(huddle: snapshot.data!);
+          return EventScreen(event: snapshot.data!);
         } else if (snapshot.hasError) {
           return Center(
             child: Icon(

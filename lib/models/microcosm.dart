@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:html_unescape/html_unescape_small.dart';
 import 'package:lfgss_mobile/models/unknown_item.dart';
+import 'dart:developer' as developer;
 
 import '../api/microcosm_client.dart';
 import '../constants.dart';
 import '../widgets/future_item_tile.dart';
 import '../widgets/microcosm_tile.dart';
 import 'conversation.dart';
+import 'event.dart';
 import 'flags.dart';
 import 'item.dart';
 import 'item_with_children.dart';
@@ -43,8 +46,8 @@ class Microcosm implements ItemWithChildren {
         parentId = json["parentId"] ?? 0,
         siteId = json["siteId"],
         visibility = json["visibility"],
-        title = json["title"],
-        description = json["description"],
+        title = HtmlUnescape().convert(json["title"]),
+        description = HtmlUnescape().convert(json["description"]),
         _logoUrl = json["logoUrl"],
         createdBy = PartialProfile.fromJson(json: json["meta"]["createdBy"]),
         // editedBy = Profile.fromJson(json: json['meta']['editedBy']),
@@ -72,17 +75,13 @@ class Microcosm implements ItemWithChildren {
             {
               return Conversation.fromJson(json: item["item"]);
             }
-          // case "event":
-          //   {
-          //     return Event.fromJson(json: item["item"]);
-          //   }
-          // case "poll":
-          //   {
-          //     return Poll.fromJson(json: item["item"]);
-          //   }
+          case "event":
+            {
+              return Event.fromJson(json: item["item"]);
+            }
           default:
             {
-              // TODO: log
+              developer.log("Unknown itemType: ${item["itemType"]}");
               return UnknownItem(type: item["itemType"]);
             }
         }

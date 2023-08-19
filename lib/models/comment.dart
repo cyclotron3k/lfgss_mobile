@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:html_unescape/html_unescape_small.dart';
 import 'package:lfgss_mobile/widgets/comment_tile.dart';
 
 import 'comment_attachments.dart';
@@ -47,7 +48,7 @@ class Comment implements Item {
         itemId = json["itemId"],
         revisions = json["revisions"],
         attachments = json["attachments"] ?? 0,
-        markdown = json["markdown"],
+        markdown = HtmlUnescape().convert(json["markdown"]),
         inReplyTo = json["inReplyTo"],
         html = json["html"],
         createdBy = PartialProfile.fromJson(json: json["meta"]["createdBy"]),

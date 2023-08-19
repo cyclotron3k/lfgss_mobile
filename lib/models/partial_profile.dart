@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:html_unescape/html_unescape_small.dart';
 
 import '../widgets/partial_profile_tile.dart';
 import 'item.dart';
@@ -21,7 +22,7 @@ class PartialProfile extends Item {
 
   PartialProfile.fromJson({required Json json})
       : id = json["id"],
-        profileName = json["profileName"],
+        profileName = HtmlUnescape().convert(json["profileName"]),
         visible = json["visible"],
         _avatar = json["avatar"];
 

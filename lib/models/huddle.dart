@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:html_unescape/html_unescape_small.dart';
 
 import '../widgets/future_item_tile.dart';
 import '../widgets/huddle_tile.dart';
@@ -27,7 +28,7 @@ class Huddle extends ItemWithChildren {
 
   Huddle.fromJson({required Json json, this.startPage = 0})
       : id = json["id"],
-        title = json["title"],
+        title = HtmlUnescape().convert(json["title"]),
         flags = Flags.fromJson(json: json["meta"]["flags"]),
         createdBy = PartialProfile.fromJson(json: json["meta"]["createdBy"]),
         created = DateTime.parse(json['meta']['created']),

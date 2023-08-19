@@ -41,37 +41,14 @@ class Updates extends ItemWithChildren {
     return Updates.fromJson(json);
   }
 
-  // Future<int> getNewUpdateCount() async {
-  //   final sharedPreference =
-  //       await SharedPreferences.getInstance(); //Initialize dependency
-
-  //   final int lastUpdateId = sharedPreference.getInt("lastUpdateId") ?? 0;
-
-  //   final Iterable<int> newIds = _children.values
-  //       .map<int>((update) => update.id)
-  //       .where((id) => id > lastUpdateId);
-
-  //   final int newUpdateCount = newIds.length;
-
-  //   if (newUpdateCount > 0) {
-  //     final int latestId = newIds.first;
-  //     await sharedPreference.setInt(
-  //       "lastUpdateId",
-  //       latestId,
-  //     );
-  //   }
-
-  //   return newUpdateCount;
-  // }
-
   Future<List<Update>> getNewUpdates() async {
     final sharedPreference =
         await SharedPreferences.getInstance(); //Initialize dependency
 
     final int lastUpdateId = sharedPreference.getInt("lastUpdateId") ?? 0;
 
-    final Iterable<Update> newUpdates =
-        _children.values.where((update) => update.id > lastUpdateId);
+    final Iterable<Update> newUpdates = _children.values
+        .where((update) => update.id > lastUpdateId && update.flags.unread);
 
     if (newUpdates.isNotEmpty) {
       await sharedPreference.setInt(
