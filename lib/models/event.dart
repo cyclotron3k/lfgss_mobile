@@ -86,6 +86,10 @@ class Event implements ItemWithChildren {
     }
   }
 
+  DateTime get whenEnd {
+    return when.add(Duration(minutes: duration));
+  }
+
   EventAttendees? _eventAttendees;
 
   bool hasAttendees() {

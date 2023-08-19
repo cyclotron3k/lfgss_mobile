@@ -81,7 +81,7 @@ class _EventScreenState extends State<EventScreen> {
                                 title: Text(
                                   DateFormat.yMMMd()
                                       .add_jm()
-                                      .format(widget.event.when),
+                                      .format(widget.event.whenEnd),
                                 ),
                               ),
                               ListTile(
