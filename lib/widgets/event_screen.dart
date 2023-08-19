@@ -62,37 +62,42 @@ class _EventScreenState extends State<EventScreen> {
                   title: Text(widget.event.title),
                 ),
                 SliverToBoxAdapter(
-                  child: Row(
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: Column(children: [
-                          ListTile(
-                            leading: const Icon(Icons.calendar_today),
-                            title: Text(
-                              DateFormat.yMMMd()
-                                  .add_jm()
-                                  .format(widget.event.when),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(children: [
+                              ListTile(
+                                leading: const Icon(Icons.calendar_today),
+                                title: Text(
+                                  DateFormat.yMMMd()
+                                      .add_jm()
+                                      .format(widget.event.when),
+                                ),
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.calendar_today),
+                                title: Text(
+                                  DateFormat.yMMMd()
+                                      .add_jm()
+                                      .format(widget.event.when),
+                                ),
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.map),
+                                title: Text(widget.event.where),
+                              ),
+                            ]),
+                          ),
+                          const Expanded(
+                            child: Placeholder(
+                              fallbackHeight: 200.0,
                             ),
                           ),
-                          ListTile(
-                            leading: const Icon(Icons.calendar_today),
-                            title: Text(
-                              DateFormat.yMMMd()
-                                  .add_jm()
-                                  .format(widget.event.when),
-                            ),
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.map),
-                            title: Text(widget.event.where),
-                          ),
-                        ]),
+                        ],
                       ),
-                      const Expanded(
-                        child: Placeholder(
-                          fallbackHeight: 200.0,
-                        ),
-                      ),
+                      widget.event.getAttendees(),
                     ],
                   ),
                 ),

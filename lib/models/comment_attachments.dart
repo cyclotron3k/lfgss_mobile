@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-// import 'dart:developer' as developer;
 
 import '../constants.dart';
 import '../api/microcosm_client.dart';
 import 'attachment.dart';
+
+// TODO refactor this whole file
+// Maybe make it an ItemWithChildren
 
 class CommentAttachments {
   final int commentId;

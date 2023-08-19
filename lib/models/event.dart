@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 // import 'package:timezone/data/latest_10y.dart';
 
+import 'event_attendees.dart';
 import 'partial_profile.dart';
 import 'unknown_item.dart';
 import '../api/microcosm_client.dart';
@@ -83,6 +84,20 @@ class Event implements ItemWithChildren {
     if (json.containsKey("comments")) {
       parsePage(json);
     }
+  }
+
+  EventAttendees? _eventAttendees;
+
+  bool hasAttendees() {
+    return rsvpAttend > 0;
+  }
+
+  Widget getAttendees() {
+    _eventAttendees ??= EventAttendees(
+      eventId: id,
+      attendeeCount: rsvpAttend,
+    );
+    return _eventAttendees!.build();
   }
 
   @override
