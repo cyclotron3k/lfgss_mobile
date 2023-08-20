@@ -289,6 +289,8 @@ class _HomePageState extends State<HomePage> {
       ),
 
       bottomNavigationBar: BottomNavigationBar(
+        showSelectedLabels: true,
+        showUnselectedLabels: false,
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -307,13 +309,13 @@ class _HomePageState extends State<HomePage> {
             // backgroundColor: Colors.black,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.forum),
+            icon: Icon(Icons.email),
             label: 'Huddles',
             // backgroundColor: Colors.black,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.menu),
-            label: '',
+            label: 'Menu',
             // backgroundColor: Colors.black,
           ),
         ],

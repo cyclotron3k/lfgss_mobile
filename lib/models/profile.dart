@@ -46,7 +46,7 @@ class Profile extends Item {
 
   static Future<Profile> getProfile([int id = 0]) async {
     Uri uri = Uri.parse(
-      "https://$HOST/api/v1/${id == 0 ? 'whoami' : "profile/$id"}",
+      "https://$HOST/api/v1/${id == 0 ? 'whoami' : "profiles/$id"}",
     );
 
     Map<String, dynamic> json = await MicrocosmClient().getJson(uri);

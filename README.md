@@ -2,11 +2,11 @@
 
 ## TODO
 
+- Upload files
 - Login
 - Send huddle comment
 - Create post
 - Create huddle
-- Upload files
 - Download dots
 - Notifications
 - Maps

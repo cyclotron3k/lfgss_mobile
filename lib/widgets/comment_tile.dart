@@ -2,10 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'dart:developer' as developer;
+import 'package:url_launcher/url_launcher.dart';
+// import 'dart:developer' as developer;
 
 import '../models/comment.dart';
+import '../models/profile.dart';
 import 'missing_image.dart';
+import 'profile_screen.dart';
 
 class CommentTile extends StatefulWidget {
   final Comment comment;
@@ -16,6 +19,9 @@ class CommentTile extends StatefulWidget {
 }
 
 class _CommentTileState extends State<CommentTile> {
+  final List<String> validSchemes = ['https', 'http', 'mailto', 'tel'];
+  final RegExp profileMatcher = RegExp(r'^/profiles/(\d+)$');
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -115,14 +121,42 @@ class _CommentTileState extends State<CommentTile> {
           data: widget.comment.html,
           onLinkTap: (
             String? url,
-            // RenderContext renderContext,
             Map<String, String> attributes,
-            element,
-          ) {
-            //open URL in webview, or launch URL in browser, or any other logic here
-            developer.log(
-              url ?? "Link tapped, but no link exists",
-            );
+            element, // From 'package:html/dom.dart', not material
+          ) async {
+            final String surl = url ?? "";
+            final Uri uri = Uri.parse(surl);
+
+            if (profileMatcher.hasMatch(surl)) {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  fullscreenDialog: true,
+                  maintainState: true,
+                  builder: (context) => ProfileScreen(
+                    profile: Profile.getProfile(
+                      int.parse(
+                        profileMatcher.firstMatch(surl)![1]!,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+              return;
+            } else if (!validSchemes.contains(uri.scheme)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Invalid URL: $uri"),
+                  duration: const Duration(milliseconds: 1500),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+              return;
+            }
+
+            if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+              throw Exception('Could not launch $surl');
+            }
           },
           extensions: [
             ImageExtension(
