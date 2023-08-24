@@ -3,6 +3,7 @@
 ## TODO
 
 - Upload files
+- Photo gallery (zoom, download, share, navigate)
 - Login
 - Send huddle comment
 - Create post
@@ -14,7 +15,6 @@
 - Page navigation (losenge or indexed scroller?)
 - Caching (json, images, thumbnails, metrics)
 - Animated containers for loading content?
-- Photo gallery (download, share, navigate)
 - Social sharing
 - User selector
 - Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading

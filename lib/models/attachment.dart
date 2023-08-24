@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
+import '../widgets/image_gallery.dart';
 
 // import 'dart:developer' as developer;
 
@@ -25,29 +26,47 @@ class Attachment {
     return url.startsWith('/') ? "https://$HOST$url" : url;
   }
 
+  ImageProvider asImageProvider() {
+    return CachedNetworkImageProvider(getUrl());
+  }
+
+  Widget asHero({double? height}) {
+    return Hero(
+      tag: fileHash,
+      child: CachedNetworkImage(
+        imageUrl: getUrl(),
+        height: height,
+        progressIndicatorBuilder: (context, url, downloadProgress) => Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxHeight: 32.0,
+              maxWidth: 32.0,
+            ),
+            child: CircularProgressIndicator(
+              value: downloadProgress.progress,
+              // color: Theme.of(context).highlightColor,
+            ),
+          ),
+        ),
+        errorWidget: (context, url, error) => const Icon(
+          Icons.error,
+        ),
+      ),
+    );
+  }
+
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8.0),
-        child: CachedNetworkImage(
-          imageUrl: getUrl(),
-          height: 128.0,
-          progressIndicatorBuilder: (context, url, downloadProgress) => Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxHeight: 32.0,
-                maxWidth: 32.0,
-              ),
-              child: CircularProgressIndicator(
-                value: downloadProgress.progress,
-                // color: Theme.of(context).highlightColor,
-              ),
-            ),
-          ),
-          errorWidget: (context, url, error) => const Icon(
-            Icons.error,
-          ),
+        child: GestureDetector(
+          onTap: () async {
+            await Navigator.of(context).push(
+              ImageGallery(attachment: this),
+            );
+          },
+          child: asHero(height: 128.0),
         ),
       ),
     );

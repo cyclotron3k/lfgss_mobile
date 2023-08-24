@@ -11,7 +11,6 @@ import 'models/huddles.dart';
 import 'models/microcosm.dart';
 import 'models/profile.dart';
 import 'models/search.dart';
-import 'models/search_parameters.dart';
 import 'models/update.dart';
 import 'models/updates.dart';
 import 'widgets/future_huddles_screen.dart';
@@ -171,15 +170,6 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -294,22 +284,26 @@ class _HomePageState extends State<HomePage> {
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
             label: 'Home',
             // backgroundColor: Colors.black,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.newspaper),
+            icon: Icon(Icons.newspaper_outlined),
+            activeIcon: Icon(Icons.newspaper),
             label: 'Today',
             // backgroundColor: Colors.black,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark_outlined),
+            icon: Icon(Icons.bookmark_border),
+            activeIcon: Icon(Icons.bookmark),
             label: 'Following',
             // backgroundColor: Colors.black,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.email),
+            icon: Icon(Icons.email_outlined),
+            activeIcon: Icon(Icons.email),
             label: 'Huddles',
             // backgroundColor: Colors.black,
           ),
