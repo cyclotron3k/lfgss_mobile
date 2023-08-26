@@ -206,6 +206,12 @@ class _CommentTileState extends State<CommentTile> {
               fontStyle: FontStyle.italic,
               color: Theme.of(context).primaryColorLight,
             ),
+            "a": Style.fromTextStyle(
+              const TextStyle(
+                // See: https://github.com/Sub6Resources/flutter_html/issues/1361
+                decorationColor: Colors.blue,
+              ),
+            ),
           },
           // onImageError: (
           //   Object exception,

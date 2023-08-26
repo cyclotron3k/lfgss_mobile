@@ -2,28 +2,29 @@
 
 ## TODO
 
-- Upload files
-- Photo gallery (zoom, download, share, navigate)
 - Login
+- Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
 - Send huddle comment
 - Create post
 - Create huddle
+- Edit comment
+- Implement settings
+- In-app Notifications
 - Download dots
-- Notifications
 - Maps
-- Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
-- Page navigation (losenge or indexed scroller?)
+- Page navigation (lozenge or indexed scroller?)
 - Caching (json, images, thumbnails, metrics)
+- Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
 - Animated containers for loading content?
 - Social sharing
 - User selector
-- Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
-- Persistent connections & HTTP3
+- Attachment gallery
+- Persistent connections & HTTP3 (See: https://pub.dev/packages/dio)
 - DRY (future_x widgets, mixins, codegen?)
-- Keys
+- Widget keys
 - Instrumentation
 - https://docs.flutter.dev/cookbook/effects/expandable-fab
-- Use FlutterSecureStorage
+- Use FlutterSecureStorage?
 
 ## TBD
 
@@ -35,19 +36,9 @@
 - https://blurha.sh/ for images
 - TZ calcs on event timestamps
 
-## Settings
+## Bugs
 
-- Privacy controls
-  - Download from other servers
-  - Load Youtube
-  - Strip EXIF
-  - Downsize images
-- Handedness control
-- Clear cache
-- Attachments style
-  - Horizontal small
-  - Horizontal big
-  - Vertical
+- Horizontal scroll new comment attachments
 
 ## Maintenance
 

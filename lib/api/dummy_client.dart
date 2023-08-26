@@ -1,13 +1,19 @@
 import 'api_client.dart';
 
+typedef Json = Map<String, dynamic>;
+
 class DummyClient implements ApiClient {
   @override
-  Future<Map<String, dynamic>> getJson(Uri url, {int ttl = 0}) async {
+  Future<Json> getJson(Uri url, {int ttl = 0}) async {
     return {};
   }
 
   @override
-  Future<Map<String, dynamic>> post(Uri url) async {
+  Future<Json> postJson(Uri url, Json body) async {
+    return {};
+  }
+
+  Future<Json> post(Uri url) async {
     return {};
   }
 }

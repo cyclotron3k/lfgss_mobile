@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -44,10 +45,14 @@ class MicrocosmClient implements ApiClient {
   }
 
   @override
-  Future<Json> getJson(Uri url, {int ttl = 60}) async {
+  Future<Json> getJson(
+    Uri url, {
+    int ttl = 60,
+    bool ignoreCache = false,
+  }) async {
     if (_inFlight.containsKey(url)) {
       assert(_inFlight.containsKey(url));
-      if (_inFlight[url]!.expired) {
+      if (ignoreCache || _inFlight[url]!.expired) {
         developer.log("Refreshing expired page: $url");
         _inFlight.remove(url);
       } else {
@@ -78,8 +83,82 @@ class MicrocosmClient implements ApiClient {
   }
 
   @override
-  Future<Json> post(Uri url) async {
-    return {};
+  Future<Json> postJson(
+    Uri url,
+    Json body, {
+    bool followRedirects = true,
+  }) async {
+    developer.log("Posting to: $url");
+    var response = await post(url, body);
+
+    if (response.statusCode == 302) {
+      if (followRedirects) {
+        Uri redirect = Uri.parse(response.headers['location']!);
+        if (!redirect.isAbsolute) {
+          redirect = redirect.replace(
+            scheme: "https",
+            host: HOST,
+          );
+        }
+        developer.log("Completed post. Redirecting to: $redirect");
+        return getJson(redirect, ignoreCache: true);
+      } else {
+        return {};
+      }
+    }
+
+    String page = const Utf8Decoder().convert(response.body.codeUnits);
+
+    Json data = json.decode(page);
+
+    if (data["status"] != 200) {
+      developer.log("Failed to retrieve resource from: $url");
+      developer.log("Error: ${data["error"]}");
+      throw "Couldn't retrieve resource: $url";
+    }
+
+    return data["data"];
+  }
+
+  Future<Response> post(Uri url, Json body) async {
+    String jsonBody = jsonEncode(body);
+    return http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': BEARER_TOKEN,
+      },
+      body: jsonBody,
+    );
+  }
+
+  Future<dynamic> upload(Uri uri, List<File> files) async {
+    developer.log("Uploading ${files.length} file(s)");
+
+    var request = http.MultipartRequest('POST', uri);
+    request.headers['Authorization'] = BEARER_TOKEN;
+
+    for (File file in files) {
+      developer.log("Adding ${file.uri.pathSegments.last} to the payload");
+      request.files.add(await http.MultipartFile.fromPath(
+        'file', file.path,
+        filename: file.uri.pathSegments.last,
+        // contentType: MediaType('application', 'x-tar'),
+      ));
+    }
+
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      developer.log("Upload success");
+      List<int> responseBytes = await response.stream.toBytes();
+      String page = utf8.decode(responseBytes);
+      Json data = json.decode(page);
+      return data['data'];
+    } else {
+      developer.log("Upload failed");
+      throw "Error from API Upload: ${response.statusCode}";
+    }
   }
 
   // Uri getUrl({Json params = const {}}) {

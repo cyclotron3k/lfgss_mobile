@@ -141,6 +141,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
             secondary: const Icon(Icons.hide_image),
           ),
           SwitchListTile(
+            title: const Text('Preview URLs'),
+            subtitle: const Text(
+              'Preview URLs before following',
+            ),
+            value: _lights,
+            onChanged: (bool value) {
+              setState(() {
+                _lights = value;
+              });
+            },
+            secondary: const Icon(Icons.manage_search),
+          ),
+          SwitchListTile(
             title: const Text('Auto download 3rd party data'),
             subtitle: const Text(
               'E.g. Hotlinked images',

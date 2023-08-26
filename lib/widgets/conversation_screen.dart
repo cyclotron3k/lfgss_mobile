@@ -64,6 +64,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
           ),
           if (widget.conversation.flags.open)
             NewComment(
+              onPostSuccess: () async {
+                await widget.conversation.resetChildren();
+                setState(() {});
+              },
               itemId: widget.conversation.id,
               itemType: "conversation",
             )

@@ -270,7 +270,6 @@ class Search extends ItemWithChildren {
       return _children[i]!;
     }
     await getPageOfChildren(i ~/ PAGE_SIZE);
-    // TODO: why are children not being set?
     return _children[i] ?? UnknownItem(type: "Unknown");
   }
 

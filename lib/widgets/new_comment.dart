@@ -1,21 +1,25 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'dart:convert';
 import 'dart:developer' as developer;
 
+import '../api/microcosm_client.dart';
 import '../constants.dart';
+import 'attachment_thumbnail.dart';
 
 class NewComment extends StatefulWidget {
   final int itemId;
   final String itemType;
   final String initialState;
   final int? inReplyTo;
+  final Function onPostSuccess;
 
   const NewComment({
     super.key,
     required this.itemId,
     required this.itemType,
+    required this.onPostSuccess,
     this.initialState = "",
     this.inReplyTo,
   });
@@ -27,6 +31,7 @@ class NewComment extends StatefulWidget {
 class _NewCommentState extends State<NewComment> {
   final TextEditingController _controller = TextEditingController();
   bool _sending = false;
+  List<XFile> _attachments = [];
 
   @override
   void initState() {
@@ -42,52 +47,125 @@ class _NewCommentState extends State<NewComment> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(8.0, 0.0, 4.0, 4.0),
-            child: TextField(
-              controller: _controller,
-              autofocus: false,
-              maxLines: 5,
-              minLines: 1,
-              keyboardType: TextInputType.multiline,
-              enabled: !_sending,
-              decoration: const InputDecoration(
-                labelText: 'New comment...',
+        if (_attachments.isNotEmpty)
+          SizedBox(
+            height: 80.0,
+            width: double.infinity,
+            child: ListView.builder(
+              itemCount: _attachments.length,
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              itemBuilder: (context, index) => AttachmentThumbnail(
+                image: _attachments[index],
+                onRemoveItem: (XFile image) {
+                  setState(() {
+                    _attachments.remove(image);
+                  });
+                },
               ),
             ),
           ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.attach_file),
-          onPressed: () async {
-            final ImagePicker picker = ImagePicker();
-            final List<XFile> images = await picker.pickMultiImage();
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.camera_alt),
-          onPressed: () async {
-            final ImagePicker picker = ImagePicker();
-            // Capture a photo.
-            final XFile? photo = await picker.pickImage(
-              source: ImageSource.camera,
-            );
-          },
-        ),
-        IconButton(
-          icon: Icon(
-            _sending ? Icons.timer : Icons.send,
-          ),
-          onPressed: _sending ? null : postComment,
+        Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8.0, 0.0, 4.0, 4.0),
+                child: TextField(
+                  controller: _controller,
+                  autofocus: false,
+                  maxLines: 5,
+                  minLines: 1,
+                  keyboardType: TextInputType.multiline,
+                  enabled: !_sending,
+                  decoration: const InputDecoration(
+                    labelText: 'New comment...',
+                  ),
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.attach_file),
+              onPressed: () async {
+                final ImagePicker picker = ImagePicker();
+                final List<XFile> images = await picker.pickMultiImage();
+                if (images.isNotEmpty) {
+                  setState(() {
+                    _attachments.addAll(images);
+                  });
+                }
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.camera_alt),
+              onPressed: () async {
+                final ImagePicker picker = ImagePicker();
+                // Capture a photo.
+                final XFile? photo = await picker.pickImage(
+                  source: ImageSource.camera,
+                );
+                if (photo != null) {
+                  setState(() {
+                    _attachments.add(photo);
+                  });
+                }
+              },
+            ),
+            IconButton(
+              icon: Icon(
+                _sending ? Icons.timer : Icons.send,
+              ),
+              onPressed: _sending ? null : postComment,
+            ),
+          ],
         ),
       ],
     );
   }
 
-  void postComment() {
+  Future<Map<String, String>> _uploadAttachments() async {
+    if (_attachments.isEmpty) return {};
+
+    List<File> files = _attachments
+        .map<File>(
+          (attachment) => File(attachment.path),
+        )
+        .toList();
+
+    var uri = Uri.https(
+      HOST,
+      "/api/v1/files",
+    );
+
+    List<dynamic> response = await MicrocosmClient().upload(uri, files);
+    return {
+      for (var file in response)
+        file["fileHash"] as String: file["fileName"] as String,
+    };
+  }
+
+  Future<void> _linkAttachments(
+    int commentId,
+    Map<String, String> fileHashes,
+  ) async {
+    developer.log("Linking ${fileHashes.length} attachments to $commentId");
+
+    for (var entry in fileHashes.entries) {
+      var uri = Uri.https(
+        HOST,
+        "/api/v1/comments/$commentId/attachments",
+      );
+
+      await MicrocosmClient().postJson(
+        uri,
+        {"FileHash": entry.key, "FileName": entry.value},
+        followRedirects: false,
+      );
+    }
+  }
+
+  Future<void> postComment() async {
     if (_controller.text == "") {
       return;
     }
@@ -96,31 +174,35 @@ class _NewCommentState extends State<NewComment> {
       _sending = true;
     });
     developer.log("Sending message...");
-    http
-        .post(
-      Uri.https(
+
+    try {
+      Map<String, String> fileHashes = await _uploadAttachments();
+
+      Uri url = Uri.https(
         HOST,
         "/api/v1/comments",
-      ),
-      headers: <String, String>{
-        'Authorization': BEARER_TOKEN,
-        "Content-Type": "application/json"
-      },
-      body: json.encode(
-        <String, dynamic>{
-          "itemType": widget.itemType,
-          "itemId": widget.itemId,
-          "markdown": _controller.text,
-          if (widget.inReplyTo != null) "inReplyTo": widget.inReplyTo
+      );
+      Map<String, dynamic> payload = {
+        "itemType": widget.itemType,
+        "itemId": widget.itemId,
+        "markdown": _controller.text,
+        if (widget.inReplyTo != null) "inReplyTo": widget.inReplyTo
+      };
+      developer.log("Posting new comment...");
+      Json comment = await MicrocosmClient().postJson(url, payload);
+      developer.log("Posting new comment: success");
+      if (_attachments.isNotEmpty) {
+        await _linkAttachments(comment["id"], fileHashes);
+      }
+
+      setState(
+        () {
+          _sending = false;
+          _controller.text = "";
+          _attachments.clear();
+          widget.onPostSuccess();
         },
-      ),
-    )
-        .then((response) {
-      developer.log("Got response: ${response.body}");
-      setState(() {
-        _sending = false;
-        _controller.text = "";
-      });
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -129,11 +211,12 @@ class _NewCommentState extends State<NewComment> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      // Navigator.of(context).pop();
-    }).onError((error, stackTrace) {
-      setState(() {
-        _sending = false;
-      });
+    } catch (error) {
+      setState(
+        () {
+          _sending = false;
+        },
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -146,6 +229,8 @@ class _NewCommentState extends State<NewComment> {
           ),
         ),
       );
-    });
+    }
+
+    // Navigator.of(context).pop();
   }
 }

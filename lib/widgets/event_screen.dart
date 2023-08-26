@@ -110,6 +110,10 @@ class _EventScreenState extends State<EventScreen> {
             NewComment(
               itemId: widget.event.id,
               itemType: "event",
+              onPostSuccess: () async {
+                await widget.event.resetChildren();
+                setState(() {});
+              },
             )
         ],
       ),

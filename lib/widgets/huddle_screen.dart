@@ -69,6 +69,10 @@ class _HuddleScreenState extends State<HuddleScreen> {
             NewComment(
               itemId: widget.huddle.id,
               itemType: "conversation",
+              onPostSuccess: () async {
+                await widget.huddle.resetChildren();
+                setState(() {});
+              },
             )
         ],
       ),
