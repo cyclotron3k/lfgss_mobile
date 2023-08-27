@@ -2,11 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:lfgss_mobile/models/search_parameters.dart';
 import 'package:url_launcher/url_launcher.dart';
-// import 'dart:developer' as developer;
 
 import '../models/comment.dart';
 import '../models/profile.dart';
+import '../models/search.dart';
+import 'future_search_screen.dart';
 import 'missing_image.dart';
 import 'profile_screen.dart';
 
@@ -21,6 +23,7 @@ class CommentTile extends StatefulWidget {
 class _CommentTileState extends State<CommentTile> {
   final List<String> validSchemes = ['https', 'http', 'mailto', 'tel'];
   final RegExp profileMatcher = RegExp(r'^/profiles/(\d+)$');
+  final RegExp hashtagMatcher = RegExp(r'^/search/\?q=(%23\w+)$');
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +140,26 @@ class _CommentTileState extends State<CommentTile> {
                     profile: Profile.getProfile(
                       int.parse(
                         profileMatcher.firstMatch(surl)![1]!,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+              return;
+            } else if (hashtagMatcher.hasMatch(surl)) {
+              String hashtag = Uri.decodeComponent(
+                hashtagMatcher.firstMatch(surl)![1]!,
+              );
+
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  fullscreenDialog: true,
+                  maintainState: true,
+                  builder: (context) => FutureSearchScreen(
+                    search: Search.search(
+                      searchParameters: SearchParameters(
+                        query: hashtag,
                       ),
                     ),
                   ),
