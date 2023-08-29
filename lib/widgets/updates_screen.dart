@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
 import 'dart:developer' as developer;
+
+import 'package:flutter/material.dart';
+
 import '../models/updates.dart';
 
-// enum Sizes { extraSmall, small, medium, large, extraLarge }
+// enum Size { extraSmall, small, medium, large, extraLarge }
 
 class UpdatesScreen extends StatefulWidget {
   final Updates updates;

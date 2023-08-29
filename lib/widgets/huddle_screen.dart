@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:lfgss_mobile/widgets/new_comment.dart';
 
 import '../constants.dart';
 import '../models/huddle.dart';
+import 'new_comment.dart';
 
 class HuddleScreen extends StatefulWidget {
   final Huddle huddle;

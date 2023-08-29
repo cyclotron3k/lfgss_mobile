@@ -1,8 +1,8 @@
+import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:developer' as developer;
 
 import '../api/microcosm_client.dart';
 import '../constants.dart';

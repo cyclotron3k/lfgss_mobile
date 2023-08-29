@@ -1,28 +1,18 @@
 import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/models/conversation.dart';
 
 import '../widgets/update_tile.dart';
 import 'comment.dart';
+import 'conversation.dart';
 import 'flags.dart';
 import 'item.dart';
-
-// enum UpdateTypes {
-//   event_reminder,
-//   mentioned,
-//   new_comment,
-//   new_comment_in_huddle,
-//   new_attendee,
-//   new_item,
-//   new_vote,
-//   new_user,
-//   reply_to_comment,
-// }
+import 'item_parser.dart' hide Json;
+import 'update_type.dart';
 
 class Update extends Item {
   final int id;
-  final String updateType;
+  final UpdateType updateType;
   final Item parent;
   final Item child;
   final Flags flags;
@@ -34,6 +24,19 @@ class Update extends Item {
     required this.child,
     required this.flags,
   });
+
+  Update.fromJson(Json json)
+      : id = json["id"],
+        updateType = UpdateType.values.byName(json["updateType"]),
+        flags = Flags.fromJson(json: json["meta"]["flags"]),
+        child = ItemParser.parseItemJson(
+          json["itemType"],
+          json["item"],
+        ),
+        parent = ItemParser.parseItemJson(
+          json["parentItemType"],
+          json["parentItem"],
+        );
 
   String get title {
     if (parent is Conversation) {
@@ -65,46 +68,28 @@ class Update extends Item {
     } else {
       return "";
     }
-  } // TODO promote id
+  } // TODO promote id?
 
   String get description {
     switch (updateType) {
-      case 'event_reminder':
-        {
-          return "Upcoming event";
-        }
-      case 'mentioned':
-        {
-          return "You were mentioned in a thread";
-        }
-      case 'new_comment':
-        {
-          return "New comment in a thread you watch";
-        }
-      case 'new_comment_in_huddle':
-        {
-          return "You received a DM";
-        }
-      case 'new_attendee':
-        {
-          return "New attendee";
-        }
-      case 'new_item':
-        {
-          return "New item";
-        }
-      case 'new_vote':
-        {
-          return "Received a vote";
-        }
-      case 'new_user':
-        {
-          return "New user";
-        }
-      case 'reply_to_comment':
-        {
-          return "A reply to your comment";
-        }
+      case UpdateType.event_reminder:
+        return "Upcoming event";
+      case UpdateType.mentioned:
+        return "You were mentioned in a thread";
+      case UpdateType.new_comment:
+        return "New comment in a thread you watch";
+      case UpdateType.new_comment_in_huddle:
+        return "You received a DM";
+      case UpdateType.new_attendee:
+        return "New attendee";
+      case UpdateType.new_item:
+        return "New item";
+      case UpdateType.new_vote:
+        return "Received a vote";
+      case UpdateType.new_user:
+        return "New user";
+      case UpdateType.reply_to_comment:
+        return "A reply to your comment";
       default:
         {
           developer.log("Can't handle updateType of: $updateType");

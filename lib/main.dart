@@ -1,10 +1,9 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:lfgss_mobile/widgets/future_conversation_screen.dart';
-import 'package:lfgss_mobile/widgets/future_microcosm_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
-import 'dart:developer' as developer;
 
 import 'models/conversation.dart';
 import 'models/huddles.dart';
@@ -13,11 +12,15 @@ import 'models/profile.dart';
 import 'models/search.dart';
 import 'models/update.dart';
 import 'models/updates.dart';
+import 'widgets/future_conversation_screen.dart';
 import 'widgets/future_huddles_screen.dart';
+import 'widgets/future_microcosm_screen.dart';
 import 'widgets/future_search_screen.dart';
 import 'widgets/future_updates_screen.dart';
 import 'widgets/profile_screen.dart';
 import 'widgets/settings_screen.dart';
+
+typedef Json = Map<String, dynamic>;
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {

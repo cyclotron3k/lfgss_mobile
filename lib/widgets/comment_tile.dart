@@ -1,13 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:lfgss_mobile/models/search_parameters.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/comment.dart';
 import '../models/profile.dart';
 import '../models/search.dart';
+import '../models/search_parameters.dart';
 import 'future_search_screen.dart';
 import 'missing_image.dart';
 import 'profile_screen.dart';

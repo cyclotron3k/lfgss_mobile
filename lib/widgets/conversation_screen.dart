@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/widgets/new_comment.dart';
 
 import '../constants.dart';
 import '../models/conversation.dart';
+import 'new_comment.dart';
 
 class ConversationScreen extends StatefulWidget {
   final Conversation conversation;

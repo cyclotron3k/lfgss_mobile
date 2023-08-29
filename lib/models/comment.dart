@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
-import 'package:lfgss_mobile/widgets/comment_tile.dart';
 
+import '../widgets/comment_tile.dart';
 import 'comment_attachments.dart';
 import 'flags.dart';
 import 'item.dart';
 import 'partial_profile.dart';
-
-typedef Json = Map<String, dynamic>;
 
 class Comment implements Item {
   final int id;
@@ -26,16 +24,6 @@ class Comment implements Item {
   final DateTime created;
 
   CommentAttachments? commentAttachments;
-
-  Item? _context;
-
-  @override
-  set context(Item? tmp) {
-    _context = tmp;
-  }
-
-  @override
-  Item? get context => _context;
 
   @override
   Widget renderAsTile({bool? overrideUnreadFlag}) {

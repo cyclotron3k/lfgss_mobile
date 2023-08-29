@@ -3,7 +3,7 @@ import 'package:html_unescape/html_unescape_small.dart';
 import 'package:lfgss_mobile/models/partial_profile.dart';
 import 'package:lfgss_mobile/models/unknown_item.dart';
 
-import '../api/microcosm_client.dart';
+import '../api/microcosm_client.dart' hide Json;
 import '../constants.dart';
 import '../widgets/conversation_tile.dart';
 import '../widgets/future_item_tile.dart';
@@ -12,8 +12,6 @@ import 'flags.dart';
 import 'item.dart';
 import 'item_with_children.dart';
 import 'permissions.dart';
-
-typedef Json = Map<String, dynamic>;
 
 class Conversation implements ItemWithChildren {
   final int startPage;
@@ -32,8 +30,7 @@ class Conversation implements ItemWithChildren {
   final int _totalChildren;
   final Map<int, Item> _children = {};
 
-  Conversation.fromJson(
-      {required Map<String, dynamic> json, this.startPage = 0})
+  Conversation.fromJson({required Json json, this.startPage = 0})
       : id = json["id"],
         title = HtmlUnescape().convert(json["title"]),
         microcosmId = json["microcosmId"],
@@ -97,16 +94,6 @@ class Conversation implements ItemWithChildren {
     Json json = await MicrocosmClient().getJson(uri);
     parsePage(json);
   }
-
-  Item? _context;
-
-  @override
-  set context(Item? tmp) {
-    _context = tmp;
-  }
-
-  @override
-  Item? get context => _context;
 
   @override
   Future<void> resetChildren() async {

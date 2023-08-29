@@ -1,5 +1,3 @@
-typedef Json = Map<String, dynamic>;
-
 class Flags {
   final bool sticky;
   final bool open;
@@ -17,7 +15,7 @@ class Flags {
     this.unread = false,
   });
 
-  Flags.fromJson({required Json json})
+  Flags.fromJson({required Map<String, dynamic> json})
       : sticky = json['sticky'] ?? false,
         open = json['open'] ?? false,
         deleted = json['deleted'] ?? false,

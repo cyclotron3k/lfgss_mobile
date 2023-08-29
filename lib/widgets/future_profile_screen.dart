@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// import 'profile_screen.dart';
 import '../models/profile.dart';
 
 class FutureProfileScreen extends StatefulWidget {

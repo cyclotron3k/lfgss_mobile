@@ -1,14 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../constants.dart';
 import '../api/microcosm_client.dart';
+import '../constants.dart';
 import 'partial_profile.dart';
 
 // TODO refactor this whole file
 // Maybe make it an ItemWithChildren
-
-typedef Json = Map<String, dynamic>;
 
 class EventAttendees {
   final int eventId;

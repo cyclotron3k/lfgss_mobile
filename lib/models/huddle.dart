@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
+import '../api/microcosm_client.dart' hide Json;
+import '../constants.dart';
 import '../widgets/future_item_tile.dart';
 import '../widgets/huddle_tile.dart';
-import 'item.dart';
-import '../api/microcosm_client.dart';
-import '../constants.dart';
-import 'flags.dart';
-import 'item_with_children.dart';
 import 'comment.dart';
+import 'flags.dart';
+import 'item.dart';
+import 'item_with_children.dart';
 import 'partial_profile.dart';
 import 'unknown_item.dart';
-
-typedef Json = Map<String, dynamic>;
 
 class Huddle extends ItemWithChildren {
   final int id;
@@ -71,9 +69,6 @@ class Huddle extends ItemWithChildren {
       startPage: json["comments"]["page"] - 1,
     );
   }
-
-  @override
-  Item? context;
 
   @override
   Widget childTile(int i) {

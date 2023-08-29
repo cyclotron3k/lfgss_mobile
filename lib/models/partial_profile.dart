@@ -5,8 +5,6 @@ import '../widgets/partial_profile_tile.dart';
 import 'item.dart';
 import 'profile.dart';
 
-typedef Json = Map<String, dynamic>;
-
 class PartialProfile extends Item {
   final int id;
   final String profileName;
@@ -29,10 +27,6 @@ class PartialProfile extends Item {
   Future<Profile> getFullProfile() async {
     return Profile.getProfile(id);
   }
-
-  @override
-  // TODO: implement parent
-  Item? get context => throw UnimplementedError();
 
   @override
   Widget renderAsTile({bool? overrideUnreadFlag}) {

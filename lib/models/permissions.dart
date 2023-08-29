@@ -1,5 +1,3 @@
-typedef Json = Map<String, dynamic>;
-
 class Permissions {
   final bool create;
   final bool read;
@@ -29,7 +27,7 @@ class Permissions {
     this.siteOwner = false,
   });
 
-  Permissions.fromJson({required Json json})
+  Permissions.fromJson({required Map<String, dynamic> json})
       : create = json['create'] ?? false,
         read = json['read'] ?? false,
         update = json['update'] ?? false,

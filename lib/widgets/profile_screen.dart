@@ -1,7 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/models/profile.dart';
+import 'package:intl/intl.dart';
+
+import '../models/profile.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Future<Profile> profile;

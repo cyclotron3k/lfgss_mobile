@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-abstract class Item {
-  Item? context;
+typedef Json = Map<String, dynamic>;
 
+abstract class Item {
   Widget renderAsTile({bool? overrideUnreadFlag});
 }

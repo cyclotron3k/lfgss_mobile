@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/search.dart';
 
 class SearchResultsScreen extends StatefulWidget {

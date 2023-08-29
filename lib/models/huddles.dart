@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import '../widgets/future_item_tile.dart';
 import 'huddle.dart';
 import 'item.dart';
-import '../api/microcosm_client.dart';
+import '../api/microcosm_client.dart' hide Json;
 import '../constants.dart';
 import 'item_with_children.dart';
 import 'unknown_item.dart';
-
-typedef Json = Map<String, dynamic>;
 
 class Huddles extends ItemWithChildren {
   final int _totalChildren;
@@ -47,9 +45,6 @@ class Huddles extends ItemWithChildren {
     Json json = await MicrocosmClient().getJson(uri);
     parsePage(json);
   }
-
-  @override
-  Item? context;
 
   @override
   Widget childTile(int i) {

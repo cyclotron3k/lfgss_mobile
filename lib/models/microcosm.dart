@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:html_unescape/html_unescape_small.dart';
-import 'package:lfgss_mobile/models/unknown_item.dart';
 import 'dart:developer' as developer;
 
-import '../api/microcosm_client.dart';
+import 'package:flutter/material.dart';
+import 'package:html_unescape/html_unescape_small.dart';
+
+import '../api/microcosm_client.dart' hide Json;
 import '../constants.dart';
+import '../models/unknown_item.dart';
 import '../widgets/future_item_tile.dart';
 import '../widgets/microcosm_tile.dart';
 import 'conversation.dart';
@@ -15,10 +16,7 @@ import 'item_with_children.dart';
 import 'partial_profile.dart';
 import 'permissions.dart';
 
-typedef Json = Map<String, dynamic>;
-
 class Microcosm implements ItemWithChildren {
-  Item? _context;
   final int startIndex;
 
   final int id; //  509,
@@ -139,14 +137,6 @@ class Microcosm implements ItemWithChildren {
     Json json = await MicrocosmClient().getJson(uri);
     parsePage(json);
   }
-
-  @override
-  set context(Item? tmp) {
-    _context = tmp;
-  }
-
-  @override
-  Item? get context => _context;
 
   @override
   Widget renderAsTile({bool? overrideUnreadFlag}) {

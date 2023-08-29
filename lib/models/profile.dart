@@ -55,10 +55,6 @@ class Profile extends Item {
   }
 
   @override
-  // TODO: implement parent
-  Item? get context => throw UnimplementedError();
-
-  @override
   Widget renderAsTile({bool? overrideUnreadFlag}) {
     return const Placeholder();
   }

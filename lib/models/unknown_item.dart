@@ -4,17 +4,8 @@ import 'item.dart';
 
 class UnknownItem implements Item {
   String type;
-  Item? _context;
 
   UnknownItem({required this.type});
-
-  @override
-  set context(Item? tmp) {
-    _context = tmp;
-  }
-
-  @override
-  Item? get context => _context;
 
   @override
   Widget renderAsTile({bool? overrideUnreadFlag}) {

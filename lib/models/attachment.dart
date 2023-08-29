@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../widgets/image_gallery.dart';
 
-// import 'dart:developer' as developer;
-
 class Attachment {
   final int profileId;
   final String fileHash;

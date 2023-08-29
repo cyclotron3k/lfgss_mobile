@@ -5,7 +5,7 @@ import 'package:html_unescape/html_unescape_small.dart';
 import 'event_attendees.dart';
 import 'partial_profile.dart';
 import 'unknown_item.dart';
-import '../api/microcosm_client.dart';
+import '../api/microcosm_client.dart' hide Json;
 import '../constants.dart';
 import '../widgets/event_tile.dart';
 import '../widgets/future_item_tile.dart';
@@ -16,8 +16,6 @@ import 'item_with_children.dart';
 import 'permissions.dart';
 
 enum EventStatus { proposed, upcoming, postponed, cancelled }
-
-typedef Json = Map<String, dynamic>;
 
 class Event implements ItemWithChildren {
   final int startPage;
@@ -151,16 +149,6 @@ class Event implements ItemWithChildren {
     Json json = await MicrocosmClient().getJson(uri);
     parsePage(json);
   }
-
-  Item? _context;
-
-  @override
-  set context(Item? tmp) {
-    _context = tmp;
-  }
-
-  @override
-  Item? get context => _context;
 
   @override
   Future<void> resetChildren() async {
