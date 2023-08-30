@@ -1,9 +1,8 @@
-import 'dart:convert';
 import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
+import '../api/microcosm_client.dart';
 import '../constants.dart';
 
 class NewConversation extends StatefulWidget {
@@ -72,13 +71,13 @@ class _NewConversationState extends State<NewConversation> {
           icon: Icon(
             _sending ? Icons.timer : Icons.send,
           ),
-          onPressed: _sending ? null : postComment,
+          onPressed: _sending ? null : postConversation,
         )
       ],
     );
   }
 
-  void postComment() {
+  Future<void> postConversation() async {
     if (_titleController.text == "" || _bodyController.text == "") {
       return;
     }
@@ -86,26 +85,25 @@ class _NewConversationState extends State<NewConversation> {
     setState(() {
       _sending = true;
     });
-    developer.log("Creating post...");
-    http
-        .post(
-      Uri.https(
+    developer.log("Creating conversation...");
+
+    try {
+      var url = Uri.https(
         HOST,
         "/api/v1/conversations",
-      ),
-      headers: <String, String>{
-        'Authorization': BEARER_TOKEN,
-        "Content-Type": "application/json"
-      },
-      body: json.encode(
-        <String, dynamic>{
-          "microcosmId": widget.microcosmId,
-          "title": _titleController.text,
-        },
-      ),
-    )
-        .then((response) {
-      developer.log("Got response: ${response.body}");
+      );
+      Map<String, dynamic> payload = {
+        "microcosmId": widget.microcosmId,
+        "title": _titleController.text,
+      };
+
+      developer.log("Posting new conversation...");
+      Json comment = await MicrocosmClient().postJson(url, payload);
+      developer.log("Posting new conversation: success");
+      // if (_attachments.isNotEmpty) {
+      //   await _linkAttachments(comment["id"], fileHashes);
+      // }
+
       setState(() {
         _sending = false;
         _titleController.text = "";
@@ -114,20 +112,22 @@ class _NewConversationState extends State<NewConversation> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Post created successfully!'),
-          duration: Duration(milliseconds: 1500),
+          content: Text('You started a conversation!'),
+          duration: TOAST_DURATION,
           behavior: SnackBarBehavior.floating,
         ),
       );
       // Navigator.of(context).pop();
-    }).onError((error, stackTrace) {
-      setState(() {
-        _sending = false;
-      });
+    } catch (error) {
+      setState(
+        () {
+          _sending = false;
+        },
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Failed to create post'),
+          content: const Text('Failed to create conversation'),
           action: SnackBarAction(
             label: 'OK',
             onPressed: () {
@@ -136,6 +136,6 @@ class _NewConversationState extends State<NewConversation> {
           ),
         ),
       );
-    });
+    }
   }
 }

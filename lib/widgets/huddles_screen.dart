@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants.dart';
 import '../models/huddles.dart';
 
 class HuddlesScreen extends StatefulWidget {
@@ -21,7 +22,7 @@ class _HuddlesScreenState extends State<HuddlesScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Not implemented yet'),
-            duration: Duration(milliseconds: 1500),
+            duration: TOAST_DURATION,
             behavior: SnackBarBehavior.floating,
           ),
         );

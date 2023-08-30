@@ -195,19 +195,17 @@ class _NewCommentState extends State<NewComment> {
         await _linkAttachments(comment["id"], fileHashes);
       }
 
-      setState(
-        () {
-          _sending = false;
-          _controller.text = "";
-          _attachments.clear();
-          widget.onPostSuccess();
-        },
-      );
+      setState(() {
+        _sending = false;
+        _controller.text = "";
+        _attachments.clear();
+        widget.onPostSuccess();
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Message sent successfully!'),
-          duration: Duration(milliseconds: 1500),
+          duration: TOAST_DURATION,
           behavior: SnackBarBehavior.floating,
         ),
       );

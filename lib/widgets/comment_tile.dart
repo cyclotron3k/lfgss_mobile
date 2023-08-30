@@ -4,6 +4,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../constants.dart';
 import '../models/comment.dart';
 import '../models/profile.dart';
 import '../models/search.dart';
@@ -170,7 +171,7 @@ class _CommentTileState extends State<CommentTile> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text("Invalid URL: $uri"),
-                  duration: const Duration(milliseconds: 1500),
+                  duration: TOAST_DURATION,
                   behavior: SnackBarBehavior.floating,
                 ),
               );

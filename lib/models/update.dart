@@ -68,7 +68,7 @@ class Update extends Item {
     } else {
       return "";
     }
-  } // TODO promote id?
+  } // TODO: promote id?
 
   String get description {
     switch (updateType) {

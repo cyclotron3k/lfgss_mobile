@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants.dart';
 import 'api_client.dart';
@@ -27,6 +28,7 @@ class _ExpiringResponse {
 
 class MicrocosmClient implements ApiClient {
   static final MicrocosmClient _singleton = MicrocosmClient._internal();
+  String? accessToken;
 
   factory MicrocosmClient() {
     return _singleton;
@@ -36,13 +38,47 @@ class MicrocosmClient implements ApiClient {
 
   final Map<Uri, _ExpiringResponse> _inFlight = {};
 
+  bool get loggedIn {
+    return accessToken != null;
+  }
+
+  Future<void> updateAccessToken() async {
+    developer.log("Getting access token...");
+
+    final sharedPreference = await SharedPreferences.getInstance();
+    accessToken = sharedPreference.getString("accessToken");
+    developer.log("Retrieved access token: $accessToken");
+  }
+
   Future<Response> get(Uri url) async {
     return http.get(
       url,
       headers: {
-        'Authorization': BEARER_TOKEN,
+        if (accessToken != null) 'Authorization': "Bearer $accessToken",
       },
     );
+  }
+
+  Future<void> logout() async {
+    // TODO: looks like logout isn't implemented on the backend?
+
+    if (accessToken == null) return;
+
+    final sharedPreference = await SharedPreferences.getInstance();
+    await sharedPreference.remove("accessToken");
+    accessToken = null;
+
+    // var uri = Uri.https(
+    //   HOST,
+    //   "/api/v1/auth/$accessToken",
+    // );
+
+    // await http.delete(
+    //   uri,
+    //   headers: {
+    //     'Authorization': "Bearer $accessToken",
+    //   },
+    // );
   }
 
   @override
@@ -127,7 +163,7 @@ class MicrocosmClient implements ApiClient {
       url,
       headers: <String, String>{
         'Content-Type': 'application/json',
-        'Authorization': BEARER_TOKEN,
+        'Authorization': "Bearer $accessToken",
       },
       body: jsonBody,
     );
@@ -137,7 +173,7 @@ class MicrocosmClient implements ApiClient {
     developer.log("Uploading ${files.length} file(s)");
 
     var request = http.MultipartRequest('POST', uri);
-    request.headers['Authorization'] = BEARER_TOKEN;
+    request.headers['Authorization'] = "Bearer $accessToken";
 
     for (File file in files) {
       developer.log("Adding ${file.uri.pathSegments.last} to the payload");

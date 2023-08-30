@@ -2,8 +2,8 @@
 
 ## TODO
 
-- Login
 - Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
+- Better caching/cache invalidation
 - Send huddle comment
 - Create post
 - Create huddle
@@ -25,6 +25,7 @@
 - Instrumentation
 - https://docs.flutter.dev/cookbook/effects/expandable-fab
 - Use FlutterSecureStorage?
+- Manage caching across multiple accounts better
 
 ## TBD
 

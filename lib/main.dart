@@ -5,10 +5,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
+import 'api/microcosm_client.dart';
 import 'models/conversation.dart';
 import 'models/huddles.dart';
 import 'models/microcosm.dart';
-import 'models/profile.dart';
 import 'models/search.dart';
 import 'models/update.dart';
 import 'models/updates.dart';
@@ -17,7 +17,8 @@ import 'widgets/future_huddles_screen.dart';
 import 'widgets/future_microcosm_screen.dart';
 import 'widgets/future_search_screen.dart';
 import 'widgets/future_updates_screen.dart';
-import 'widgets/profile_screen.dart';
+import 'widgets/login_screen.dart';
+import 'widgets/login_to_see.dart';
 import 'widgets/settings_screen.dart';
 
 typedef Json = Map<String, dynamic>;
@@ -30,6 +31,7 @@ void callbackDispatcher() {
         await SharedPreferences.getInstance(); // Initialize dependency
 
     try {
+      await MicrocosmClient().updateAccessToken();
       Updates updates = await Updates.root();
       List<Update> notifications = await updates.getNewUpdates();
       developer.log("New updates: ${notifications.length}");
@@ -129,6 +131,8 @@ void main() async {
           AndroidFlutterLocalNotificationsPlugin>()
       ?.requestPermission();
 
+  await MicrocosmClient().updateAccessToken();
+
   runApp(const MyApp());
 }
 
@@ -218,6 +222,18 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _toggleDrawer() {
+    var scaffold = _scaffoldKey.currentState;
+    if (scaffold == null) {
+      return;
+    }
+    if (scaffold.isEndDrawerOpen) {
+      scaffold.closeEndDrawer();
+    } else {
+      scaffold.openEndDrawer();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -251,6 +267,7 @@ class _HomePageState extends State<HomePage> {
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
+                _toggleDrawer();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -265,16 +282,30 @@ class _HomePageState extends State<HomePage> {
               leading: const Icon(Icons.bookmark),
               title: const Text('Bookmarks'),
               onTap: () {
+                _toggleDrawer();
                 // Update the state of the app.
                 // ...
               },
             ),
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
+              title: Text(MicrocosmClient().loggedIn ? 'Logout' : 'Login'),
+              onTap: () async {
+                if (MicrocosmClient().loggedIn) {
+                  await MicrocosmClient().logout();
+                  setState(() {});
+                } else {
+                  _toggleDrawer();
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      fullscreenDialog: true,
+                      maintainState: false,
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                  setState(() {});
+                }
               },
             ),
           ],
@@ -320,16 +351,7 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Theme.of(context).colorScheme.primary,
         onTap: (value) {
           if (value == 4) {
-            // var scaffold = Scaffold.of(context);
-            var scaffold = _scaffoldKey.currentState;
-            if (scaffold == null) {
-              return;
-            }
-            if (scaffold.isEndDrawerOpen) {
-              scaffold.closeEndDrawer();
-            } else {
-              scaffold.openEndDrawer();
-            }
+            _toggleDrawer();
           } else {
             setState(() {
               _currentIndex = value;
@@ -342,9 +364,19 @@ class _HomePageState extends State<HomePage> {
         children: <Widget>[
           FutureMicrocosmScreen(microcosm: Microcosm.root()),
           FutureSearchScreen(search: Search.today()),
-          FutureUpdatesScreen(updates: Updates.root()),
-          FutureHuddlesScreen(huddles: Huddles.root()),
-          ProfileScreen(profile: Profile.getProfile()),
+          MicrocosmClient().loggedIn
+              ? FutureUpdatesScreen(updates: Updates.root())
+              : const LoginToSee(
+                  what: "your updates",
+                  icon: Icon(Icons.bookmark_border),
+                ),
+          MicrocosmClient().loggedIn
+              ? FutureHuddlesScreen(huddles: Huddles.root())
+              : const LoginToSee(
+                  what: "Huddles",
+                  icon: Icon(Icons.email_outlined),
+                ),
+          // ProfileScreen(profile: Profile.getProfile()),
         ],
       ),
     );

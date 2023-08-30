@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants.dart';
 import '../models/microcosm.dart';
 
 class MicrocosmScreen extends StatefulWidget {
@@ -22,7 +23,7 @@ class _MicrocosmScreenState extends State<MicrocosmScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Not implemented yet'),
-                  duration: Duration(milliseconds: 1500),
+                  duration: TOAST_DURATION,
                   behavior: SnackBarBehavior.floating,
                 ),
               );
