@@ -52,9 +52,6 @@ class _CommentTileState extends State<CommentTile> {
                     enableDrag: true,
                     showDragHandle: true,
                     context: context,
-                    constraints: const BoxConstraints(
-                      maxWidth: 380,
-                    ),
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(20.0),
@@ -235,6 +232,10 @@ class _CommentTileState extends State<CommentTile> {
                 // See: https://github.com/Sub6Resources/flutter_html/issues/1361
                 decorationColor: Colors.blue,
               ),
+            ),
+            "body": Style(
+              // TODO: Workaround for the above issue. Remove when resolved
+              textDecorationColor: Colors.blue,
             ),
           },
           // onImageError: (

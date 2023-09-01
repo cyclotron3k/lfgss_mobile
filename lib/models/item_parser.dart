@@ -1,5 +1,6 @@
 import 'comment.dart';
 import 'conversation.dart';
+import 'event.dart';
 import 'huddle.dart';
 import 'microcosm.dart';
 import 'unknown_item.dart';
@@ -19,7 +20,7 @@ class ItemParser {
         return Conversation.fromJson(json: json);
 
       case "event":
-        return UnknownItem(type: itemType);
+        return Event.fromJson(json: json);
 
       case "poll":
         return UnknownItem(type: itemType);

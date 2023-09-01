@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../constants.dart';
 import '../models/huddles.dart';
+import 'new_huddle.dart';
 
 class HuddlesScreen extends StatefulWidget {
   final Huddles huddles;
@@ -19,11 +19,14 @@ class _HuddlesScreenState extends State<HuddlesScreen> {
   Widget build(BuildContext context) {
     final Widget fab = FloatingActionButton(
       onPressed: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Not implemented yet'),
-            duration: TOAST_DURATION,
-            behavior: SnackBarBehavior.floating,
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            fullscreenDialog: true,
+            maintainState: false,
+            builder: (context) => const NewHuddle(
+              initialParticipants: {},
+            ),
           ),
         );
       },
@@ -40,7 +43,10 @@ class _HuddlesScreenState extends State<HuddlesScreen> {
         child: CustomScrollView(
           // cacheExtent: 400.0,
           slivers: <Widget>[
-            const SliverAppBar(floating: true, title: Text("Huddles")),
+            const SliverAppBar(
+              floating: true,
+              title: Text("Huddles"),
+            ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {

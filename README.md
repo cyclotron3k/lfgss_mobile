@@ -3,22 +3,22 @@
 ## TODO
 
 - Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
-- Better caching/cache invalidation
 - Send huddle comment
 - Create post
 - Create huddle
+- In-app Notifications
 - Edit comment
 - Implement settings
-- In-app Notifications
-- Download dots
-- Maps
 - Page navigation (lozenge or indexed scroller?)
-- Caching (json, images, thumbnails, metrics)
 - Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
 - Animated containers for loading content?
-- Social sharing
-- User selector
+- Better caching/cache invalidation
+- Download dots
+- Caching (json, images, thumbnails, metrics)
 - Attachment gallery
+- User selector
+- Maps
+- Social sharing
 - Persistent connections & HTTP3 (See: https://pub.dev/packages/dio)
 - DRY (future_x widgets, mixins, codegen?)
 - Widget keys

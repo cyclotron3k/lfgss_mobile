@@ -32,4 +32,16 @@ class PartialProfile extends Item {
   Widget renderAsTile({bool? overrideUnreadFlag}) {
     return PartialProfileTile(partialProfile: this);
   }
+
+  // So that Sets of profiles behave as expected...
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is PartialProfile && other.id == id;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode;
+  }
 }
