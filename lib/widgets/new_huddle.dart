@@ -2,9 +2,9 @@ import 'dart:developer' show log;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/widgets/profile_selector.dart';
 
 import '../models/partial_profile.dart';
+import 'profile_selector.dart';
 
 class NewHuddle extends StatefulWidget {
   final Set<PartialProfile> initialParticipants;
@@ -77,6 +77,7 @@ class _NewHuddleState extends State<NewHuddle> {
             ),
             const SizedBox(height: 16.0),
             TextFormField(
+              maxLength: 150,
               controller: _subjectController,
               decoration: const InputDecoration(
                 labelText: 'Subject',
@@ -91,11 +92,32 @@ class _NewHuddleState extends State<NewHuddle> {
                 labelText: 'Body',
               ),
             ),
+            // NewComment(
+            //   itemId: 0,
+            //   itemType: "huddle",
+            //   onPostSuccess: () {},
+            // ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          Map<String, dynamic> huddlePayload = {
+            "isConfidential": false,
+            "title": _subjectController.text,
+          };
+
+          // PUT /api/v1/huddles/$id/participants
+          // Content-type: application/json
+          // Body: [{"id": 1234}, {"id": 1235}]
+          List<Map<String, int>> invitePayload = _participants.map(
+            (p) {
+              return <String, int>{"id": p.id};
+            },
+          ).toList();
+
+          // commentPayload = {};
+
           // Send the email with the subject, recipients, and body
           // You can implement the email sending logic here
           // For simplicity, we'll just print the values

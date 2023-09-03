@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
+import 'package:lfgss_mobile/models/permissions.dart';
 
 import '../api/microcosm_client.dart' hide Json;
 import '../constants.dart';
@@ -17,6 +18,7 @@ class Huddle extends ItemWithChildren {
   final String title;
   final List<PartialProfile> participants;
   final Flags flags;
+  final Permissions permissions;
   final PartialProfile createdBy;
   final DateTime created;
   final int startPage;
@@ -31,6 +33,7 @@ class Huddle extends ItemWithChildren {
         createdBy = PartialProfile.fromJson(json: json["meta"]["createdBy"]),
         created = DateTime.parse(json['meta']['created']),
         _totalChildren = json["totalComments"] ?? json["comments"]["total"],
+        permissions = Permissions.fromJson(json: json['meta']['permissions']),
         participants = json["participants"]
             .map<PartialProfile>((p) => PartialProfile.fromJson(json: p))
             .toList();

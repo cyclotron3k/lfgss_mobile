@@ -2,11 +2,11 @@
 
 ## TODO
 
+- Thread view
+- Composable forms: Conversation + comment, Huddle + comment
+  - Create post
+  - Create huddle
 - Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
-- Send huddle comment
-- Create post
-- Create huddle
-- In-app Notifications
 - Edit comment
 - Implement settings
 - Page navigation (lozenge or indexed scroller?)
@@ -26,10 +26,13 @@
 - https://docs.flutter.dev/cookbook/effects/expandable-fab
 - Use FlutterSecureStorage?
 - Manage caching across multiple accounts better
+- Consolidated notifications
+- Blurha.sh shader?
 
 ## TBD
 
 - Authentication
+  - Can re-use Auth0 Client ID but need callback URLs authourised
 - Firebase & push notifications
 - Separate conversation download and read pointer updates
 - Mobile notification preferences into API

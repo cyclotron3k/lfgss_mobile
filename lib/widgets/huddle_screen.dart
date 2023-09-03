@@ -65,7 +65,7 @@ class _HuddleScreenState extends State<HuddleScreen> {
               },
             ),
           ),
-          if (widget.huddle.flags.open)
+          if (widget.huddle.permissions.create)
             NewComment(
               itemId: widget.huddle.id,
               itemType: "conversation",

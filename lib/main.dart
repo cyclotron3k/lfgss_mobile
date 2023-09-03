@@ -2,16 +2,14 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:workmanager/workmanager.dart';
 
 import 'api/microcosm_client.dart';
 import 'models/conversation.dart';
 import 'models/huddles.dart';
 import 'models/microcosm.dart';
 import 'models/search.dart';
-import 'models/update.dart';
 import 'models/updates.dart';
+import 'notifications.dart';
 import 'widgets/future_conversation_screen.dart';
 import 'widgets/future_huddles_screen.dart';
 import 'widgets/future_microcosm_screen.dart';
@@ -23,135 +21,18 @@ import 'widgets/settings_screen.dart';
 
 typedef Json = Map<String, dynamic>;
 
-@pragma('vm:entry-point')
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    int totalExecutions;
-    final sharedPreference =
-        await SharedPreferences.getInstance(); // Initialize dependency
-
-    try {
-      await MicrocosmClient().updateAccessToken();
-      Updates updates = await Updates.root();
-      List<Update> notifications = await updates.getNewUpdates();
-      developer.log("New updates: ${notifications.length}");
-
-      for (var update in notifications) {
-        const AndroidNotificationDetails androidNotificationDetails =
-            AndroidNotificationDetails(
-          'lfgss_updates',
-          'LFGSS Updates',
-          channelDescription: 'Updates from LFGSS',
-          importance: Importance.max,
-          priority: Priority.high,
-          ticker: 'ticker',
-        );
-
-        const NotificationDetails notificationDetails = NotificationDetails(
-          android: androidNotificationDetails,
-        );
-
-        FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-            await initNotifications();
-
-        await flutterLocalNotificationsPlugin.show(
-          update.topicId,
-          update.title,
-          update.body,
-          notificationDetails,
-          payload: update.conversationId,
-        );
-      }
-
-      totalExecutions = sharedPreference.getInt("totalExecutions") ?? 0;
-      totalExecutions++;
-      sharedPreference.setInt(
-        "totalExecutions",
-        totalExecutions,
-      );
-      developer.log("Total executions: $totalExecutions");
-    } catch (err) {
-      developer.log(
-        err.toString(),
-      );
-      throw Exception(err);
-    }
-
-    return Future.value(true);
-  });
-}
-
-Future<FlutterLocalNotificationsPlugin> initNotifications() async {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('favicon_alpha');
-
-  const InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-  );
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-    onDidReceiveNotificationResponse: (NotificationResponse nr) {
-      developer.log("Recieved a notification response");
-    },
-  );
-
-  return flutterLocalNotificationsPlugin;
-}
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Workmanager().initialize(
-    callbackDispatcher, // The top level function, aka callbackDispatcher
-    // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-    isInDebugMode: false,
-  );
-  Workmanager().registerPeriodicTask(
-    "periodic-task-identifier",
-    "updateChecker",
-    existingWorkPolicy: ExistingWorkPolicy.replace,
-    constraints: Constraints(
-      networkType: NetworkType.connected,
-      requiresBatteryNotLow: true,
-      requiresCharging: false,
-      requiresDeviceIdle: false,
-      requiresStorageNotLow: true,
-    ),
-    // tag: "my-tag",
-    // backoffPolicy: BackoffPolicy.exponential,
-    // frequency: Duration(minutes: 15),
-  );
-
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      await initNotifications();
-  flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.requestPermission();
+  initTasks();
 
   await MicrocosmClient().updateAccessToken();
 
   runApp(const MyApp());
 }
 
-// void onDidReceiveNotificationResponse(
-//     NotificationResponse notificationResponse) async {
-//   final String? payload = notificationResponse.payload;
-//   if (notificationResponse.payload != null) {
-//     debugPrint('notification payload: $payload');
-//   }
-//   await Navigator.push(
-//     context,
-//     MaterialPageRoute<void>(builder: (context) => SecondScreen(payload)),
-//   );
-// }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -193,9 +74,27 @@ class _HomePageState extends State<HomePage> {
     _runWhileAppIsTerminated();
   }
 
+  void _handleNotification(NotificationResponse nr) {
+    String payload = nr.payload ?? "0";
+    developer.log("Payload: $payload");
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        maintainState: true,
+        builder: (context) => FutureConversationScreen(
+          conversation: Conversation.getById(
+            int.parse(payload),
+          ),
+        ),
+      ),
+    );
+  }
+
   void _runWhileAppIsTerminated() async {
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        await initNotifications();
+        await initNotifications(_handleNotification);
     var details =
         await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
 
@@ -203,22 +102,9 @@ class _HomePageState extends State<HomePage> {
 
     if (details.didNotificationLaunchApp) {
       if (details.notificationResponse?.payload == null) return;
-      String payload = details.notificationResponse?.payload ?? "0";
-
-      developer.log("Payload: $payload");
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          fullscreenDialog: true,
-          maintainState: true,
-          builder: (context) => FutureConversationScreen(
-            conversation: Conversation.getById(
-              int.parse(payload),
-            ),
-          ),
-        ),
-      );
+      _handleNotification(details.notificationResponse!);
+    } else {
+      developer.log("Ignored payload");
     }
   }
 
@@ -236,25 +122,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       key: _scaffoldKey,
-      // appBar: AppBar(
-      //   // Here we take the value from the MyHomePage object that was created by
-      //   // the App.build method, and use it to set our appbar title.
-      //   title: Text(unescape.convert(widget.microcosm.title)),
-      // ),
       endDrawer: Drawer(
-        // Add a ListView to the drawer. This ensures the user can scroll
-        // through the options in the drawer if there isn't enough vertical
-        // space to fit everything.
         child: ListView(
-          // Important: Remove any padding from the ListView.
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
@@ -311,7 +182,6 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: true,
         showUnselectedLabels: false,
