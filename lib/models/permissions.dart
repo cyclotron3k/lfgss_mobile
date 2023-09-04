@@ -27,17 +27,17 @@ class Permissions {
     this.siteOwner = false,
   });
 
-  Permissions.fromJson({required Map<String, dynamic> json})
-      : create = json['create'] ?? false,
-        read = json['read'] ?? false,
-        update = json['update'] ?? false,
-        delete = json['delete'] ?? false,
-        closeOwn = json['closeOwn'] ?? false,
-        openOwn = json['openOwn'] ?? false,
-        readOthers = json['readOthers'] ?? false,
-        guest = json['guest'] ?? false,
-        banned = json['banned'] ?? false,
-        owner = json['owner'] ?? false,
-        moderator = json['moderator'] ?? false,
-        siteOwner = json['siteOwner'] ?? false;
+  Permissions.fromJson({required Map<String, dynamic>? json})
+      : create = json?['create'] ?? false,
+        read = json?['read'] ?? false,
+        update = json?['update'] ?? false,
+        delete = json?['delete'] ?? false,
+        closeOwn = json?['closeOwn'] ?? false,
+        openOwn = json?['openOwn'] ?? false,
+        readOthers = json?['readOthers'] ?? false,
+        guest = json?['guest'] ?? false,
+        banned = json?['banned'] ?? false,
+        owner = json?['owner'] ?? false,
+        moderator = json?['moderator'] ?? false,
+        siteOwner = json?['siteOwner'] ?? false;
 }

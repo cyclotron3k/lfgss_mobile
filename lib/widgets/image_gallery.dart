@@ -54,9 +54,12 @@ class ImageGallery extends ModalRoute {
           children: [
             Center(
               child: PhotoView(
+                backgroundDecoration: const BoxDecoration(
+                  color: Colors.transparent,
+                ),
                 heroAttributes: PhotoViewHeroAttributes(
                   tag: attachment.fileHash,
-                  transitionOnUserGestures: true,
+                  //transitionOnUserGestures: true,
                 ),
                 minScale: PhotoViewComputedScale.contained * 0.8,
                 imageProvider: attachment.asImageProvider(),

@@ -4,9 +4,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
-import 'api/microcosm_client.dart';
 import 'models/update.dart';
 import 'models/updates.dart';
+import 'services/microcosm_client.dart';
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
+import '../constants.dart';
+import '../services/microcosm_client.dart' hide Json;
 import '../widgets/comment_tile.dart';
 import 'comment_attachments.dart';
 import 'flags.dart';
 import 'item.dart';
+import 'links.dart' hide Json;
 import 'partial_profile.dart';
 
 class Comment implements Item {
@@ -16,6 +19,10 @@ class Comment implements Item {
   final int? inReplyTo;
   final String markdown;
   final String html;
+  final Links links;
+
+  Comment? _replyTo;
+  List<Comment>? _replies;
 
   // Metadata
   final Flags flags;
@@ -25,9 +32,29 @@ class Comment implements Item {
 
   CommentAttachments? commentAttachments;
 
+  Future<Comment> getReplyTo() async {
+    if (_replyTo != null) return _replyTo!;
+
+    if (inReplyTo != null) {
+      Uri uri = Uri.https(
+        HOST,
+        "/api/v1/comments/$id",
+      );
+
+      Json json = await MicrocosmClient().getJson(uri);
+
+      _replyTo = Comment.fromJson(json: json["meta"]["inReplyTo"]);
+      _replies = <Comment>[];
+      for (var reply in json["meta"]["replies"] as List<Json>) {
+        _replies!.add(Comment.fromJson(json: reply));
+      }
+    }
+    return _replyTo!;
+  }
+
   @override
-  Widget renderAsTile({bool? overrideUnreadFlag}) {
-    return CommentTile(comment: this);
+  Widget renderAsTile({bool? overrideUnreadFlag, bool highlight = false}) {
+    return CommentTile(comment: this, highlight: highlight);
   }
 
   Comment.fromJson({required Json json})
@@ -42,7 +69,8 @@ class Comment implements Item {
         createdBy = PartialProfile.fromJson(json: json["meta"]["createdBy"]),
         // editedBy = Profile.fromJson(json: json['meta']['editedBy']),
         created = DateTime.parse(json['meta']['created']),
-        flags = Flags.fromJson(json: json["meta"]["flags"]);
+        flags = Flags.fromJson(json: json["meta"]["flags"]),
+        links = Links.fromJson(json: json["meta"]["links"]);
 
   bool hasAttachments() {
     return attachments > 0;

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:lfgss_mobile/models/permissions.dart';
 
-import '../api/microcosm_client.dart' hide Json;
 import '../constants.dart';
+import '../services/microcosm_client.dart' hide Json;
 import '../widgets/future_item_tile.dart';
 import '../widgets/huddle_tile.dart';
 import 'comment.dart';

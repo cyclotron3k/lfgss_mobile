@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
-// import 'package:timezone/data/latest_10y.dart';
 
-import 'event_attendees.dart';
-import 'partial_profile.dart';
-import 'unknown_item.dart';
-import '../api/microcosm_client.dart' hide Json;
 import '../constants.dart';
+import '../services/microcosm_client.dart' hide Json;
 import '../widgets/event_tile.dart';
 import '../widgets/future_item_tile.dart';
 import 'comment.dart';
+// import 'package:timezone/data/latest_10y.dart';
+
+import 'event_attendees.dart';
 import 'flags.dart';
 import 'item.dart';
 import 'item_with_children.dart';
+import 'partial_profile.dart';
 import 'permissions.dart';
+import 'unknown_item.dart';
 
 enum EventStatus { proposed, upcoming, postponed, cancelled }
 

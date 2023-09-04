@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../api/microcosm_client.dart';
 import '../constants.dart';
+import '../services/microcosm_client.dart';
 import 'attachment.dart';
 
 // TODO: refactor this whole file

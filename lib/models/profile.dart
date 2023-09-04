@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
-import '../api/microcosm_client.dart';
 import '../constants.dart';
+import '../services/microcosm_client.dart';
 import 'comment.dart';
 import 'item.dart';
 

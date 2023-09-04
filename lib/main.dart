@@ -3,13 +3,13 @@ import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import 'api/microcosm_client.dart';
 import 'models/conversation.dart';
 import 'models/huddles.dart';
 import 'models/microcosm.dart';
 import 'models/search.dart';
 import 'models/updates.dart';
 import 'notifications.dart';
+import 'services/microcosm_client.dart';
 import 'widgets/future_conversation_screen.dart';
 import 'widgets/future_huddles_screen.dart';
 import 'widgets/future_microcosm_screen.dart';
@@ -42,6 +42,7 @@ class MyApp extends StatelessWidget {
           seedColor: const Color.fromARGB(255, 77, 134, 219),
         ),
         useMaterial3: true,
+        // textTheme: TextTheme(),
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -65,12 +66,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<Widget> _tabs = [];
   int _currentIndex = 0;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
+    _tabs = <Widget>[
+      FutureMicrocosmScreen(microcosm: Microcosm.root()),
+      FutureSearchScreen(search: Search.today()),
+      MicrocosmClient().loggedIn
+          ? FutureUpdatesScreen(updates: Updates.root())
+          : const LoginToSee(
+              what: "your updates",
+              icon: Icon(Icons.bookmark_border),
+            ),
+      MicrocosmClient().loggedIn
+          ? FutureHuddlesScreen(huddles: Huddles.root())
+          : const LoginToSee(
+              what: "Huddles",
+              icon: Icon(Icons.email_outlined),
+            ),
+      // ProfileScreen(profile: Profile.getProfile()),
+    ];
     _runWhileAppIsTerminated();
   }
 
@@ -231,23 +250,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: IndexedStack(
         index: _currentIndex,
-        children: <Widget>[
-          FutureMicrocosmScreen(microcosm: Microcosm.root()),
-          FutureSearchScreen(search: Search.today()),
-          MicrocosmClient().loggedIn
-              ? FutureUpdatesScreen(updates: Updates.root())
-              : const LoginToSee(
-                  what: "your updates",
-                  icon: Icon(Icons.bookmark_border),
-                ),
-          MicrocosmClient().loggedIn
-              ? FutureHuddlesScreen(huddles: Huddles.root())
-              : const LoginToSee(
-                  what: "Huddles",
-                  icon: Icon(Icons.email_outlined),
-                ),
-          // ProfileScreen(profile: Profile.getProfile()),
-        ],
+        children: _tabs,
       ),
     );
   }

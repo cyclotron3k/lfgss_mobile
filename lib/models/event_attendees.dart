@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../api/microcosm_client.dart';
+import '../services/microcosm_client.dart';
 import '../constants.dart';
 import 'partial_profile.dart';
 

@@ -2,8 +2,8 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 
-import '../api/microcosm_client.dart';
 import '../constants.dart';
+import '../services/microcosm_client.dart';
 
 class NewConversation extends StatefulWidget {
   final int microcosmId;
@@ -98,7 +98,7 @@ class _NewConversationState extends State<NewConversation> {
       };
 
       developer.log("Posting new conversation...");
-      Json comment = await MicrocosmClient().postJson(url, payload);
+      Json _ = await MicrocosmClient().postJson(url, payload);
       developer.log("Posting new conversation: success");
       // if (_attachments.isNotEmpty) {
       //   await _linkAttachments(comment["id"], fileHashes);

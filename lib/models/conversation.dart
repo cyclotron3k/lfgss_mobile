@@ -3,10 +3,10 @@ import 'package:html_unescape/html_unescape_small.dart';
 import 'package:lfgss_mobile/models/partial_profile.dart';
 import 'package:lfgss_mobile/models/unknown_item.dart';
 
-import '../api/microcosm_client.dart' hide Json;
 import '../constants.dart';
+import '../services/microcosm_client.dart' hide Json;
 import '../widgets/conversation_tile.dart';
-import '../widgets/future_item_tile.dart';
+import '../widgets/future_comment_tile.dart';
 import 'comment.dart';
 import 'flags.dart';
 import 'item.dart';
@@ -30,8 +30,13 @@ class Conversation implements ItemWithChildren {
   final int _totalChildren;
   final Map<int, Item> _children = {};
 
-  Conversation.fromJson({required Json json, this.startPage = 0})
-      : id = json["id"],
+  final int highlight;
+
+  Conversation.fromJson({
+    required Json json,
+    this.startPage = 0,
+    this.highlight = 0,
+  })  : id = json["id"],
         title = HtmlUnescape().convert(json["title"]),
         microcosmId = json["microcosmId"],
         createdBy = PartialProfile.fromJson(json: json["meta"]["createdBy"]),
@@ -80,6 +85,24 @@ class Conversation implements ItemWithChildren {
     );
   }
 
+  static Future<Conversation> getByCommentId(int commentId) async {
+    Uri uri = Uri.https(
+      HOST,
+      "/api/v1/comments/$commentId/incontext",
+      {
+        "limit": PAGE_SIZE.toString(),
+      },
+    );
+
+    Json json = await MicrocosmClient().getJson(uri);
+
+    return Conversation.fromJson(
+      json: json,
+      startPage: json["comments"]["page"] - 1,
+      highlight: commentId,
+    );
+  }
+
   @override
   Future<void> getPageOfChildren(int i) async {
     Uri uri = Uri.https(
@@ -112,9 +135,13 @@ class Conversation implements ItemWithChildren {
   @override
   Widget childTile(int i) {
     if (_children.containsKey(i)) {
-      return _children[i]!.renderAsTile();
+      var comment = _children[i]! as Comment;
+      return comment.renderAsTile(highlight: highlight == comment.id);
     }
-    return FutureItemTile(item: getChild(i));
+    return FutureCommentTile(
+      comment: getChild(i).then((e) => e as Comment),
+      highlight: highlight,
+    );
   }
 
   @override

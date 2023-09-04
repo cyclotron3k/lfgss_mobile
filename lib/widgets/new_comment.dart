@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../api/microcosm_client.dart';
 import '../constants.dart';
+import '../services/microcosm_client.dart';
 import 'attachment_thumbnail.dart';
 
 class NewComment extends StatefulWidget {

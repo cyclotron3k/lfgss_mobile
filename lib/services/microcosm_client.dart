@@ -7,7 +7,6 @@ import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants.dart';
-import 'api_client.dart';
 
 typedef Json = Map<String, dynamic>;
 
@@ -26,7 +25,7 @@ class _ExpiringResponse {
   }
 }
 
-class MicrocosmClient implements ApiClient {
+class MicrocosmClient {
   static final MicrocosmClient _singleton = MicrocosmClient._internal();
   String? accessToken;
 
@@ -43,7 +42,7 @@ class MicrocosmClient implements ApiClient {
   }
 
   Future<void> updateAccessToken() async {
-    developer.log("Getting access token...");
+    // developer.log("Getting access token...");
 
     final sharedPreference = await SharedPreferences.getInstance();
     accessToken = sharedPreference.getString("accessToken");
@@ -81,7 +80,6 @@ class MicrocosmClient implements ApiClient {
     // );
   }
 
-  @override
   Future<Json> getJson(
     Uri url, {
     int ttl = 60,
@@ -93,10 +91,10 @@ class MicrocosmClient implements ApiClient {
         developer.log("Refreshing expired page: $url");
         _inFlight.remove(url);
       } else {
-        developer.log("Awaiting page: $url");
+        // developer.log("Awaiting page: $url");
       }
     } else {
-      developer.log("Requesting page: $url");
+      // developer.log("Requesting page: $url");
     }
 
     int expiresAt = DateTime.now().millisecondsSinceEpoch + ttl * 1000;
@@ -119,7 +117,6 @@ class MicrocosmClient implements ApiClient {
     return await _inFlight[url]!.response;
   }
 
-  @override
   Future<Json> postJson(
     Uri url,
     Json body, {

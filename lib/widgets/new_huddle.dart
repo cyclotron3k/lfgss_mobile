@@ -102,19 +102,21 @@ class _NewHuddleState extends State<NewHuddle> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Map<String, dynamic> huddlePayload = {
-            "isConfidential": false,
-            "title": _subjectController.text,
-          };
+          // TODO: Implement new huddles
+          // Map<String, dynamic> huddlePayload = {
+          //   "isConfidential": false,
+          //   "title": _subjectController.text,
+          // };
 
           // PUT /api/v1/huddles/$id/participants
           // Content-type: application/json
           // Body: [{"id": 1234}, {"id": 1235}]
-          List<Map<String, int>> invitePayload = _participants.map(
-            (p) {
-              return <String, int>{"id": p.id};
-            },
-          ).toList();
+
+          // List<Map<String, int>> invitePayload = _participants.map(
+          //   (p) {
+          //     return <String, int>{"id": p.id};
+          //   },
+          // ).toList();
 
           // commentPayload = {};
 
