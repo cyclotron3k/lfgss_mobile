@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:lfgss_mobile/widgets/adaptable_form.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import 'models/conversation.dart';
 import 'models/huddles.dart';
@@ -70,6 +73,9 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  late StreamSubscription _intentDataStreamSubscription;
+  late List<SharedMediaFile> _sharedFiles;
+
   @override
   void initState() {
     super.initState();
@@ -91,6 +97,43 @@ class _HomePageState extends State<HomePage> {
       // ProfileScreen(profile: Profile.getProfile()),
     ];
     _runWhileAppIsTerminated();
+
+    // For sharing images coming from outside the app while the app is in the memory
+    _intentDataStreamSubscription =
+        ReceiveSharingIntent.getMediaStream().listen(
+      (List<SharedMediaFile> value) {
+        setState(
+          () {
+            _sharedFiles = value;
+            developer.log(
+              "Online Shared:" +
+                  (_sharedFiles?.map((f) => f.path)?.join(",") ?? ""),
+            );
+          },
+        );
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            fullscreenDialog: true,
+            maintainState: true,
+            builder: (context) => const AdaptableForm(),
+          ),
+        );
+      },
+      onError: (err) {
+        developer.log("getIntentDataStream error: $err");
+      },
+    );
+
+    // For sharing images coming from outside the app while the app is closed
+    ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
+      setState(() {
+        _sharedFiles = value;
+        developer.log("Offline Shared:" +
+            (_sharedFiles?.map((f) => f.path)?.join(",") ?? ""));
+      });
+    });
   }
 
   void _handleNotification(NotificationResponse nr) {
@@ -120,10 +163,13 @@ class _HomePageState extends State<HomePage> {
     if (details == null) return;
 
     if (details.didNotificationLaunchApp) {
-      if (details.notificationResponse?.payload == null) return;
-      _handleNotification(details.notificationResponse!);
+      if (details.notificationResponse?.payload == null) {
+        developer.log("Empty payload");
+      } else {
+        _handleNotification(details.notificationResponse!);
+      }
     } else {
-      developer.log("Ignored payload");
+      developer.log("App start not triggered by notification");
     }
   }
 

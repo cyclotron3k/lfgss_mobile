@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:html_unescape/html_unescape_small.dart';
+import 'dart:developer' show log;
 
 import '../models/microcosm.dart';
 import 'future_microcosm_screen.dart';
@@ -14,9 +16,12 @@ class MicrocosmTile extends StatefulWidget {
 }
 
 class _MicrocosmTileState extends State<MicrocosmTile> {
+  final unescape = HtmlUnescape();
+
   @override
   Widget build(BuildContext context) {
-    final unescape = HtmlUnescape();
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool isDarkMode = brightness == Brightness.dark;
     return Card(
       key: ValueKey(widget.microcosm.id),
       child: InkWell(
@@ -45,8 +50,20 @@ class _MicrocosmTileState extends State<MicrocosmTile> {
                     )
                   : ClipRRect(
                       borderRadius: BorderRadius.circular(6.0),
-                      child: Container(
-                        color: const Color.fromARGB(127, 255, 255, 255),
+                      child: ColorFiltered(
+                        colorFilter: isDarkMode
+                            ? const ColorFilter.matrix(<double>[
+                                -1.0, 0.0, 0.0, 0.0, 255.0, //
+                                0.0, -1.0, 0.0, 0.0, 255.0, //
+                                0.0, 0.0, -1.0, 0.0, 255.0, //
+                                0.0, 0.0, 0.0, 1.0, 0.0, //
+                              ])
+                            : const ColorFilter.matrix(<double>[
+                                1.0, 0.0, 0.0, 0.0, 0.0, //
+                                0.0, 1.0, 0.0, 0.0, 0.0, //
+                                0.0, 0.0, 1.0, 0.0, 0.0, //
+                                0.0, 0.0, 0.0, 1.0, 0.0, //
+                              ]),
                         child: CachedNetworkImage(
                           imageUrl: widget.microcosm.logoUrl,
                           width: 28,

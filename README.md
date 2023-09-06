@@ -2,6 +2,7 @@
 
 ## TODO
 
+- Receive sharing intent
 - Thread view
 - Composable forms: Conversation + comment, Huddle + comment
   - Create post
@@ -9,14 +10,14 @@
 - Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
 - Edit comment
 - Implement settings
+  - https://pub.dev/packages/flutter_image_compress (Resize & EXIF)
 - Page navigation (lozenge or indexed scroller?)
 - Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
 - Animated containers for loading content?
 - Better caching/cache invalidation
-- Download dots
 - Caching (json, images, thumbnails, metrics)
 - Attachment gallery
-- User selector
+- Download dots
 - Maps
 - Social sharing
 - Persistent connections & HTTP3 (See: https://pub.dev/packages/dio)
