@@ -3,7 +3,7 @@ import 'package:html_unescape/html_unescape_small.dart';
 
 import '../constants.dart';
 import '../services/microcosm_client.dart' hide Json;
-import '../widgets/comment_tile.dart';
+import '../widgets/tiles/comment_tile.dart';
 import 'comment_attachments.dart';
 import 'flags.dart';
 import 'item.dart';

@@ -4,8 +4,8 @@ import 'package:lfgss_mobile/models/permissions.dart';
 
 import '../constants.dart';
 import '../services/microcosm_client.dart' hide Json;
-import '../widgets/future_item_tile.dart';
-import '../widgets/huddle_tile.dart';
+import '../widgets/tiles/future_item_tile.dart';
+import '../widgets/tiles/huddle_tile.dart';
 import 'comment.dart';
 import 'flags.dart';
 import 'item.dart';

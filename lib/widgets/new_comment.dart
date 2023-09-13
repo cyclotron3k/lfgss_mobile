@@ -116,7 +116,7 @@ class _NewCommentState extends State<NewComment> {
               icon: Icon(
                 _sending ? Icons.timer : Icons.send,
               ),
-              onPressed: _sending ? null : postComment,
+              onPressed: _sending ? null : _postComment,
             ),
           ],
         ),
@@ -165,7 +165,7 @@ class _NewCommentState extends State<NewComment> {
     }
   }
 
-  Future<void> postComment() async {
+  Future<void> _postComment() async {
     if (_controller.text == "") {
       return;
     }

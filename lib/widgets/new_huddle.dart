@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../models/partial_profile.dart';
-import 'profile_selector.dart';
+import 'selectors/profile_selector.dart';
 
 class NewHuddle extends StatefulWidget {
   final Set<PartialProfile> initialParticipants;
@@ -72,7 +72,7 @@ class _NewHuddleState extends State<NewHuddle> {
                     ),
                   );
                 }).toList(),
-                ProfileSelector(selectedParticipant: _addParticipant),
+                ProfileSelector(onSelected: _addParticipant),
               ],
             ),
             const SizedBox(height: 16.0),

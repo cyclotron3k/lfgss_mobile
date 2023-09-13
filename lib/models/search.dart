@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants.dart';
 import '../services/microcosm_client.dart' hide Json;
-import '../widgets/future_item_tile.dart';
+import '../widgets/tiles/future_item_tile.dart';
 import 'item.dart';
 import 'item_with_children.dart';
 import 'search_parameters.dart';
@@ -26,6 +26,14 @@ class Search extends ItemWithChildren {
         query: "",
         since: -1,
         type: {'conversation', 'event', 'profile', 'huddle'},
+      ),
+    );
+  }
+
+  static Future<Search> searchWithUri(Uri uri) {
+    return search(
+      searchParameters: SearchParameters.fromUri(
+        uri,
       ),
     );
   }

@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants.dart';
 import '../services/microcosm_client.dart' hide Json;
-import '../widgets/future_item_tile.dart';
+import '../widgets/tiles/future_item_tile.dart';
 import 'item.dart';
 import 'item_with_children.dart';
 import 'update.dart';

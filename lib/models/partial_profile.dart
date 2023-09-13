@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
-import '../widgets/partial_profile_tile.dart';
+import '../widgets/tiles/partial_profile_tile.dart';
 import 'item.dart';
 import 'profile.dart';
 

@@ -3,8 +3,8 @@ import 'package:html_unescape/html_unescape_small.dart';
 
 import '../constants.dart';
 import '../services/microcosm_client.dart' hide Json;
-import '../widgets/event_tile.dart';
-import '../widgets/future_item_tile.dart';
+import '../widgets/tiles/event_tile.dart';
+import '../widgets/tiles/future_item_tile.dart';
 import 'comment.dart';
 // import 'package:timezone/data/latest_10y.dart';
 

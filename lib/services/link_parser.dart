@@ -5,15 +5,14 @@ import '../constants.dart';
 import '../models/conversation.dart';
 import '../models/profile.dart';
 import '../models/search.dart';
-import '../models/search_parameters.dart';
-import '../widgets/future_conversation_screen.dart';
-import '../widgets/future_search_screen.dart';
-import '../widgets/profile_screen.dart';
+import '../widgets/screens/future_conversation_screen.dart';
+import '../widgets/screens/future_search_screen.dart';
+import '../widgets/screens/profile_screen.dart';
 
 class LinkParser {
   static final List<String> validSchemes = ['https', 'http', 'mailto', 'tel'];
   static final RegExp profileMatcher = RegExp(r'^/profiles/(\d+)$');
-  static final RegExp hashtagMatcher = RegExp(r'^/search/\?q=(%23\w+)$');
+  static final RegExp searchMatcher = RegExp(r'^/search/');
   static final RegExp commentMatcher = RegExp(
     r'^(?:/api/v1)?/comments/(\d+)/?$',
   );
@@ -43,21 +42,15 @@ class LinkParser {
         ),
       );
       return;
-    } else if (hashtagMatcher.hasMatch(link)) {
-      String hashtag = Uri.decodeComponent(
-        hashtagMatcher.firstMatch(link)![1]!,
-      );
-
+    } else if (searchMatcher.hasMatch(link)) {
       await Navigator.push(
         context,
         MaterialPageRoute(
           fullscreenDialog: true,
           maintainState: true,
           builder: (context) => FutureSearchScreen(
-            search: Search.search(
-              searchParameters: SearchParameters(
-                query: hashtag,
-              ),
+            search: Search.searchWithUri(
+              uri,
             ),
           ),
         ),

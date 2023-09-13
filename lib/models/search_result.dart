@@ -8,7 +8,7 @@ class SearchResult extends Item {
   final Item? parent;
 
   final bool unread; // true,
-  final double rank; // 0.5,
+  // final double rank; // 0.5,
   // final DateTime lastModified; // "2023-08-26T22:32:14.81666Z",
   final String highlight; // ""
 
@@ -16,7 +16,7 @@ class SearchResult extends Item {
     required this.child,
     this.parent,
     required this.unread,
-    required this.rank,
+    // required this.rank,
     required this.highlight,
   });
 
@@ -32,7 +32,7 @@ class SearchResult extends Item {
                 json["parentItem"],
               ),
         unread = json["unread"],
-        rank = json["rank"],
+        // rank = json["rank"],
         highlight = json["highlight"];
 
   @override

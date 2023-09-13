@@ -5,8 +5,8 @@ import 'package:lfgss_mobile/models/unknown_item.dart';
 
 import '../constants.dart';
 import '../services/microcosm_client.dart' hide Json;
-import '../widgets/conversation_tile.dart';
-import '../widgets/future_comment_tile.dart';
+import '../widgets/tiles/conversation_tile.dart';
+import '../widgets/tiles/future_comment_tile.dart';
 import 'comment.dart';
 import 'flags.dart';
 import 'item.dart';

@@ -2,7 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 
-import '../widgets/update_tile.dart';
+import '../widgets/tiles/update_tile.dart';
 import 'comment.dart';
 import 'conversation.dart';
 import 'flags.dart';

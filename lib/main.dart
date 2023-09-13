@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
@@ -13,14 +12,14 @@ import 'models/search.dart';
 import 'models/updates.dart';
 import 'notifications.dart';
 import 'services/microcosm_client.dart';
-import 'widgets/future_conversation_screen.dart';
-import 'widgets/future_huddles_screen.dart';
-import 'widgets/future_microcosm_screen.dart';
-import 'widgets/future_search_screen.dart';
-import 'widgets/future_updates_screen.dart';
-import 'widgets/login_screen.dart';
+import 'widgets/screens/future_conversation_screen.dart';
+import 'widgets/screens/future_huddles_screen.dart';
+import 'widgets/screens/future_microcosm_screen.dart';
+import 'widgets/screens/future_search_screen.dart';
+import 'widgets/screens/future_updates_screen.dart';
+import 'widgets/screens/login_screen.dart';
 import 'widgets/login_to_see.dart';
-import 'widgets/settings_screen.dart';
+import 'widgets/screens/settings_screen.dart';
 
 typedef Json = Map<String, dynamic>;
 
@@ -73,8 +72,8 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  late StreamSubscription _intentDataStreamSubscription;
-  late List<SharedMediaFile> _sharedFiles;
+  // late StreamSubscription _intentDataStreamSubscription;
+  // late List<SharedMediaFile> _sharedFiles;
 
   @override
   void initState() {
@@ -99,25 +98,19 @@ class _HomePageState extends State<HomePage> {
     _runWhileAppIsTerminated();
 
     // For sharing images coming from outside the app while the app is in the memory
-    _intentDataStreamSubscription =
-        ReceiveSharingIntent.getMediaStream().listen(
-      (List<SharedMediaFile> value) {
-        setState(
-          () {
-            _sharedFiles = value;
-            developer.log(
-              "Online Shared:" +
-                  (_sharedFiles?.map((f) => f.path)?.join(",") ?? ""),
-            );
-          },
-        );
 
+    ReceiveSharingIntent.getMediaStream().listen(
+      (List<SharedMediaFile> value) {
+        if (value.isEmpty) return;
         Navigator.push(
           context,
           MaterialPageRoute(
             fullscreenDialog: true,
             maintainState: true,
-            builder: (context) => const AdaptableForm(),
+            builder: (context) => AdaptableForm(
+              initialAttachments: value,
+              onPostSuccess: () {},
+            ),
           ),
         );
       },
@@ -127,13 +120,25 @@ class _HomePageState extends State<HomePage> {
     );
 
     // For sharing images coming from outside the app while the app is closed
-    ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
-      setState(() {
-        _sharedFiles = value;
-        developer.log("Offline Shared:" +
-            (_sharedFiles?.map((f) => f.path)?.join(",") ?? ""));
-      });
-    });
+    ReceiveSharingIntent.getInitialMedia().then(
+      (List<SharedMediaFile> value) {
+        if (value.isEmpty) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            fullscreenDialog: true,
+            maintainState: true,
+            builder: (context) => AdaptableForm(
+              initialAttachments: value,
+              onPostSuccess: () {},
+            ),
+          ),
+        );
+      },
+      onError: (err) {
+        developer.log("getIntentDataStream error: $err");
+      },
+    );
   }
 
   void _handleNotification(NotificationResponse nr) {

@@ -34,6 +34,10 @@ class Attachment {
       child: CachedNetworkImage(
         imageUrl: getUrl(),
         height: height,
+        imageBuilder: (context, imageProvider) => ClipRRect(
+          borderRadius: BorderRadius.circular(8.0),
+          child: Image(image: imageProvider),
+        ),
         progressIndicatorBuilder: (context, url, downloadProgress) => Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(
@@ -42,7 +46,6 @@ class Attachment {
             ),
             child: CircularProgressIndicator(
               value: downloadProgress.progress,
-              // color: Theme.of(context).highlightColor,
             ),
           ),
         ),
@@ -56,16 +59,13 @@ class Attachment {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8.0),
-        child: GestureDetector(
-          onTap: () async {
-            await Navigator.of(context).push(
-              ImageGallery(attachment: this),
-            );
-          },
-          child: asHero(height: 128.0),
-        ),
+      child: GestureDetector(
+        onTap: () async {
+          await Navigator.of(context).push(
+            ImageGallery(attachment: this),
+          );
+        },
+        child: asHero(height: 128.0),
       ),
     );
   }
