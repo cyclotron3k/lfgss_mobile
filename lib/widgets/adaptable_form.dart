@@ -79,6 +79,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
       child: SafeArea(
         child: Form(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               DropdownMenu(
                 initialSelection: _itemTypeSelector,
@@ -113,93 +114,10 @@ class _AdaptableFormState extends State<AdaptableForm> {
               IndexedStack(
                 index: _itemTypeSelector.index,
                 children: [
-                  // Start a new Conversation...
-                  Column(
-                    children: [
-                      MicrocosmSelector(
-                        onSelected: (m) => _selectedMicrocosm = m,
-                      ),
-                      TextField(
-                        controller: _subject,
-                        autofocus: false,
-                        maxLines: 5,
-                        minLines: 1,
-                        keyboardType: TextInputType.multiline,
-                        // enabled: !_sending,
-
-                        decoration: const InputDecoration(
-                          filled: true,
-                          labelText: 'New conversation subject...',
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Add a Comment to a Conversation...
-                  ConversationSelector(
-                    onSelected: (c) => _selectedConversation = c,
-                  ),
-
-                  // Start a new Huddle
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextField(
-                        controller: _subject,
-                        autofocus: false,
-                        maxLines: 5,
-                        minLines: 1,
-                        keyboardType: TextInputType.multiline,
-                        // enabled: !_sending,
-                        decoration: const InputDecoration(
-                          labelText: 'New conversation subject...',
-                        ),
-                      ),
-                      const Text('Participants'),
-                      const SizedBox(height: 8.0),
-                      Wrap(
-                        children: [
-                          ..._selectedParticipants.map((participant) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: Chip(
-                                avatar: CachedNetworkImage(
-                                  imageUrl: participant.avatar,
-                                  imageBuilder: (context, imageProvider) =>
-                                      ClipRRect(
-                                    borderRadius: BorderRadius.circular(4.0),
-                                    child: Image(image: imageProvider),
-                                  ),
-                                  errorWidget: (context, url, error) =>
-                                      const Icon(
-                                    Icons.person_outline,
-                                  ),
-                                ),
-                                label: Text(participant.profileName),
-                                onDeleted: () {
-                                  setState(() {
-                                    _selectedParticipants.remove(participant);
-                                  });
-                                },
-                              ),
-                            );
-                          }).toList(),
-                          ProfileSelector(
-                            onSelected: (p) => _selectedParticipants.add(p),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // Add comment to Huddle
-                  Column(
-                    children: [
-                      HuddleSelector(
-                        onSelected: (h) => _selectedHuddle = h,
-                      ),
-                    ],
-                  ),
+                  _newConversation(), // Start a new Conversation...
+                  _appendConversation(), // Add a Comment to a Conversation...
+                  _newHuddle(), // Start a new Huddle
+                  _appendHuddle(), // Add comment to Huddle
                 ],
               ),
               if (_attachments.isNotEmpty)
@@ -211,6 +129,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
                     scrollDirection: Axis.horizontal,
                     shrinkWrap: true,
                     itemBuilder: (context, index) => AttachmentThumbnail(
+                      key: ObjectKey(_attachments[index]),
                       image: _attachments[index],
                       onRemoveItem: (XFile image) {
                         setState(() {
@@ -277,6 +196,119 @@ class _AdaptableFormState extends State<AdaptableForm> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _newConversation() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MicrocosmSelector(
+          onSelected: (m) => setState(() {
+            _selectedMicrocosm = m;
+          }),
+        ),
+        Text(_selectedMicrocosm?.title ?? "Nothing selected"),
+        TextField(
+          controller: _subject,
+          autofocus: false,
+          maxLines: 5,
+          minLines: 1,
+          keyboardType: TextInputType.multiline,
+          // enabled: !_sending,
+
+          decoration: const InputDecoration(
+            filled: true,
+            labelText: 'New conversation subject...',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _appendConversation() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ConversationSelector(
+          onSelected: (c) => setState(() {
+            _selectedConversation = c;
+          }),
+        ),
+        Text(_selectedConversation?.title ?? "Nothing selected"),
+      ],
+    );
+  }
+
+  Widget _newHuddle() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          controller: _subject,
+          autofocus: false,
+          maxLines: 5,
+          minLines: 1,
+          keyboardType: TextInputType.multiline,
+          // enabled: !_sending,
+          decoration: const InputDecoration(
+            labelText: 'New Huddle subject...',
+          ),
+        ),
+        const Text('Participants'),
+        const SizedBox(height: 8.0),
+        Wrap(
+          children: [
+            ..._selectedParticipants.map((participant) {
+              return Padding(
+                key: ValueKey(participant.id),
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Chip(
+                  avatar: CachedNetworkImage(
+                    imageUrl: participant.avatar,
+                    imageBuilder: (
+                      context,
+                      imageProvider,
+                    ) =>
+                        ClipRRect(
+                      borderRadius: BorderRadius.circular(4.0),
+                      child: Image(image: imageProvider),
+                    ),
+                    errorWidget: (context, url, error) => const Icon(
+                      Icons.person_outline,
+                    ),
+                  ),
+                  label: Text(participant.profileName),
+                  onDeleted: () {
+                    setState(() {
+                      _selectedParticipants.remove(participant);
+                    });
+                  },
+                ),
+              );
+            }).toList(),
+            ProfileSelector(
+              onSelected: (p) => setState(() {
+                _selectedParticipants.add(p);
+              }),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _appendHuddle() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        HuddleSelector(
+          onSelected: (h) => setState(() {
+            _selectedHuddle = h;
+          }),
+        ),
+        Text(_selectedHuddle?.title ?? "Nothing selected"),
+      ],
     );
   }
 

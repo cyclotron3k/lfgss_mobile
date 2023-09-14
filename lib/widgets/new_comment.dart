@@ -58,6 +58,7 @@ class _NewCommentState extends State<NewComment> {
               scrollDirection: Axis.horizontal,
               shrinkWrap: true,
               itemBuilder: (context, index) => AttachmentThumbnail(
+                key: ObjectKey(_attachments[index]),
                 image: _attachments[index],
                 onRemoveItem: (XFile image) {
                   setState(() {

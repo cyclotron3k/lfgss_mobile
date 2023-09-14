@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:lfgss_mobile/widgets/adaptable_form.dart';
@@ -8,6 +9,7 @@ import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'models/conversation.dart';
 import 'models/huddles.dart';
 import 'models/microcosm.dart';
+import 'models/profile.dart';
 import 'models/search.dart';
 import 'models/updates.dart';
 import 'notifications.dart';
@@ -72,12 +74,20 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  Future<Profile>? profile;
+  String? profileName;
+  String? profileAvatar;
+  String? profileEmail;
+
   // late StreamSubscription _intentDataStreamSubscription;
   // late List<SharedMediaFile> _sharedFiles;
 
   @override
   void initState() {
     super.initState();
+
+    _initProfile();
+
     _tabs = <Widget>[
       FutureMicrocosmScreen(microcosm: Microcosm.root()),
       FutureSearchScreen(search: Search.today()),
@@ -141,6 +151,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _initProfile() {
+    if (MicrocosmClient().loggedIn) {
+      profile = Profile.getProfile();
+      profile!.then((Profile p) {
+        setState(() {
+          profileName = p.profileName;
+          profileAvatar = p.avatar;
+          profileEmail = p.email;
+        });
+      });
+    }
+  }
+
   void _handleNotification(NotificationResponse nr) {
     String payload = nr.payload ?? "0";
     developer.log("Payload: $payload");
@@ -198,11 +221,19 @@ class _HomePageState extends State<HomePage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
+            UserAccountsDrawerHeader(
+              accountName: Text(profileName ?? "LFGSS"),
+              accountEmail: Text(profileEmail ?? ""),
+              currentAccountPicture: CachedNetworkImage(
+                imageUrl: profileAvatar ??
+                    "https://lfgss.microcosm.app/api/v1/files/3967bb6b279adca3d4b8a174c1021f3d642c32fc.png",
               ),
-              child: const Text('LFGSS'),
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/background.jpg'),
+                  fit: BoxFit.fill,
+                ),
+              ),
             ),
             ListTile(
               leading: const Icon(Icons.settings),
@@ -229,12 +260,18 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.logout),
+              leading:
+                  Icon(MicrocosmClient().loggedIn ? Icons.logout : Icons.login),
               title: Text(MicrocosmClient().loggedIn ? 'Logout' : 'Login'),
               onTap: () async {
                 if (MicrocosmClient().loggedIn) {
                   await MicrocosmClient().logout();
-                  setState(() {});
+                  setState(() {
+                    profile = null;
+                    profileName = null;
+                    profileAvatar = null;
+                    profileEmail = null;
+                  });
                 } else {
                   _toggleDrawer();
                   await Navigator.push(
@@ -245,8 +282,28 @@ class _HomePageState extends State<HomePage> {
                       builder: (context) => const LoginScreen(),
                     ),
                   );
+                  _initProfile();
                   setState(() {});
                 }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text("About"),
+              onTap: () {
+                showAboutDialog(
+                    context: context,
+                    applicationIcon: const CircleAvatar(
+                      backgroundImage:
+                          AssetImage('assets/launcher_icon/background.png'),
+                      foregroundImage:
+                          AssetImage('assets/launcher_icon/foreground.png'),
+                    ),
+                    applicationVersion: '1.0.0',
+                    children: const [
+                      Text("Built by me, Aidan Samuel"),
+                      Text("aka @cyclotron3k")
+                    ]);
               },
             ),
           ],

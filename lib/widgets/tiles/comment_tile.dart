@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../../models/comment.dart';
 import '../../services/link_parser.dart';
@@ -120,31 +122,31 @@ class _CommentTileState extends State<CommentTile> {
                             },
                             child: Text(
                               " replied to ${widget.comment.links["inReplyToAuthor"]!.title}",
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge!
-                                    .color!
-                                    .withOpacity(0.5),
-                              ),
+                              style: const TextStyle(color: Colors.grey),
                             ),
                           )
                         : const Text(""),
                   ),
                   if (widget.comment.revisions > 1)
-                    Tooltip(
-                      message: "Edited",
-                      child: Icon(
-                        Icons.edit_note_outlined,
-                        color: Theme.of(context).hintColor,
+                    const Text(
+                      " Edited • ",
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.only(right: 8.0),
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: Text(
-                        DateFormat.yMMMd().format(widget.comment.created),
+                      child: Tooltip(
+                        message: DateFormat.yMMMEd().add_Hms().format(
+                              widget.comment.created,
+                            ),
+                        child: Text(
+                          timeago.format(widget.comment.created),
+                          style: const TextStyle(color: Colors.grey),
+                        ),
                       ),
                     ),
                   ),

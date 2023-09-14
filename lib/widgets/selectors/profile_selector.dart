@@ -31,25 +31,6 @@ class _ProfileSelectorState extends State<ProfileSelector> {
             controller.openView();
           },
         );
-
-        // return SearchBar(
-        //   controller: controller,
-        //   hintText: "Add participants",
-        //   padding: const MaterialStatePropertyAll<EdgeInsets>(
-        //     EdgeInsets.symmetric(
-        //       horizontal: 16.0,
-        //     ),
-        //   ),
-        //   onTap: () {
-        //     controller.openView();
-        //   },
-        //   onChanged: (_) {
-        //     controller.openView();
-        //   },
-        //   leading: const Icon(Icons.person_add_alt),
-        //   trailing: const [Icon(Icons.search)],
-        //   // trailing: [if (_searching) const CircularProgressIndicator()],
-        // );
       },
       suggestionsBuilder: (
         BuildContext context,

@@ -34,31 +34,11 @@ class _HuddleSelectorState extends State<HuddleSelector> {
         BuildContext context,
         SearchController controller,
       ) {
-        return IconButton.filled(
-          icon: const Icon(Icons.search),
-          onPressed: () {
-            controller.openView();
-          },
+        return ElevatedButton.icon(
+          icon: const Icon(Icons.search, size: 18),
+          label: const Text("Select a Huddle"),
+          onPressed: () => controller.openView(),
         );
-
-        // return SearchBar(
-        //   controller: controller,
-        //   hintText: "Add participants",
-        //   padding: const MaterialStatePropertyAll<EdgeInsets>(
-        //     EdgeInsets.symmetric(
-        //       horizontal: 16.0,
-        //     ),
-        //   ),
-        //   onTap: () {
-        //     controller.openView();
-        //   },
-        //   onChanged: (_) {
-        //     controller.openView();
-        //   },
-        //   leading: const Icon(Icons.person_add_alt),
-        //   trailing: const [Icon(Icons.search)],
-        //   // trailing: [if (_searching) const CircularProgressIndicator()],
-        // );
       },
       suggestionsBuilder: (context, controller) => _debouncer.run(
         () => _executeSearch(
