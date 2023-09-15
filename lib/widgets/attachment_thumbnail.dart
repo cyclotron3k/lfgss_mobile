@@ -40,50 +40,47 @@ class _AttachmentThumbnailState extends State<AttachmentThumbnail> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Draggable(
-        // affinity: Axis.horizontal,
-        // axis: Axis.vertical,
-        onDragEnd: (details) {
-          dx = null;
-          dy = null;
-          if (remove) {
-            widget.onRemoveItem(widget.image);
-          }
-        },
-        onDragUpdate: (details) {
-          dx ??= details.localPosition.dx;
-          dy ??= details.localPosition.dy;
+    return Draggable(
+      // affinity: Axis.horizontal,
+      // axis: Axis.vertical,
+      onDragEnd: (details) {
+        dx = null;
+        dy = null;
+        if (remove) {
+          widget.onRemoveItem(widget.image);
+        }
+      },
+      onDragUpdate: (details) {
+        dx ??= details.localPosition.dx;
+        dy ??= details.localPosition.dy;
 
-          bool newRemove = ((dx! - details.localPosition.dx).abs() +
-                  (dy! - details.localPosition.dy).abs()) >
-              80.0;
-          if (remove ^ newRemove) {
-            setState(() {
-              remove = newRemove;
-            });
-          }
-        },
-        feedback: image,
-        childWhenDragging: Stack(
-          children: [
-            Opacity(
-              opacity: remove ? 0.4 : 0.8,
-              child: image,
-            ),
-            Positioned.fill(
-              child: Center(
-                child: Icon(
-                  remove ? Icons.delete : Icons.delete_outline,
-                  color: remove ? Colors.red : Colors.white,
-                ),
+        bool newRemove = ((dx! - details.localPosition.dx).abs() +
+                (dy! - details.localPosition.dy).abs()) >
+            80.0;
+        if (remove ^ newRemove) {
+          setState(() {
+            remove = newRemove;
+          });
+        }
+      },
+      feedback: image,
+      childWhenDragging: Stack(
+        children: [
+          Opacity(
+            opacity: remove ? 0.4 : 0.8,
+            child: image,
+          ),
+          Positioned.fill(
+            child: Center(
+              child: Icon(
+                remove ? Icons.delete : Icons.delete_outline,
+                color: remove ? Colors.red : Colors.white,
               ),
             ),
-          ],
-        ),
-        child: image,
+          ),
+        ],
       ),
+      child: image,
     );
   }
 }

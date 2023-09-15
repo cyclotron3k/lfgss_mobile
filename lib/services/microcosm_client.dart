@@ -121,7 +121,7 @@ class MicrocosmClient {
 
   Future<Json> postJson(
     Uri url,
-    Json body, {
+    Object body, {
     bool followRedirects = true,
   }) async {
     developer.log("Posting to: $url");
@@ -156,7 +156,7 @@ class MicrocosmClient {
     return data["data"];
   }
 
-  Future<Response> post(Uri url, Json body) async {
+  Future<Response> post(Uri url, Object body) async {
     String jsonBody = jsonEncode(body);
     return http.post(
       url,

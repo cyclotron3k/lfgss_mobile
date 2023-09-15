@@ -11,9 +11,12 @@ import '../../services/debouncer.dart';
 import '../microcosm_logo.dart';
 
 class MicrocosmSelector extends StatefulWidget {
+  final String? Function(Microcosm?) validator;
   final Function(Microcosm) onSelected;
+
   const MicrocosmSelector({
     super.key,
+    required this.validator,
     required this.onSelected,
   });
 
@@ -23,6 +26,8 @@ class MicrocosmSelector extends StatefulWidget {
 
 class _MicrocosmSelectorState extends State<MicrocosmSelector> {
   // bool _searching = false;
+  Microcosm? _microcosm;
+
   final Debouncer<List<Widget>> _debouncer = Debouncer<List<Widget>>(
     milliseconds: 500,
     placeholder: const <Widget>[],
@@ -30,23 +35,44 @@ class _MicrocosmSelectorState extends State<MicrocosmSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return SearchAnchor(
-      builder: (
-        BuildContext context,
-        SearchController controller,
-      ) {
-        return ElevatedButton.icon(
-          icon: const Icon(Icons.search, size: 18),
-          label: const Text("Select a Microcosm"),
-          onPressed: () => controller.openView(),
+    return FormField<Microcosm>(
+      validator: (_) => widget.validator(_microcosm),
+      builder: (formFieldState) {
+        return Column(
+          children: [
+            SearchAnchor(
+              builder: (
+                BuildContext context,
+                SearchController controller,
+              ) {
+                return ElevatedButton.icon(
+                  icon: const Icon(Icons.search, size: 18),
+                  label: const Text("Select a Microcosm"),
+                  onPressed: () => controller.openView(),
+                );
+              },
+              suggestionsBuilder: (context, controller) => _debouncer.run(
+                () => _executeSearch(
+                  context,
+                  controller,
+                ),
+              ),
+            ),
+            if (formFieldState.hasError)
+              Padding(
+                padding: const EdgeInsets.only(left: 8, top: 10),
+                child: Text(
+                  formFieldState.errorText!,
+                  style: TextStyle(
+                      fontStyle: FontStyle.normal,
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.error,
+                      height: 0.5),
+                ),
+              )
+          ],
         );
       },
-      suggestionsBuilder: (context, controller) => _debouncer.run(
-        () => _executeSearch(
-          context,
-          controller,
-        ),
-      ),
     );
   }
 
@@ -84,6 +110,7 @@ class _MicrocosmSelectorState extends State<MicrocosmSelector> {
           leading: MicrocosmLogo(microcosm: microcosm),
           onTap: () {
             setState(() {
+              _microcosm = microcosm;
               widget.onSelected(microcosm);
               controller.closeView("");
             });

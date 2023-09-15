@@ -10,9 +10,12 @@ import '../../models/search_result.dart';
 import '../../services/debouncer.dart';
 
 class HuddleSelector extends StatefulWidget {
+  final String? Function(Huddle?) validator;
   final Function(Huddle) onSelected;
+
   const HuddleSelector({
     super.key,
+    required this.validator,
     required this.onSelected,
   });
 
@@ -22,6 +25,7 @@ class HuddleSelector extends StatefulWidget {
 
 class _HuddleSelectorState extends State<HuddleSelector> {
   // bool _searching = false;
+  Huddle? _huddle;
   final Debouncer<List<Widget>> _debouncer = Debouncer<List<Widget>>(
     milliseconds: 500,
     placeholder: const <Widget>[],
@@ -29,23 +33,45 @@ class _HuddleSelectorState extends State<HuddleSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return SearchAnchor(
-      builder: (
-        BuildContext context,
-        SearchController controller,
-      ) {
-        return ElevatedButton.icon(
-          icon: const Icon(Icons.search, size: 18),
-          label: const Text("Select a Huddle"),
-          onPressed: () => controller.openView(),
+    return FormField<Huddle>(
+      validator: (_) => widget.validator(_huddle),
+      builder: (formFieldState) {
+        return Column(
+          children: [
+            SearchAnchor(
+              builder: (
+                BuildContext context,
+                SearchController controller,
+              ) {
+                return ElevatedButton.icon(
+                  icon: const Icon(Icons.search, size: 18),
+                  label: const Text("Select a Huddle"),
+                  onPressed: () => controller.openView(),
+                );
+              },
+              suggestionsBuilder: (context, controller) => _debouncer.run(
+                () => _executeSearch(
+                  context,
+                  controller,
+                ),
+              ),
+            ),
+            if (formFieldState.hasError)
+              Padding(
+                padding: const EdgeInsets.only(left: 8, top: 10),
+                child: Text(
+                  formFieldState.errorText!,
+                  style: TextStyle(
+                    fontStyle: FontStyle.normal,
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.error,
+                    height: 0.5,
+                  ),
+                ),
+              )
+          ],
         );
       },
-      suggestionsBuilder: (context, controller) => _debouncer.run(
-        () => _executeSearch(
-          context,
-          controller,
-        ),
-      ),
     );
   }
 
@@ -83,6 +109,7 @@ class _HuddleSelectorState extends State<HuddleSelector> {
           leading: const Icon(Icons.forum),
           onTap: () {
             setState(() {
+              _huddle = huddle;
               widget.onSelected(huddle);
               controller.closeView("");
             });

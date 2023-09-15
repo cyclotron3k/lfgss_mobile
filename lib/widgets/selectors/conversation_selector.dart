@@ -10,9 +10,12 @@ import '../../models/search_result.dart';
 import '../../services/debouncer.dart';
 
 class ConversationSelector extends StatefulWidget {
+  final String? Function(Conversation?) validator;
   final Function(Conversation) onSelected;
+
   const ConversationSelector({
     super.key,
+    required this.validator,
     required this.onSelected,
   });
 
@@ -21,6 +24,7 @@ class ConversationSelector extends StatefulWidget {
 }
 
 class _ConversationSelectorState extends State<ConversationSelector> {
+  Conversation? _conversation;
   // bool _searching = false;
   final Debouncer<List<Widget>> _debouncer = Debouncer<List<Widget>>(
     milliseconds: 500,
@@ -29,23 +33,45 @@ class _ConversationSelectorState extends State<ConversationSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return SearchAnchor(
-      builder: (
-        BuildContext context,
-        SearchController controller,
-      ) {
-        return ElevatedButton.icon(
-          icon: const Icon(Icons.search, size: 18),
-          label: const Text("Select a Conversation"),
-          onPressed: () => controller.openView(),
+    return FormField<Conversation>(
+      validator: (_) => widget.validator(_conversation),
+      builder: (formFieldState) {
+        return Column(
+          children: [
+            SearchAnchor(
+              builder: (
+                BuildContext context,
+                SearchController controller,
+              ) {
+                return ElevatedButton.icon(
+                  icon: const Icon(Icons.search, size: 18),
+                  label: const Text("Select a Conversation"),
+                  onPressed: () => controller.openView(),
+                );
+              },
+              suggestionsBuilder: (context, controller) => _debouncer.run(
+                () => _executeSearch(
+                  context,
+                  controller,
+                ),
+              ),
+            ),
+            if (formFieldState.hasError)
+              Padding(
+                padding: const EdgeInsets.only(left: 8, top: 10),
+                child: Text(
+                  formFieldState.errorText!,
+                  style: TextStyle(
+                    fontStyle: FontStyle.normal,
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.error,
+                    height: 0.5,
+                  ),
+                ),
+              )
+          ],
         );
       },
-      suggestionsBuilder: (context, controller) => _debouncer.run(
-        () => _executeSearch(
-          context,
-          controller,
-        ),
-      ),
     );
   }
 
@@ -83,6 +109,7 @@ class _ConversationSelectorState extends State<ConversationSelector> {
           leading: const Icon(Icons.forum),
           onTap: () {
             setState(() {
+              _conversation = conversation;
               widget.onSelected(conversation);
               controller.closeView("");
             });

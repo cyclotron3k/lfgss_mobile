@@ -1,12 +1,13 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import '../constants.dart';
+import '../models/comment.dart';
 import '../models/conversation.dart';
 import '../models/huddle.dart';
 import '../models/microcosm.dart';
@@ -16,32 +17,37 @@ import 'attachment_thumbnail.dart';
 import 'selectors/conversation_selector.dart';
 import 'selectors/huddle_selector.dart';
 import 'selectors/microcosm_selector.dart';
-import 'selectors/profile_selector.dart';
+import 'selectors/participant_selector.dart';
 
-enum ItemType {
+enum OperationType {
   newConversation,
   conversationComment,
   newHuddle,
   huddleComment,
 }
 
+enum ItemType {
+  conversation,
+  event,
+  huddle,
+  poll,
+}
+
 class AdaptableForm extends StatefulWidget {
   final bool showTypeSelector;
-  final ItemType defaultItemType;
+  final OperationType defaultOperationType;
   final List<SharedMediaFile> initialAttachments;
 
-  // TODO
-  final int itemId = 0;
-  final String itemType = 'coversation';
-  final String initialState = '';
-  final int? inReplyTo = 0;
+  // final ItemType itemType = ItemType.conversation;
   final Function onPostSuccess;
+  final int? inReplyTo;
 
   const AdaptableForm({
     super.key,
     this.initialAttachments = const [],
     this.showTypeSelector = true,
-    this.defaultItemType = ItemType.conversationComment,
+    this.defaultOperationType = OperationType.conversationComment,
+    this.inReplyTo,
     required this.onPostSuccess,
   });
 
@@ -52,7 +58,8 @@ class AdaptableForm extends StatefulWidget {
 class _AdaptableFormState extends State<AdaptableForm> {
   final TextEditingController _comment = TextEditingController();
   final TextEditingController _subject = TextEditingController();
-  late ItemType _itemTypeSelector;
+  late OperationType _itemTypeSelector;
+  final _formKey = GlobalKey<FormState>();
 
   Microcosm? _selectedMicrocosm;
   Conversation? _selectedConversation;
@@ -61,16 +68,30 @@ class _AdaptableFormState extends State<AdaptableForm> {
 
   List<XFile> _attachments = [];
   bool _sending = false;
+  Set<int> _area = {0};
+  Set<int> _type = {1};
 
   @override
   void initState() {
     super.initState();
-    _itemTypeSelector = widget.defaultItemType;
-    _attachments = widget.initialAttachments
-        .map(
-          (e) => XFile(e.path),
-        )
-        .toList();
+    _itemTypeSelector = widget.defaultOperationType;
+    _attachments = widget.initialAttachments.map((e) => XFile(e.path)).toList();
+  }
+
+  void _updateItemTypeSelector() {
+    if (_area.contains(0)) {
+      if (_type.contains(0)) {
+        _itemTypeSelector = OperationType.newConversation;
+      } else {
+        _itemTypeSelector = OperationType.conversationComment;
+      }
+    } else {
+      if (_type.contains(0)) {
+        _itemTypeSelector = OperationType.newHuddle;
+      } else {
+        _itemTypeSelector = OperationType.huddleComment;
+      }
+    }
   }
 
   @override
@@ -78,121 +99,175 @@ class _AdaptableFormState extends State<AdaptableForm> {
     return Material(
       child: SafeArea(
         child: Form(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              DropdownMenu(
-                initialSelection: _itemTypeSelector,
-                inputDecorationTheme: const InputDecorationTheme(
-                  filled: true,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: ListView(
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text("Create in..."),
                 ),
-                onSelected: (value) => setState(() {
-                  if (value != null) {
-                    _itemTypeSelector = value;
-                  }
-                }),
-                dropdownMenuEntries: const [
-                  DropdownMenuEntry(
-                    value: ItemType.newConversation,
-                    label: "Start a new Conversation",
-                  ),
-                  DropdownMenuEntry(
-                    value: ItemType.conversationComment,
-                    label: "Add a Comment to a Conversation",
-                  ),
-                  DropdownMenuEntry(
-                    value: ItemType.newHuddle,
-                    label: "Start a new Huddle",
-                  ),
-                  DropdownMenuEntry(
-                    value: ItemType.huddleComment,
-                    label: "Add a Comment to a Huddle",
-                  ),
-                ],
-              ),
-              IndexedStack(
-                index: _itemTypeSelector.index,
-                children: [
-                  _newConversation(), // Start a new Conversation...
-                  _appendConversation(), // Add a Comment to a Conversation...
-                  _newHuddle(), // Start a new Huddle
-                  _appendHuddle(), // Add comment to Huddle
-                ],
-              ),
-              if (_attachments.isNotEmpty)
-                SizedBox(
-                  height: 80.0,
-                  width: double.infinity,
-                  child: ListView.builder(
-                    itemCount: _attachments.length,
-                    scrollDirection: Axis.horizontal,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) => AttachmentThumbnail(
-                      key: ObjectKey(_attachments[index]),
-                      image: _attachments[index],
-                      onRemoveItem: (XFile image) {
-                        setState(() {
-                          _attachments.remove(image);
-                        });
-                      },
+                SegmentedButton<int>(
+                  multiSelectionEnabled: false,
+                  segments: const <ButtonSegment<int>>[
+                    ButtonSegment<int>(
+                      value: 0,
+                      label: Text('Conversations'),
+                      icon: Icon(Icons.forum),
                     ),
+                    ButtonSegment<int>(
+                      value: 1,
+                      label: Text('Huddles'),
+                      icon: Icon(Icons.email),
+                    ),
+                  ],
+                  selected: _area,
+                  onSelectionChanged: (Set<int> newSelection) => setState(() {
+                    _area = newSelection;
+                    _updateItemTypeSelector();
+                  }),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(top: 16.0, bottom: 8.0),
+                  child: Text("Add to..."),
+                ),
+                SegmentedButton<int>(
+                  multiSelectionEnabled: false,
+                  segments: <ButtonSegment<int>>[
+                    ButtonSegment<int>(
+                      value: 1,
+                      label: Text(
+                        'Existing ${_area.contains(1) ? "Huddle" : "Conversation"}',
+                      ),
+                      icon: const Icon(Icons.add_comment_outlined),
+                    ),
+                    ButtonSegment<int>(
+                      value: 0,
+                      label: Text(
+                        'New ${_area.contains(1) ? "Huddle" : "Conversation"}',
+                      ),
+                      icon: const Icon(Icons.add_comment),
+                    ),
+                  ],
+                  selected: _type,
+                  onSelectionChanged: (Set<int> newSelection) => setState(() {
+                    _type = newSelection;
+                    _updateItemTypeSelector();
+                  }),
+                ),
+                const SizedBox(height: 16.0),
+                switch (_itemTypeSelector) {
+                  // Start a new Conversation...
+                  OperationType.newConversation => _newConversation(),
+                  // Add a Comment to a Conversation...
+                  OperationType.conversationComment => _appendConversation(),
+                  // Start a new Huddle
+                  OperationType.newHuddle => _newHuddle(),
+                  // Add comment to Huddle
+                  OperationType.huddleComment => _appendHuddle(),
+                },
+                const SizedBox(height: 16.0),
+                TextFormField(
+                  // controller: _comment,
+                  autofocus: false,
+                  maxLines: 6,
+                  minLines: 3,
+                  validator: (val) {
+                    if (val == null || val.isEmpty) {
+                      return 'Must have at least one character';
+                    } else {
+                      return null;
+                    }
+                  },
+                  keyboardType: TextInputType.multiline,
+                  enabled: !_sending,
+                  spellCheckConfiguration:
+                      kIsWeb ? null : const SpellCheckConfiguration(),
+                  decoration: const InputDecoration(
+                    labelText: 'New comment',
+                    border: OutlineInputBorder(),
                   ),
                 ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8.0, 0.0, 4.0, 4.0),
-                      child: TextField(
-                        controller: _comment,
-                        autofocus: false,
-                        maxLines: 5,
-                        minLines: 1,
-                        keyboardType: TextInputType.multiline,
-                        enabled: !_sending,
-                        decoration: const InputDecoration(
-                          labelText: 'New comment...',
+                if (_attachments.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
+                        child: Row(
+                          children: [
+                            Text("Attachments (${_attachments.length})"),
+                            const Text(
+                              " • drag to remove",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                      Wrap(
+                        runSpacing: 8.0,
+                        spacing: 8.0,
+                        children: [
+                          for (final attachment in _attachments)
+                            AttachmentThumbnail(
+                              key: ObjectKey(attachment),
+                              image: attachment,
+                              onRemoveItem: (XFile image) {
+                                setState(() {
+                                  _attachments.remove(image);
+                                });
+                              },
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.attach_file),
+                      onPressed: () async {
+                        final ImagePicker picker = ImagePicker();
+                        final List<XFile> images =
+                            await picker.pickMultiImage();
+                        if (images.isNotEmpty) {
+                          setState(() {
+                            _attachments.addAll(images);
+                          });
+                        }
+                      },
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.attach_file),
-                    onPressed: () async {
-                      final ImagePicker picker = ImagePicker();
-                      final List<XFile> images = await picker.pickMultiImage();
-                      if (images.isNotEmpty) {
-                        setState(() {
-                          _attachments.addAll(images);
-                        });
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.camera_alt),
-                    onPressed: () async {
-                      final ImagePicker picker = ImagePicker();
-                      // Capture a photo.
-                      final XFile? photo = await picker.pickImage(
-                        source: ImageSource.camera,
-                      );
-                      if (photo != null) {
-                        setState(() {
-                          _attachments.add(photo);
-                        });
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      _sending ? Icons.timer : Icons.send,
+                    IconButton(
+                      icon: const Icon(Icons.camera_alt),
+                      onPressed: () async {
+                        final ImagePicker picker = ImagePicker();
+                        // Capture a photo.
+                        final XFile? photo = await picker.pickImage(
+                          source: ImageSource.camera,
+                        );
+                        if (photo != null) {
+                          setState(() {
+                            _attachments.add(photo);
+                          });
+                        }
+                      },
                     ),
-                    onPressed: _sending ? null : _postComment,
-                  ),
-                ],
-              ),
-            ],
+                    IconButton.filled(
+                      icon: Icon(
+                        _sending ? Icons.timer : Icons.send,
+                      ),
+                      onPressed: _sending ? null : _postComment,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -201,25 +276,43 @@ class _AdaptableFormState extends State<AdaptableForm> {
 
   Widget _newConversation() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         MicrocosmSelector(
+          validator: (val) {
+            if (val == null) {
+              return 'Must select a Microcosm';
+            } else {
+              return null;
+            }
+          },
           onSelected: (m) => setState(() {
             _selectedMicrocosm = m;
           }),
         ),
         Text(_selectedMicrocosm?.title ?? "Nothing selected"),
-        TextField(
+        const SizedBox(height: 8.0),
+        TextFormField(
           controller: _subject,
           autofocus: false,
-          maxLines: 5,
+          maxLines: 4,
           minLines: 1,
+          maxLength: 150,
           keyboardType: TextInputType.multiline,
-          // enabled: !_sending,
-
+          enabled: !_sending,
+          validator: (val) {
+            if (val == null || val.isEmpty) {
+              return 'Must have at least one character';
+            } else {
+              return null;
+            }
+          },
+          spellCheckConfiguration:
+              kIsWeb ? null : const SpellCheckConfiguration(),
           decoration: const InputDecoration(
-            filled: true,
-            labelText: 'New conversation subject...',
+            // filled: false,
+            border: OutlineInputBorder(),
+            labelText: 'Subject',
           ),
         ),
       ],
@@ -228,9 +321,16 @@ class _AdaptableFormState extends State<AdaptableForm> {
 
   Widget _appendConversation() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ConversationSelector(
+          validator: (val) {
+            if (val == null) {
+              return 'Must select a Conversation';
+            } else {
+              return null;
+            }
+          },
           onSelected: (c) => setState(() {
             _selectedConversation = c;
           }),
@@ -244,55 +344,38 @@ class _AdaptableFormState extends State<AdaptableForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextField(
+        ParticipantSelector(
+          validator: (val) {
+            if (val == null || val.isEmpty) {
+              return "Must select at least one participant";
+            } else {
+              return null;
+            }
+          },
+          onChanged: (val) => _selectedParticipants = val,
+        ),
+        const SizedBox(height: 8.0),
+        TextFormField(
           controller: _subject,
           autofocus: false,
-          maxLines: 5,
+          maxLines: 4,
           minLines: 1,
+          maxLength: 150,
           keyboardType: TextInputType.multiline,
-          // enabled: !_sending,
+          enabled: !_sending,
+          validator: (val) {
+            if (val == null || val.isEmpty) {
+              return 'Must have at least one character';
+            } else {
+              return null;
+            }
+          },
+          spellCheckConfiguration:
+              kIsWeb ? null : const SpellCheckConfiguration(),
           decoration: const InputDecoration(
-            labelText: 'New Huddle subject...',
+            labelText: 'Subject',
+            border: OutlineInputBorder(),
           ),
-        ),
-        const Text('Participants'),
-        const SizedBox(height: 8.0),
-        Wrap(
-          children: [
-            ..._selectedParticipants.map((participant) {
-              return Padding(
-                key: ValueKey(participant.id),
-                padding: const EdgeInsets.only(right: 8.0),
-                child: Chip(
-                  avatar: CachedNetworkImage(
-                    imageUrl: participant.avatar,
-                    imageBuilder: (
-                      context,
-                      imageProvider,
-                    ) =>
-                        ClipRRect(
-                      borderRadius: BorderRadius.circular(4.0),
-                      child: Image(image: imageProvider),
-                    ),
-                    errorWidget: (context, url, error) => const Icon(
-                      Icons.person_outline,
-                    ),
-                  ),
-                  label: Text(participant.profileName),
-                  onDeleted: () {
-                    setState(() {
-                      _selectedParticipants.remove(participant);
-                    });
-                  },
-                ),
-              );
-            }).toList(),
-            ProfileSelector(
-              onSelected: (p) => setState(() {
-                _selectedParticipants.add(p);
-              }),
-            ),
-          ],
         ),
       ],
     );
@@ -303,6 +386,13 @@ class _AdaptableFormState extends State<AdaptableForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         HuddleSelector(
+          validator: (val) {
+            if (val == null) {
+              return 'Must select a Huddle';
+            } else {
+              return null;
+            }
+          },
           onSelected: (h) => setState(() {
             _selectedHuddle = h;
           }),
@@ -355,8 +445,77 @@ class _AdaptableFormState extends State<AdaptableForm> {
     }
   }
 
+  Future<Huddle> _createHuddle() async {
+    Uri url = Uri.https(
+      HOST,
+      "/api/v1/huddles",
+    );
+    Map<String, dynamic> payload = {
+      "title": _subject.text,
+      "is_confidential": false,
+    };
+    log("Posting new Huddle...");
+    Json huddle = await MicrocosmClient().postJson(url, payload);
+    log("Posting new Huddle: success");
+    return Huddle.fromJson(json: huddle);
+  }
+
+  Future<void> _inviteParticipants() async {
+    List<Map<String, int>> invitePayload = _selectedParticipants.map(
+      (p) {
+        return <String, int>{"id": p.id};
+      },
+    ).toList();
+
+    Uri url = Uri.https(
+      HOST,
+      "/api/v1/huddles/${_selectedHuddle!.id}/participants",
+    );
+
+    log("Inviting participants...");
+    Json _ = await MicrocosmClient().postJson(url, invitePayload);
+    log("Inviting participants: success");
+  }
+
+  Future<Conversation> _createConversation() async {
+    Uri url = Uri.https(
+      HOST,
+      "/api/v1/conversations",
+    );
+    Map<String, dynamic> payload = {
+      "microcosmId": _selectedMicrocosm!.id,
+      "title": _subject.text,
+    };
+    log("Posting new Conversation...");
+    Json conversation = await MicrocosmClient().postJson(url, payload);
+    log("Posting new Conversation: success");
+    return Conversation.fromJson(json: conversation);
+  }
+
+  Future<Comment> _createComment() async {
+    Uri url = Uri.https(
+      HOST,
+      "/api/v1/comments",
+    );
+
+    Map<String, dynamic> payload = {
+      "itemType": _area.contains(0) ? "conversation" : "huddle",
+      "itemId":
+          _area.contains(0) ? _selectedConversation!.id : _selectedHuddle!.id,
+      "markdown": _comment.text,
+      if (widget.inReplyTo != null) "inReplyTo": widget.inReplyTo
+    };
+    log("Posting new Comment...");
+    Json comment = await MicrocosmClient().postJson(url, payload);
+    log("Posting new Comment: success");
+    return Comment.fromJson(json: comment);
+  }
+
   Future<void> _postComment() async {
-    if (_comment.text == "") {
+    if (_formKey.currentState!.validate()) {
+      log("Form is ok");
+    } else {
+      log("Form not ok");
       return;
     }
 
@@ -368,30 +527,29 @@ class _AdaptableFormState extends State<AdaptableForm> {
     try {
       Map<String, String> fileHashes = await _uploadAttachments();
 
-      Uri url = Uri.https(
-        HOST,
-        "/api/v1/comments",
-      );
-      Map<String, dynamic> payload = {
-        "itemType": widget.itemType,
-        "itemId": widget.itemId,
-        "markdown": _comment.text,
-        if (widget.inReplyTo != null) "inReplyTo": widget.inReplyTo
-      };
-      log("Posting new comment...");
-      Json comment = await MicrocosmClient().postJson(url, payload);
-      log("Posting new comment: success");
-      if (_attachments.isNotEmpty) {
-        await _linkAttachments(comment["id"], fileHashes);
+      if (_itemTypeSelector == OperationType.newConversation) {
+        _selectedConversation = await _createConversation();
+      } else if (_itemTypeSelector == OperationType.newHuddle) {
+        _selectedHuddle = await _createHuddle();
+        await _inviteParticipants();
+      }
+
+      Comment comment = await _createComment();
+
+      if (fileHashes.isNotEmpty) {
+        await _linkAttachments(comment.id, fileHashes);
       }
 
       setState(() {
         _sending = false;
+        _subject.text = "";
         _comment.text = "";
         _attachments.clear();
+        _selectedParticipants.clear();
         widget.onPostSuccess();
       });
 
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Message sent successfully!'),
@@ -406,6 +564,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
         },
       );
 
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Failed to send message'),

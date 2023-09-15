@@ -33,39 +33,6 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
             floating: true,
             title: Text("Updates"),
           ),
-          // SliverToBoxAdapter(
-          //   child: SegmentedButton<Sizes>(
-          //     segments: const <ButtonSegment<Sizes>>[
-          //       ButtonSegment<Sizes>(
-          //         value: Sizes.extraSmall,
-          //         label: Text('Updates'),
-          //         icon: Icon(Icons.chat),
-          //       ),
-          //       ButtonSegment<Sizes>(
-          //         value: Sizes.small,
-          //         label: Text('Mentions'),
-          //         icon: Icon(Icons.alternate_email),
-          //       ),
-          //       ButtonSegment<Sizes>(
-          //         value: Sizes.medium,
-          //         label: Text('Replies'),
-          //         icon: Icon(Icons.reply),
-          //       ),
-          //       ButtonSegment<Sizes>(
-          //         value: Sizes.large,
-          //         label: Text('Chats'),
-          //         icon: Icon(Icons.email),
-          //       ),
-          //     ],
-          //     selected: selection,
-          //     onSelectionChanged: (Set<Sizes> newSelection) {
-          //       setState(() {
-          //         selection = newSelection;
-          //       });
-          //     },
-          //     multiSelectionEnabled: true,
-          //   ),
-          // ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
