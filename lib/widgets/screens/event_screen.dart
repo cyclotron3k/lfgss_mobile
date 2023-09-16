@@ -109,7 +109,7 @@ class _EventScreenState extends State<EventScreen> {
           if (widget.event.flags.open)
             NewComment(
               itemId: widget.event.id,
-              itemType: "event",
+              itemType: CommentableType.event,
               onPostSuccess: () async {
                 await widget.event.resetChildren();
                 setState(() {});

@@ -148,9 +148,9 @@ class MicrocosmClient {
     Json data = json.decode(page);
 
     if (data["status"] != 200) {
-      developer.log("Failed to retrieve resource from: $url");
+      developer.log("Failed to POST to: $url");
       developer.log("Error: ${data["error"]}");
-      throw "Couldn't retrieve resource: $url";
+      throw "Couldn't POST to: $url";
     }
 
     return data["data"];
@@ -159,6 +159,56 @@ class MicrocosmClient {
   Future<Response> post(Uri url, Object body) async {
     String jsonBody = jsonEncode(body);
     return http.post(
+      url,
+      headers: <String, String>{
+        'User-Agent': userAgent,
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer $accessToken",
+      },
+      body: jsonBody,
+    );
+  }
+
+  Future<Json> putJson(
+    Uri url,
+    Object body, {
+    bool followRedirects = true,
+  }) async {
+    developer.log("PUTting to: $url");
+    var response = await post(url, body);
+
+    if (response.statusCode == 302) {
+      if (followRedirects) {
+        Uri redirect = Uri.parse(response.headers['location']!);
+        if (!redirect.isAbsolute) {
+          redirect = redirect.replace(
+            scheme: "https",
+            host: HOST,
+          );
+        }
+        developer.log("Completed post. Redirecting to: $redirect");
+        return getJson(redirect, ignoreCache: true);
+      } else {
+        return {};
+      }
+    }
+
+    String page = const Utf8Decoder().convert(response.body.codeUnits);
+
+    Json data = json.decode(page);
+
+    if (data["status"] != 200) {
+      developer.log("Failed to PUT to: $url");
+      developer.log("Error: ${data["error"]}");
+      throw "Couldn't PUt to: $url";
+    }
+
+    return data["data"];
+  }
+
+  Future<Response> put(Uri url, Object body) async {
+    String jsonBody = jsonEncode(body);
+    return http.put(
       url,
       headers: <String, String>{
         'User-Agent': userAgent,

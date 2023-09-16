@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
-import 'package:lfgss_mobile/models/permissions.dart';
 
 import '../constants.dart';
 import '../services/microcosm_client.dart' hide Json;
@@ -11,6 +10,7 @@ import 'flags.dart';
 import 'item.dart';
 import 'item_with_children.dart';
 import 'partial_profile.dart';
+import 'permissions.dart';
 import 'unknown_item.dart';
 
 class Huddle extends ItemWithChildren {

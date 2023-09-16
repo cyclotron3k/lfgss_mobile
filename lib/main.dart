@@ -3,7 +3,6 @@ import 'dart:developer' as developer;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:lfgss_mobile/widgets/adaptable_form.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import 'models/conversation.dart';
@@ -14,13 +13,14 @@ import 'models/search.dart';
 import 'models/updates.dart';
 import 'notifications.dart';
 import 'services/microcosm_client.dart';
+import 'widgets/adaptable_form.dart';
+import 'widgets/login_to_see.dart';
 import 'widgets/screens/future_conversation_screen.dart';
 import 'widgets/screens/future_huddles_screen.dart';
 import 'widgets/screens/future_microcosm_screen.dart';
 import 'widgets/screens/future_search_screen.dart';
 import 'widgets/screens/future_updates_screen.dart';
 import 'widgets/screens/login_screen.dart';
-import 'widgets/login_to_see.dart';
 import 'widgets/screens/settings_screen.dart';
 
 typedef Json = Map<String, dynamic>;

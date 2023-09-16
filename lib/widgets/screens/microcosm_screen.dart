@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../constants.dart';
 import '../../models/microcosm.dart';
+import '../adaptable_form.dart';
 
 class MicrocosmScreen extends StatefulWidget {
   final Microcosm microcosm;
@@ -20,13 +20,21 @@ class _MicrocosmScreenState extends State<MicrocosmScreen> {
     final Widget? fab = widget.microcosm.flags.open
         ? FloatingActionButton(
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Not implemented yet'),
-                  duration: TOAST_DURATION,
-                  behavior: SnackBarBehavior.floating,
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  fullscreenDialog: true,
+                  maintainState: true,
+                  builder: (context) => AdaptableForm(
+                    onPostSuccess: () {},
+                    defaultOperationType: OperationType.newConversation,
+                    initialMicrocosm: widget.microcosm,
+                    lock: true,
+                  ),
                 ),
               );
+              // if (!context.mounted) return;
+              // Navigator.pop(context);
             },
             child: const Icon(Icons.add_comment_rounded),
           )

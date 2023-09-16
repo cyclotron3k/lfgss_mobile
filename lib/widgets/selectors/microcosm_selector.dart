@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/models/search_result.dart';
 
 import '../../models/microcosm.dart';
 import '../../models/search.dart';
 import '../../models/search_parameters.dart';
+import '../../models/search_result.dart';
 import '../../services/debouncer.dart';
 import '../microcosm_logo.dart';
 

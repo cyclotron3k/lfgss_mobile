@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'search_results_screen.dart';
 import '../../models/search.dart';
+import 'search_results_screen.dart';
 
 class FutureSearchScreen extends StatefulWidget {
   final Future<Search> search;

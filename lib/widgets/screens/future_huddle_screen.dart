@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/widgets/screens/huddle_screen.dart';
 
 import '../../models/huddle.dart';
+import 'huddle_screen.dart';
 
 class FutureHuddleScreen extends StatefulWidget {
   final Future<Huddle> huddle;

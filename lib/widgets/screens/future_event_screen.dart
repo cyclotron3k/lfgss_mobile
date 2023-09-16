@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/widgets/screens/event_screen.dart';
 
 import '../../models/event.dart';
+import 'event_screen.dart';
 
 class FutureEventScreen extends StatefulWidget {
   final Future<Event> event;

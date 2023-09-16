@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
-import 'package:lfgss_mobile/models/partial_profile.dart';
-import 'package:lfgss_mobile/models/unknown_item.dart';
 
 import '../constants.dart';
 import '../services/microcosm_client.dart' hide Json;
@@ -11,7 +9,9 @@ import 'comment.dart';
 import 'flags.dart';
 import 'item.dart';
 import 'item_with_children.dart';
+import 'partial_profile.dart';
 import 'permissions.dart';
+import 'unknown_item.dart';
 
 class Conversation implements ItemWithChildren {
   final int startPage;

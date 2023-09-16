@@ -16,16 +16,6 @@ class HuddleScreen extends StatefulWidget {
 class _HuddleScreenState extends State<HuddleScreen> {
   @override
   Widget build(BuildContext context) {
-    // final Widget? fab = widget.conversation.flags.open
-    //     ? FloatingActionButton(
-    //         onPressed: () {
-    //           // Add your onPressed code here!
-    //         },
-    //         // backgroundColor: Colors.green,
-    //         child: const Icon(Icons.add_comment),
-    //       )
-    //     : null;
-
     Key forwardListKey = UniqueKey();
     Widget forwardList = SliverList.builder(
       key: forwardListKey,
@@ -44,31 +34,36 @@ class _HuddleScreenState extends State<HuddleScreen> {
     );
 
     return Scaffold(
-      // floatingActionButton: fab,
       body: Column(
         children: [
           Expanded(
-            child: Scrollable(
-              viewportBuilder: (BuildContext context, ViewportOffset offset) {
-                return Viewport(
-                  offset: offset,
-                  center: forwardListKey,
-                  slivers: [
-                    SliverAppBar(
-                      floating: true,
-                      title: Text(widget.huddle.title),
-                    ),
-                    reverseList,
-                    forwardList,
-                  ],
-                );
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await widget.huddle.resetChildren();
+                setState(() {});
               },
+              child: Scrollable(
+                viewportBuilder: (BuildContext context, ViewportOffset offset) {
+                  return Viewport(
+                    offset: offset,
+                    center: forwardListKey,
+                    slivers: [
+                      SliverAppBar(
+                        floating: true,
+                        title: Text(widget.huddle.title),
+                      ),
+                      reverseList,
+                      forwardList,
+                    ],
+                  );
+                },
+              ),
             ),
           ),
           if (widget.huddle.permissions.create)
             NewComment(
               itemId: widget.huddle.id,
-              itemType: "conversation",
+              itemType: CommentableType.huddle,
               onPostSuccess: () async {
                 await widget.huddle.resetChildren();
                 setState(() {});

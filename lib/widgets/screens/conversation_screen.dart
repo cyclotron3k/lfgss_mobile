@@ -15,16 +15,6 @@ class ConversationScreen extends StatefulWidget {
 class _ConversationScreenState extends State<ConversationScreen> {
   @override
   Widget build(BuildContext context) {
-    // final Widget? fab = widget.conversation.flags.open
-    //     ? FloatingActionButton(
-    //         onPressed: () {
-    //           // Add your onPressed code here!
-    //         },
-    //         // backgroundColor: Colors.green,
-    //         child: const Icon(Icons.add_comment),
-    //       )
-    //     : null;
-
     Key forwardListKey = UniqueKey();
     Widget forwardList = SliverList.builder(
       key: forwardListKey,
@@ -45,7 +35,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
     );
 
     return Scaffold(
-      // floatingActionButton: fab,
       body: Column(
         children: [
           Expanded(
@@ -64,12 +53,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
           ),
           if (widget.conversation.flags.open)
             NewComment(
+              itemId: widget.conversation.id,
+              itemType: CommentableType.conversation,
               onPostSuccess: () async {
                 await widget.conversation.resetChildren();
                 setState(() {});
               },
-              itemId: widget.conversation.id,
-              itemType: "conversation",
             )
         ],
       ),

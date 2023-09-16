@@ -46,6 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
             await MicrocosmClient().updateAccessToken();
 
+            if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Login successful'),
@@ -67,6 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
         },
         onPageFinished: (url) async {
           if (url == 'https://www.lfgss.com/') {
+            // Disable Google SSO button because it doesn't work in a WebView:
             await controller.runJavaScript("""
               document.getElementById("login").click();
               document.querySelectorAll("#auth0-lock-container-1 .auth0-lock-close-button")[0].style.visibility = "hidden";

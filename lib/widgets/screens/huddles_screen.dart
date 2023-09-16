@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/huddles.dart';
-import '../new_huddle.dart';
+import '../adaptable_form.dart';
 
 class HuddlesScreen extends StatefulWidget {
   final Huddles huddles;
@@ -23,9 +23,11 @@ class _HuddlesScreenState extends State<HuddlesScreen> {
           context,
           MaterialPageRoute(
             fullscreenDialog: true,
-            maintainState: false,
-            builder: (context) => const NewHuddle(
-              initialParticipants: {},
+            maintainState: true,
+            builder: (context) => AdaptableForm(
+              onPostSuccess: () {},
+              defaultOperationType: OperationType.newHuddle,
+              lock: true,
             ),
           ),
         );

@@ -8,9 +8,15 @@ import '../constants.dart';
 import '../services/microcosm_client.dart';
 import 'attachment_thumbnail.dart';
 
+enum CommentableType {
+  conversation,
+  huddle,
+  event,
+}
+
 class NewComment extends StatefulWidget {
   final int itemId;
-  final String itemType;
+  final CommentableType itemType;
   final String initialState;
   final int? inReplyTo;
   final Function onPostSuccess;
@@ -50,23 +56,21 @@ class _NewCommentState extends State<NewComment> {
     return Column(
       children: [
         if (_attachments.isNotEmpty)
-          SizedBox(
-            height: 80.0,
-            width: double.infinity,
-            child: ListView.builder(
-              itemCount: _attachments.length,
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemBuilder: (context, index) => AttachmentThumbnail(
-                key: ObjectKey(_attachments[index]),
-                image: _attachments[index],
-                onRemoveItem: (XFile image) {
-                  setState(() {
-                    _attachments.remove(image);
-                  });
-                },
-              ),
-            ),
+          Wrap(
+            runSpacing: 8.0,
+            spacing: 8.0,
+            children: [
+              for (final attachment in _attachments)
+                AttachmentThumbnail(
+                  key: ObjectKey(attachment),
+                  image: attachment,
+                  onRemoveItem: (XFile image) {
+                    setState(() {
+                      _attachments.remove(image);
+                    });
+                  },
+                ),
+            ],
           ),
         Row(
           children: [
@@ -184,7 +188,7 @@ class _NewCommentState extends State<NewComment> {
         "/api/v1/comments",
       );
       Map<String, dynamic> payload = {
-        "itemType": widget.itemType,
+        "itemType": widget.itemType.name,
         "itemId": widget.itemId,
         "markdown": _controller.text,
         if (widget.inReplyTo != null) "inReplyTo": widget.inReplyTo
@@ -203,6 +207,7 @@ class _NewCommentState extends State<NewComment> {
         widget.onPostSuccess();
       });
 
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Message sent successfully!'),
@@ -217,6 +222,7 @@ class _NewCommentState extends State<NewComment> {
         },
       );
 
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Failed to send message'),

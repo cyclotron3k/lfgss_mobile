@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/models/partial_profile.dart';
 
+import '../../models/partial_profile.dart';
 import '../../models/profiles.dart';
 
 class ProfileSelector extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/widgets/screens/conversation_screen.dart';
 
 import '../../models/conversation.dart';
+import 'conversation_screen.dart';
 
 class FutureConversationScreen extends StatefulWidget {
   final Future<Conversation> conversation;

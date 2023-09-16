@@ -19,6 +19,8 @@ import 'selectors/huddle_selector.dart';
 import 'selectors/microcosm_selector.dart';
 import 'selectors/participant_selector.dart';
 
+// TODO: refactor this monster
+
 enum OperationType {
   newConversation,
   conversationComment,
@@ -34,22 +36,25 @@ enum ItemType {
 }
 
 class AdaptableForm extends StatefulWidget {
-  final bool showTypeSelector;
   final OperationType defaultOperationType;
   final List<SharedMediaFile> initialAttachments;
+  final Microcosm? initialMicrocosm;
+  final bool lock;
 
-  // final ItemType itemType = ItemType.conversation;
   final Function onPostSuccess;
   final int? inReplyTo;
 
   const AdaptableForm({
     super.key,
     this.initialAttachments = const [],
-    this.showTypeSelector = true,
+    this.initialMicrocosm,
+    this.lock = false,
     this.defaultOperationType = OperationType.conversationComment,
     this.inReplyTo,
     required this.onPostSuccess,
-  });
+  }) : assert(lock == false ||
+            initialMicrocosm != null ||
+            defaultOperationType == OperationType.newHuddle);
 
   @override
   State<AdaptableForm> createState() => _AdaptableFormState();
@@ -68,14 +73,31 @@ class _AdaptableFormState extends State<AdaptableForm> {
 
   List<XFile> _attachments = [];
   bool _sending = false;
-  Set<int> _area = {0};
-  Set<int> _type = {1};
+  late Set<int> _area;
+  late Set<int> _type;
 
   @override
   void initState() {
     super.initState();
     _itemTypeSelector = widget.defaultOperationType;
+
+    if (widget.defaultOperationType == OperationType.newConversation ||
+        widget.defaultOperationType == OperationType.conversationComment) {
+      _area = {0}; // We're in Conversations
+    } else {
+      _area = {1}; // We're in Huddles
+    }
+
+    if (widget.defaultOperationType == OperationType.newConversation ||
+        widget.defaultOperationType == OperationType.newHuddle) {
+      _type = {0}; // Were making a new thread
+    } else {
+      _type = {1}; // We're appending to an existing thread
+    }
+
+    _selectedMicrocosm = widget.initialMicrocosm;
     _attachments = widget.initialAttachments.map((e) => XFile(e.path)).toList();
+    log("_selectedMicrocosm is: ${_selectedMicrocosm?.title}");
   }
 
   void _updateItemTypeSelector() {
@@ -105,59 +127,61 @@ class _AdaptableFormState extends State<AdaptableForm> {
             child: ListView(
               // crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text("Create in..."),
-                ),
-                SegmentedButton<int>(
-                  multiSelectionEnabled: false,
-                  segments: const <ButtonSegment<int>>[
-                    ButtonSegment<int>(
-                      value: 0,
-                      label: Text('Conversations'),
-                      icon: Icon(Icons.forum),
-                    ),
-                    ButtonSegment<int>(
-                      value: 1,
-                      label: Text('Huddles'),
-                      icon: Icon(Icons.email),
-                    ),
-                  ],
-                  selected: _area,
-                  onSelectionChanged: (Set<int> newSelection) => setState(() {
-                    _area = newSelection;
-                    _updateItemTypeSelector();
-                  }),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 16.0, bottom: 8.0),
-                  child: Text("Add to..."),
-                ),
-                SegmentedButton<int>(
-                  multiSelectionEnabled: false,
-                  segments: <ButtonSegment<int>>[
-                    ButtonSegment<int>(
-                      value: 1,
-                      label: Text(
-                        'Existing ${_area.contains(1) ? "Huddle" : "Conversation"}',
+                if (!widget.lock) ...[
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text("Create in..."),
+                  ),
+                  SegmentedButton<int>(
+                    multiSelectionEnabled: false,
+                    segments: const <ButtonSegment<int>>[
+                      ButtonSegment<int>(
+                        value: 0,
+                        label: Text('Conversations'),
+                        icon: Icon(Icons.forum),
                       ),
-                      icon: const Icon(Icons.add_comment_outlined),
-                    ),
-                    ButtonSegment<int>(
-                      value: 0,
-                      label: Text(
-                        'New ${_area.contains(1) ? "Huddle" : "Conversation"}',
+                      ButtonSegment<int>(
+                        value: 1,
+                        label: Text('Huddles'),
+                        icon: Icon(Icons.email),
                       ),
-                      icon: const Icon(Icons.add_comment),
-                    ),
-                  ],
-                  selected: _type,
-                  onSelectionChanged: (Set<int> newSelection) => setState(() {
-                    _type = newSelection;
-                    _updateItemTypeSelector();
-                  }),
-                ),
-                const SizedBox(height: 16.0),
+                    ],
+                    selected: _area,
+                    onSelectionChanged: (Set<int> newSelection) => setState(() {
+                      _area = newSelection;
+                      _updateItemTypeSelector();
+                    }),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 16.0, bottom: 8.0),
+                    child: Text("Add to..."),
+                  ),
+                  SegmentedButton<int>(
+                    multiSelectionEnabled: false,
+                    segments: <ButtonSegment<int>>[
+                      ButtonSegment<int>(
+                        value: 1,
+                        label: Text(
+                          'Existing ${_area.contains(1) ? "Huddle" : "Conversation"}',
+                        ),
+                        icon: const Icon(Icons.add_comment_outlined),
+                      ),
+                      ButtonSegment<int>(
+                        value: 0,
+                        label: Text(
+                          'New ${_area.contains(1) ? "Huddle" : "Conversation"}',
+                        ),
+                        icon: const Icon(Icons.add_comment),
+                      ),
+                    ],
+                    selected: _type,
+                    onSelectionChanged: (Set<int> newSelection) => setState(() {
+                      _type = newSelection;
+                      _updateItemTypeSelector();
+                    }),
+                  ),
+                  const SizedBox(height: 16.0),
+                ],
                 switch (_itemTypeSelector) {
                   // Start a new Conversation...
                   OperationType.newConversation => _newConversation(),
@@ -170,7 +194,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
                 },
                 const SizedBox(height: 16.0),
                 TextFormField(
-                  // controller: _comment,
+                  controller: _comment,
                   autofocus: false,
                   maxLines: 6,
                   minLines: 3,
@@ -278,18 +302,20 @@ class _AdaptableFormState extends State<AdaptableForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        MicrocosmSelector(
-          validator: (val) {
-            if (val == null) {
-              return 'Must select a Microcosm';
-            } else {
-              return null;
-            }
-          },
-          onSelected: (m) => setState(() {
-            _selectedMicrocosm = m;
-          }),
-        ),
+        if (!widget.lock)
+          MicrocosmSelector(
+            validator: (val) {
+              if (val == null) {
+                return 'Must select a Microcosm';
+              } else {
+                return null;
+              }
+            },
+            onSelected: (m) => setState(() {
+              log("Setting _selectedMicrocosm to ${m.title}");
+              _selectedMicrocosm = m;
+            }),
+          ),
         Text(_selectedMicrocosm?.title ?? "Nothing selected"),
         const SizedBox(height: 8.0),
         TextFormField(
@@ -418,7 +444,9 @@ class _AdaptableFormState extends State<AdaptableForm> {
       "/api/v1/files",
     );
 
+    log("Uploading ${_attachments.length} attachments");
     List<dynamic> response = await MicrocosmClient().upload(uri, files);
+    log("Upload complete");
     return {
       for (var file in response)
         file["fileHash"] as String: file["fileName"] as String,
@@ -473,7 +501,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
     );
 
     log("Inviting participants...");
-    Json _ = await MicrocosmClient().postJson(url, invitePayload);
+    Json _ = await MicrocosmClient().putJson(url, invitePayload);
     log("Inviting participants: success");
   }
 
@@ -512,6 +540,8 @@ class _AdaptableFormState extends State<AdaptableForm> {
   }
 
   Future<void> _postComment() async {
+    assert(_comment.text != "");
+
     if (_formKey.currentState!.validate()) {
       log("Form is ok");
     } else {
@@ -519,9 +549,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
       return;
     }
 
-    setState(() {
-      _sending = true;
-    });
+    setState(() => _sending = true);
     log("Sending message...");
 
     try {
@@ -531,13 +559,16 @@ class _AdaptableFormState extends State<AdaptableForm> {
         _selectedConversation = await _createConversation();
       } else if (_itemTypeSelector == OperationType.newHuddle) {
         _selectedHuddle = await _createHuddle();
-        await _inviteParticipants();
       }
 
       Comment comment = await _createComment();
 
       if (fileHashes.isNotEmpty) {
         await _linkAttachments(comment.id, fileHashes);
+      }
+
+      if (_itemTypeSelector == OperationType.newHuddle) {
+        await _inviteParticipants();
       }
 
       setState(() {

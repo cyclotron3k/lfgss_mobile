@@ -24,7 +24,7 @@ class _ParticipantSelectorState extends State<ParticipantSelector> {
   @override
   Widget build(BuildContext context) {
     return FormField<Set<PartialProfile>>(
-      validator: widget.validator,
+      validator: (_) => widget.validator(_selectedParticipants),
       builder: (formFieldState) {
         return Column(
           children: [
