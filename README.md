@@ -3,7 +3,11 @@
 ## TODO
 
 - Implement settings
-  - https://pub.dev/packages/flutter_image_compress (Resize & EXIF)
+  - Downloading images
+  - Preview URLs
+  - 3rd party data
+  - Embed Youtube
+  - Embed Twitter
 - Better selector UX
 - Convert API client to ChangeNotifier
 - Manage caching across multiple accounts better

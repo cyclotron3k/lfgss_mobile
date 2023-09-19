@@ -1,7 +1,7 @@
-import 'dart:developer' as developer;
+import 'dart:developer' show log;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:lfgss_mobile/models/update_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -17,12 +17,41 @@ void callbackDispatcher() {
         await SharedPreferences.getInstance(); // Initialize dependency
 
     try {
-      await MicrocosmClient().updateAccessToken();
+      final client = MicrocosmClient();
+      await client.updateAccessToken();
+      if (!client.loggedIn) {
+        log("Not logged in");
+        // TODO: actually delete the scheduled task, and only rebuild it on log-in
+        return Future.value(true);
+      }
+
       Updates updates = await Updates.root();
       List<Update> notifications = await updates.getNewUpdates();
-      developer.log("New updates: ${notifications.length}");
+      log("New updates: ${notifications.length}");
 
-      for (var update in notifications) {
+      final sp = await SharedPreferences.getInstance();
+      final bool notifyNewComments = sp.getBool("notifyNewComments") ?? true;
+      final bool notifyNewConversations =
+          sp.getBool("notifyNewConversations") ?? true;
+      final bool notifyReplies = sp.getBool("notifyReplies") ?? true;
+      final bool notifyMentions = sp.getBool("notifyMentions") ?? true;
+      final bool notifyHuddles = sp.getBool("notifyHuddles") ?? true;
+
+      for (final update in notifications) {
+        final bool send = switch (update.updateType) {
+          UpdateType.event_reminder => false, // TODO
+          UpdateType.mentioned => notifyMentions,
+          UpdateType.new_comment => notifyNewComments,
+          UpdateType.new_comment_in_huddle => notifyHuddles,
+          UpdateType.new_attendee => false, // TODO
+          UpdateType.new_item => notifyNewConversations,
+          UpdateType.new_vote => false, // TODO
+          UpdateType.new_user => false, // TODO
+          UpdateType.reply_to_comment => notifyReplies,
+        };
+
+        if (!send) continue;
+
         const AndroidNotificationDetails androidNotificationDetails =
             AndroidNotificationDetails(
           'lfgss_updates',
@@ -55,9 +84,9 @@ void callbackDispatcher() {
         "totalExecutions",
         totalExecutions,
       );
-      developer.log("Total executions: $totalExecutions");
+      log("Total executions: $totalExecutions");
     } catch (err) {
-      developer.log(
+      log(
         err.toString(),
       );
       throw Exception(err);
