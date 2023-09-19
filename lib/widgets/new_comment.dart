@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 import '../constants.dart';
 import '../services/microcosm_client.dart';
@@ -143,7 +144,7 @@ class _NewCommentState extends State<NewComment> {
       "/api/v1/files",
     );
 
-    List<dynamic> response = await MicrocosmClient().upload(uri, files);
+    List<dynamic> response = await MicrocosmClient().uploadImages(uri, files);
     return {
       for (var file in response)
         file["fileHash"] as String: file["fileName"] as String,

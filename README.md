@@ -2,32 +2,30 @@
 
 ## TODO
 
-- Receive sharing intent
-- Thread view
-- Composable forms: Conversation + comment, Huddle + comment
-  - Create post
-  - Create huddle
-- Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
-- Edit comment
 - Implement settings
   - https://pub.dev/packages/flutter_image_compress (Resize & EXIF)
-- Page navigation (lozenge or indexed scroller?)
-- Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
-- Animated containers for loading content?
+- Better selector UX
+- Convert API client to ChangeNotifier
+- Manage caching across multiple accounts better
 - Better caching/cache invalidation
 - Caching (json, images, thumbnails, metrics)
+- Page navigation (lozenge or indexed scroller?)
+- Edit comment
+- Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
+- Animated containers for loading content?
+- Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
+- Thread view
 - Attachment gallery
 - Download dots
 - Maps
-- Social sharing
 - Persistent connections & HTTP3 (See: https://pub.dev/packages/dio)
 - DRY (future_x widgets, mixins, codegen?)
+- Consolidated notifications
+- Social sharing
 - Widget keys
 - Instrumentation
 - https://docs.flutter.dev/cookbook/effects/expandable-fab
 - Use FlutterSecureStorage?
-- Manage caching across multiple accounts better
-- Consolidated notifications
 - Blurha.sh shader?
 
 ## TBD
@@ -40,10 +38,6 @@
 - Convert Polls from Item to Attachment
 - https://blurha.sh/ for images
 - TZ calcs on event timestamps
-
-## Bugs
-
-- Horizontal scroll new comment attachments
 
 ## Maintenance
 

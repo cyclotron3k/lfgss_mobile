@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:lfgss_mobile/widgets/screens/settings_screen.dart';
+import 'package:provider/provider.dart';
 
 import '../constants.dart';
 import '../services/microcosm_client.dart';
+import '../services/settings.dart';
 import 'attachment.dart';
 
 // TODO: refactor this whole file
@@ -38,6 +41,45 @@ class CommentAttachments {
     return attachmentList!;
   }
 
+  Widget build(BuildContext context) {
+    return Consumer<Settings>(builder: (context, settings, child) {
+      Layout layout = Layout.values.byName(
+        settings.getString("layout") ?? "horizontalSmall",
+      );
+
+      double? height = switch (layout) {
+        Layout.horizontalLarge => 440.0,
+        Layout.horizontalSmall => 220.0,
+        Layout.vertical => null,
+      };
+
+      ScrollPhysics? physics = switch (layout) {
+        Layout.horizontalLarge => null,
+        Layout.horizontalSmall => null,
+        Layout.vertical => const ClampingScrollPhysics(),
+      };
+
+      Axis scrollDirection = switch (layout) {
+        Layout.horizontalLarge => Axis.horizontal,
+        Layout.horizontalSmall => Axis.horizontal,
+        Layout.vertical => Axis.vertical,
+      };
+
+      return SizedBox(
+        height: height,
+        width: double.infinity,
+        child: ListView.builder(
+          itemCount: attachments,
+          physics: physics,
+          scrollDirection: scrollDirection,
+          shrinkWrap: true,
+          // prototypeItem: const Icon(Icons.image, size: 64.0),
+          itemBuilder: getAttachment,
+        ),
+      );
+    });
+  }
+
   Widget getAttachment(BuildContext context, int index) {
     return FutureBuilder(
       future: getAttachmentList(),
@@ -57,20 +99,6 @@ class CommentAttachments {
           );
         }
       },
-    );
-  }
-
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200.0,
-      width: double.infinity,
-      child: ListView.builder(
-        itemCount: attachments,
-        scrollDirection: Axis.horizontal,
-        shrinkWrap: true,
-        // prototypeItem: const Icon(Icons.image, size: 64.0),
-        itemBuilder: getAttachment,
-      ),
     );
   }
 }

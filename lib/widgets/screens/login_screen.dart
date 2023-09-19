@@ -1,12 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../constants.dart';
 import '../../services/microcosm_client.dart';
+import '../../services/settings.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,6 +29,8 @@ class _LoginScreenState extends State<LoginScreen> {
     controller = WebViewController()
       ..setNavigationDelegate(NavigationDelegate(
         onPageStarted: (url) async {
+          var settings = Provider.of<Settings>(context, listen: false);
+
           List<Cookie> cookies = await cookieManager.getCookies(
             'www.lfgss.com',
           );
@@ -41,9 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
           }
 
           if (accessToken != null) {
-            var sharedPreference = await SharedPreferences.getInstance();
-            await sharedPreference.setString("accessToken", accessToken);
-
+            await settings.setString("accessToken", accessToken);
             await MicrocosmClient().updateAccessToken();
 
             if (!context.mounted) return;
@@ -55,16 +56,12 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             );
             Navigator.pop(context);
+          } else {
+            setState(() => loadingPercentage = 0);
           }
-
-          setState(() {
-            loadingPercentage = 0;
-          });
         },
         onProgress: (progress) {
-          setState(() {
-            loadingPercentage = progress;
-          });
+          setState(() => loadingPercentage = progress);
         },
         onPageFinished: (url) async {
           if (url == 'https://www.lfgss.com/') {
@@ -78,7 +75,6 @@ class _LoginScreenState extends State<LoginScreen> {
             loadingPercentage = 100;
             complete = true;
           }
-          setState(() {});
         },
         // onUrlChange: (change) {
         //   log(change.url ?? "No url");

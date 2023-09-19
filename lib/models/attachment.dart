@@ -65,7 +65,7 @@ class Attachment {
             ImageGallery(attachment: this),
           );
         },
-        child: asHero(height: 128.0),
+        child: asHero(),
       ),
     );
   }

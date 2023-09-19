@@ -3,7 +3,9 @@ import 'dart:developer' as developer;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:provider/provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models/conversation.dart';
 import 'models/huddles.dart';
@@ -13,6 +15,7 @@ import 'models/search.dart';
 import 'models/updates.dart';
 import 'notifications.dart';
 import 'services/microcosm_client.dart';
+import 'services/settings.dart';
 import 'widgets/adaptable_form.dart';
 import 'widgets/login_to_see.dart';
 import 'widgets/screens/future_conversation_screen.dart';
@@ -29,9 +32,19 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   initTasks();
 
-  await MicrocosmClient().updateAccessToken();
+  var settings = Settings(
+    await SharedPreferences.getInstance(),
+  );
 
-  runApp(const MyApp());
+  await MicrocosmClient().updateAccessToken();
+  // var apiClient = MicrocosmClient(settingsProvider: settings);
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => settings,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -39,23 +52,39 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'LFGSS',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 77, 134, 219),
-        ),
-        useMaterial3: true,
-        // textTheme: TextTheme(),
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          brightness: Brightness.dark,
-          seedColor: const Color.fromARGB(255, 60, 41, 230),
-        ),
-        useMaterial3: true,
-      ),
-      home: const HomePage(title: 'LFGSS'),
+    return Consumer<Settings>(
+      builder: (context, settings, child) {
+        var lightTheme = ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 77, 134, 219),
+          ),
+          useMaterial3: true,
+          // textTheme: TextTheme(),
+        );
+
+        var darkTheme = ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            brightness: Brightness.dark,
+            seedColor: const Color.fromARGB(255, 60, 41, 230),
+          ),
+          useMaterial3: true,
+        );
+
+        String darkMode = settings.getString("darkMode") ?? "system";
+
+        if (darkMode == "light") {
+          darkTheme = lightTheme;
+        } else if (darkMode == "dark") {
+          lightTheme = darkTheme;
+        }
+
+        return MaterialApp(
+          title: 'LFGSS',
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          home: const HomePage(title: 'LFGSS'),
+        );
+      },
     );
   }
 }

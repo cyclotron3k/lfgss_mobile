@@ -56,6 +56,10 @@ dependencies:
       url: https://github.com/AyushmanG26/receive_sharing_intent.git
       ref: abedc3d6d5b80df396e9c300fd1a052cbab08827
   timeago: ^3.5.0
+  provider: ^6.0.5
+  flutter_image_compress: ^2.0.4
+  image_size_getter: ^2.1.2
+  collection: ^1.17.2
 
 dev_dependencies:
   flutter_test:

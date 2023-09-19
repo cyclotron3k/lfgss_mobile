@@ -1,12 +1,16 @@
 import 'dart:convert';
-import 'dart:developer' as developer;
+import 'dart:developer' show log;
 import 'dart:io';
+import 'dart:math' as math;
 
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
+import 'package:image_size_getter/file_input.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants.dart';
+import 'relaxed_jpeg_decoder.dart';
 
 typedef Json = Map<String, dynamic>;
 
@@ -26,7 +30,7 @@ class _ExpiringResponse {
 }
 
 class MicrocosmClient {
-  static const String userAgent = "LFGSSMobile/0.0.1 (android;cyclotron3k)";
+  static const String userAgent = "LFGSSMobile/1.0.0 (android;cyclotron3k)";
   static final MicrocosmClient _singleton = MicrocosmClient._internal();
   String? accessToken;
 
@@ -43,14 +47,11 @@ class MicrocosmClient {
   }
 
   Future<void> updateAccessToken() async {
-    // developer.log("Getting access token...");
-
     final sharedPreference = await SharedPreferences.getInstance();
     accessToken = sharedPreference.getString("accessToken");
-    developer.log("Retrieved access token: $accessToken");
   }
 
-  Future<Response> get(Uri url) async {
+  Future<http.Response> get(Uri url) async {
     return http.get(
       url,
       headers: {
@@ -90,13 +91,13 @@ class MicrocosmClient {
     if (_inFlight.containsKey(url)) {
       assert(_inFlight.containsKey(url));
       if (ignoreCache || _inFlight[url]!.expired) {
-        developer.log("Refreshing expired page: $url");
+        log("Refreshing expired page: $url");
         _inFlight.remove(url);
       } else {
-        // developer.log("Awaiting page: $url");
+        // log("Awaiting page: $url");
       }
     } else {
-      // developer.log("Requesting page: $url");
+      // log("Requesting page: $url");
     }
 
     int expiresAt = DateTime.now().millisecondsSinceEpoch + ttl * 1000;
@@ -104,12 +105,12 @@ class MicrocosmClient {
     _inFlight[url] ??= _ExpiringResponse(
       expiresAt: expiresAt,
       response: get(url).then((response) {
-        developer.log("Retrieved page: $url");
+        log("Retrieved page: $url");
         String page = const Utf8Decoder().convert(response.body.codeUnits);
         Json data = json.decode(page);
         if (data["status"] != 200) {
-          developer.log("Failed to retrieve resource from: $url");
-          developer.log("Error: ${data["error"]}");
+          log("Failed to retrieve resource from: $url");
+          log("Error: ${data["error"]}");
           throw "Couldn't retrieve resource: $url";
         }
         return data["data"];
@@ -124,7 +125,7 @@ class MicrocosmClient {
     Object body, {
     bool followRedirects = true,
   }) async {
-    developer.log("Posting to: $url");
+    log("Posting to: $url");
     var response = await post(url, body);
 
     if (response.statusCode == 302) {
@@ -136,7 +137,7 @@ class MicrocosmClient {
             host: HOST,
           );
         }
-        developer.log("Completed post. Redirecting to: $redirect");
+        log("Completed post. Redirecting to: $redirect");
         return getJson(redirect, ignoreCache: true);
       } else {
         return {};
@@ -148,15 +149,15 @@ class MicrocosmClient {
     Json data = json.decode(page);
 
     if (data["status"] != 200) {
-      developer.log("Failed to POST to: $url");
-      developer.log("Error: ${data["error"]}");
+      log("Failed to POST to: $url");
+      log("Error: ${data["error"]}");
       throw "Couldn't POST to: $url";
     }
 
     return data["data"];
   }
 
-  Future<Response> post(Uri url, Object body) async {
+  Future<http.Response> post(Uri url, Object body) async {
     String jsonBody = jsonEncode(body);
     return http.post(
       url,
@@ -174,8 +175,8 @@ class MicrocosmClient {
     Object body, {
     bool followRedirects = true,
   }) async {
-    developer.log("PUTting to: $url");
-    var response = await post(url, body);
+    log("PUTting to: $url");
+    var response = await put(url, body);
 
     if (response.statusCode == 302) {
       if (followRedirects) {
@@ -186,7 +187,7 @@ class MicrocosmClient {
             host: HOST,
           );
         }
-        developer.log("Completed post. Redirecting to: $redirect");
+        log("Completed post. Redirecting to: $redirect");
         return getJson(redirect, ignoreCache: true);
       } else {
         return {};
@@ -198,15 +199,15 @@ class MicrocosmClient {
     Json data = json.decode(page);
 
     if (data["status"] != 200) {
-      developer.log("Failed to PUT to: $url");
-      developer.log("Error: ${data["error"]}");
+      log("Failed to PUT to: $url");
+      log("Error: ${data["error"]}");
       throw "Couldn't PUt to: $url";
     }
 
     return data["data"];
   }
 
-  Future<Response> put(Uri url, Object body) async {
+  Future<http.Response> put(Uri url, Object body) async {
     String jsonBody = jsonEncode(body);
     return http.put(
       url,
@@ -219,32 +220,81 @@ class MicrocosmClient {
     );
   }
 
-  Future<dynamic> upload(Uri uri, List<File> files) async {
-    developer.log("Uploading ${files.length} file(s)");
+  int _scaleImage(File file) {
+    log("Getting image size of ${file.path}");
+    ImageSizeGetter.registerDecoder(const RelaxedJpegDecoder());
+    final size = ImageSizeGetter.getSize(FileInput(file));
+
+    log("Image width: ${size.width}, height: ${size.height}");
+    return _scale(size.width, size.height);
+  }
+
+  int _scale(int width, int height) {
+    log("width: $width, height: $height");
+    var minDimension = math.min(width, height);
+    var pixels = width * height;
+    var targetPixels = 3100000;
+    double scaling = math.sqrt(pixels / targetPixels);
+    scaling = (scaling * 2.0).roundToDouble() / 2.0;
+    if (scaling <= 1.0) {
+      return minDimension;
+    }
+    var minLength = minDimension / scaling;
+    var nmp = (width / scaling) * (height / scaling);
+    log("Downscaling from $pixels to $nmp");
+    return minLength.round();
+  }
+
+  Future<dynamic> uploadImages(Uri uri, List<File> images) async {
+    log("Uploading ${images.length} file(s)");
 
     var request = http.MultipartRequest('POST', uri);
     request.headers['User-Agent'] = userAgent;
     request.headers['Authorization'] = "Bearer $accessToken";
 
-    for (File file in files) {
-      developer.log("Adding ${file.uri.pathSegments.last} to the payload");
-      request.files.add(await http.MultipartFile.fromPath(
-        'file', file.path,
-        filename: file.uri.pathSegments.last,
-        // contentType: MediaType('application', 'x-tar'),
-      ));
+    var sharedPreference = await SharedPreferences.getInstance();
+    bool shrink = sharedPreference.getBool("shrinkLargeImages") ?? true;
+    bool removeExif = sharedPreference.getBool("sanitizeImages") ?? true;
+
+    for (File file in images) {
+      log("Adding ${file.uri.pathSegments.last} to the payload.");
+      if (shrink ^ removeExif) {
+        int scaleDim = _scaleImage(file);
+        log("maxDim is $scaleDim");
+        var bytes = await FlutterImageCompress.compressWithFile(
+          file.absolute.path,
+          minWidth: scaleDim,
+          minHeight: scaleDim,
+          quality: 80,
+          keepExif: !removeExif,
+        );
+        var f = http.MultipartFile.fromBytes(
+          'file',
+          bytes!,
+          filename: file.uri.pathSegments.last,
+        );
+        request.files.add(f);
+      } else {
+        var f = await http.MultipartFile.fromPath(
+          'file', file.path,
+          filename: file.uri.pathSegments.last,
+          // contentType: MediaType('application', 'x-tar'),
+        );
+        request.files.add(f);
+      }
     }
 
+    log("Sending attachments");
     var response = await request.send();
 
     if (response.statusCode == 200) {
-      developer.log("Upload success");
+      log("Upload success");
       List<int> responseBytes = await response.stream.toBytes();
       String page = utf8.decode(responseBytes);
       Json data = json.decode(page);
       return data['data'];
     } else {
-      developer.log("Upload failed");
+      log("Upload failed");
       throw "Error from API Upload: ${response.statusCode}";
     }
   }

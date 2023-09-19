@@ -17,8 +17,8 @@ class MicrocosmLogo extends StatefulWidget {
 class _MicrocosmLogoState extends State<MicrocosmLogo> {
   @override
   Widget build(BuildContext context) {
-    var brightness = MediaQuery.of(context).platformBrightness;
-    bool isDarkMode = brightness == Brightness.dark;
+    bool isDarkMode =
+        MediaQuery.of(context).platformBrightness == Brightness.dark;
 
     return (widget.microcosm.logoUrl.isEmpty
         ? const Icon(

@@ -445,7 +445,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
     );
 
     log("Uploading ${_attachments.length} attachments");
-    List<dynamic> response = await MicrocosmClient().upload(uri, files);
+    List<dynamic> response = await MicrocosmClient().uploadImages(uri, files);
     log("Upload complete");
     return {
       for (var file in response)
@@ -501,7 +501,11 @@ class _AdaptableFormState extends State<AdaptableForm> {
     );
 
     log("Inviting participants...");
-    Json _ = await MicrocosmClient().putJson(url, invitePayload);
+    Json _ = await MicrocosmClient().putJson(
+      url,
+      invitePayload,
+      followRedirects: false,
+    );
     log("Inviting participants: success");
   }
 

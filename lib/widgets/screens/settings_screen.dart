@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../services/settings.dart';
 
 enum DarkMode { system, light, dark }
 
@@ -14,14 +17,58 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _lights = false;
-
-  DarkMode _theme = DarkMode.system;
+  DarkMode _darkMode = DarkMode.system;
   Layout _layout = Layout.horizontalSmall;
   Download _downloadImages = Download.always;
 
+  bool _shrinkLargeImages = false;
+  bool _sanitizeImages = false;
+  bool _previewUrls = false;
+  bool _downloadThirdParty = false;
+  bool _embedYouTube = false;
+  bool _embedTwitter = false;
+  bool _notifyNewComments = false;
+  bool _notifyNewConversations = false;
+  bool _notifyReplies = false;
+  bool _notifyMentions = false;
+  bool _notifyHuddles = false;
+
+  @override
+  void initState() {
+    super.initState();
+    var settings = Provider.of<Settings>(context, listen: false);
+
+    _darkMode = DarkMode.values.byName(
+      settings.getString("darkMode") ?? "system",
+    );
+    _layout = Layout.values.byName(
+      settings.getString("layout") ?? "horizontalSmall",
+    );
+
+    _downloadImages = Download.values.byName(
+      settings.getString("downloadImages") ?? "always",
+    );
+
+    _shrinkLargeImages = settings.getBool("shrinkLargeImages") ?? true;
+    _sanitizeImages = settings.getBool("sanitizeImages") ?? true;
+    _previewUrls = settings.getBool("previewUrls") ?? false;
+    _downloadThirdParty = settings.getBool("downloadThirdParty") ?? true;
+    _embedYouTube = settings.getBool("embedYouTube") ?? true;
+    _embedTwitter = settings.getBool("embedTwitter") ?? false;
+    _notifyNewComments = settings.getBool("notifyNewComments") ?? true;
+    _notifyNewConversations =
+        settings.getBool("notifyNewConversations") ?? true;
+    _notifyReplies = settings.getBool("notifyReplies") ?? true;
+    _notifyMentions = settings.getBool("notifyMentions") ?? true;
+    _notifyHuddles = settings.getBool("notifyHuddles") ?? true;
+  }
+
   @override
   Widget build(BuildContext context) {
+    var settings = Provider.of<Settings>(context, listen: false);
+    late SwitchListTile scalingSwitch;
+    late SwitchListTile exifSwitch;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -30,10 +77,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           const SettingsSectionTitle(title: "Theme"),
           PopupMenuButton(
-            initialValue: _theme,
+            initialValue: _darkMode,
             onSelected: (DarkMode item) {
               setState(() {
-                _theme = item;
+                settings.setString("darkMode", item.name).ignore();
+                _darkMode = item;
               });
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<DarkMode>>[
@@ -52,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
             child: ListTile(
               title: const Text('Dark mode'),
-              subtitle: Text(_theme.toString()),
+              subtitle: Text(_darkMode.name),
               leading: const Icon(Icons.lightbulb_outline),
             ),
           ),
@@ -60,6 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             initialValue: _layout,
             onSelected: (Layout item) {
               setState(() {
+                settings.setString("layout", item.name).ignore();
                 _layout = item;
               });
             },
@@ -79,7 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
             child: ListTile(
               title: const Text('Attachment layout'),
-              subtitle: Text(_layout.toString()),
+              subtitle: Text(_layout.name),
               leading: const Icon(Icons.dashboard),
             ),
           ),
@@ -89,6 +138,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             initialValue: _downloadImages,
             onSelected: (Download item) {
               setState(() {
+                settings.setString("downloadImages", item.name).ignore();
                 _downloadImages = item;
               });
             },
@@ -108,34 +158,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
             child: ListTile(
               title: const Text('Download images'),
-              subtitle: Text(_downloadImages.toString()),
+              subtitle: Text(_downloadImages.name),
               leading: const Icon(Icons.image),
             ),
           ),
-          SwitchListTile(
+          scalingSwitch = SwitchListTile(
             title: const Text('Shrink large images'),
             subtitle: const Text(
               'Upload smaller files',
             ),
-            value: true,
+            value: _shrinkLargeImages,
             onChanged: (bool value) {
               setState(() {
-                _lights = value;
+                settings.setBool("shrinkLargeImages", value).ignore();
+                _shrinkLargeImages = value;
               });
+
+              if (!value && exifSwitch.value) {
+                exifSwitch.onChanged!(false);
+              }
             },
             secondary: const Icon(Icons.photo_size_select_large),
           ),
           const Divider(),
           const SettingsSectionTitle(title: "Security & Privacy"),
-          SwitchListTile(
+          exifSwitch = SwitchListTile(
             title: const Text('Sanitize images'),
             subtitle: const Text(
-              'Strip all EXIF data from uploaded images, including GPS coordinates',
+              'Strip all metadata from uploaded photos, including GPS coordinates',
             ),
-            value: true,
+            value: _sanitizeImages,
             onChanged: (bool value) {
               setState(() {
-                _lights = value;
+                settings.setBool("sanitizeImages", value).ignore();
+                _sanitizeImages = value;
+
+                if (_sanitizeImages && !scalingSwitch.value) {
+                  scalingSwitch.onChanged!(true);
+                }
               });
             },
             secondary: const Icon(Icons.hide_image),
@@ -145,10 +205,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: const Text(
               'Preview URLs before following',
             ),
-            value: _lights,
+            value: _previewUrls,
             onChanged: (bool value) {
               setState(() {
-                _lights = value;
+                settings.setBool("previewUrls", value).ignore();
+                _previewUrls = value;
               });
             },
             secondary: const Icon(Icons.manage_search),
@@ -158,30 +219,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: const Text(
               'E.g. Hotlinked images',
             ),
-            value: _lights,
+            value: _downloadThirdParty,
             onChanged: (bool value) {
               setState(() {
-                _lights = value;
+                settings.setBool("downloadThirdParty", value).ignore();
+                _downloadThirdParty = value;
               });
             },
             secondary: const Icon(Icons.download_for_offline),
           ),
           SwitchListTile(
-            title: const Text('Enable Youtube links'),
-            value: _lights,
+            title: const Text('Embed YouTube links'),
+            value: _embedYouTube,
             onChanged: (bool value) {
               setState(() {
-                _lights = value;
+                settings.setBool("embedYouTube", value).ignore();
+                _embedYouTube = value;
               });
             },
             secondary: const Icon(Icons.question_mark),
           ),
           SwitchListTile(
             title: const Text('Embed Twitter links'),
-            value: _lights,
+            value: _embedTwitter,
             onChanged: (bool value) {
               setState(() {
-                _lights = value;
+                settings.setBool("embedTwitter", value).ignore();
+                _embedTwitter = value;
               });
             },
             secondary: const Icon(Icons.question_mark),
@@ -189,12 +253,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const Divider(),
           const SettingsSectionTitle(title: "Notifications"),
           SwitchListTile(
-            title: const Text('New comments'),
-            subtitle: const Text("in a followed conversation"),
-            value: false,
+            title: const Text('Direct messages (huddles)'),
+            value: _notifyHuddles,
             onChanged: (bool value) {
               setState(() {
-                _lights = value;
+                settings.setBool("notifyHuddles", value).ignore();
+                _notifyHuddles = value;
+              });
+            },
+            secondary: const Icon(Icons.email),
+          ),
+          SwitchListTile(
+            title: const Text('Replies'),
+            value: _notifyReplies,
+            onChanged: (bool value) {
+              setState(() {
+                settings.setBool("notifyReplies", value).ignore();
+                _notifyReplies = value;
+              });
+            },
+            secondary: const Icon(Icons.reply),
+          ),
+          SwitchListTile(
+            title: const Text('Mentions'),
+            value: _notifyMentions,
+            onChanged: (bool value) {
+              setState(() {
+                settings.setBool("notifyMentions", value).ignore();
+                _notifyMentions = value;
+              });
+            },
+            secondary: const Icon(Icons.alternate_email),
+          ),
+          SwitchListTile(
+            title: const Text('New comments'),
+            subtitle: const Text("in a followed conversation"),
+            value: _notifyNewComments,
+            onChanged: (bool value) {
+              setState(() {
+                settings.setBool("notifyNewComments", value).ignore();
+                _notifyNewComments = value;
               });
             },
             secondary: const Icon(Icons.chat_bubble),
@@ -202,33 +300,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SwitchListTile(
             title: const Text('New conversations'),
             subtitle: const Text("in a followed microcosm"),
-            value: false,
+            value: _notifyNewConversations,
             onChanged: (bool value) {
               setState(() {
-                _lights = value;
+                settings.setBool("notifyNewConversations", value).ignore();
+                _notifyNewConversations = value;
               });
             },
             secondary: const Icon(Icons.forum),
-          ),
-          SwitchListTile(
-            title: const Text('Replies'),
-            value: true,
-            onChanged: (bool value) {
-              setState(() {
-                _lights = value;
-              });
-            },
-            secondary: const Icon(Icons.reply),
-          ),
-          SwitchListTile(
-            title: const Text('Mentions'),
-            value: true,
-            onChanged: (bool value) {
-              setState(() {
-                _lights = value;
-              });
-            },
-            secondary: const Icon(Icons.alternate_email),
           ),
         ],
       ),
