@@ -8,6 +8,7 @@
   - 3rd party data
   - Embed Youtube
   - Embed Twitter
+- Search
 - Better selector UX
 - Convert API client to ChangeNotifier
 - Manage caching across multiple accounts better

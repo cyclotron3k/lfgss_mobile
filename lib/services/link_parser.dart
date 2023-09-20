@@ -16,6 +16,9 @@ class LinkParser {
   static final RegExp commentMatcher = RegExp(
     r'^(?:/api/v1)?/comments/(\d+)/?$',
   );
+  static final RegExp conversationMatcher = RegExp(
+    r'^(?:/api/v1)?/conversations/(\d+)(?:(?:/newest)?/)?$',
+  );
 
   static Future<void> parseLink(BuildContext context, String link) async {
     return _parse(context, link, Uri.parse(link));
@@ -69,6 +72,24 @@ class LinkParser {
           builder: (context) => FutureConversationScreen(
             conversation: Conversation.getByCommentId(
               otherCommentId,
+            ),
+          ),
+        ),
+      );
+      return;
+    } else if (conversationMatcher.hasMatch(link)) {
+      int conversationId = int.parse(
+        conversationMatcher.firstMatch(link)![1]!,
+      );
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          maintainState: true,
+          builder: (context) => FutureConversationScreen(
+            conversation: Conversation.getById(
+              conversationId,
             ),
           ),
         ),

@@ -1,4 +1,5 @@
-import 'dart:developer' as developer;
+import 'dart:convert';
+import 'dart:developer' show log;
 
 import 'package:flutter/material.dart';
 
@@ -6,6 +7,7 @@ import '../widgets/tiles/update_tile.dart';
 import 'comment.dart';
 import 'conversation.dart';
 import 'flags.dart';
+import 'huddle.dart';
 import 'item.dart';
 import 'item_parser.dart' hide Json;
 import 'update_type.dart';
@@ -41,9 +43,33 @@ class Update extends Item {
   String get title {
     if (parent is Conversation) {
       return (parent as Conversation).title;
+    } else if (parent is Huddle) {
+      return (parent as Huddle).title;
     } else {
       return description;
     }
+  }
+
+  String get payload {
+    var payload = <String, dynamic>{};
+
+    if (parent is Conversation) {
+      payload["goto"] = "conversation";
+      payload["id"] = (parent as Conversation).id;
+      payload["commentId"] = (child as Comment).id;
+    } else if (child is Conversation) {
+      payload["goto"] = "conversation";
+      payload["id"] = (child as Conversation).id;
+    } else if (parent is Huddle) {
+      payload["goto"] = "huddle";
+      payload["id"] = (parent as Huddle).id;
+      payload["commentId"] = (child as Comment).id;
+    } else {
+      log("Don't know how to handle ${updateType.name}");
+      return "";
+    }
+
+    return jsonEncode(payload);
   }
 
   String get body {
@@ -92,7 +118,7 @@ class Update extends Item {
         return "A reply to your comment";
       default:
         {
-          developer.log("Can't handle updateType of: $updateType");
+          log("Can't handle updateType of: $updateType");
           return "";
         }
     }

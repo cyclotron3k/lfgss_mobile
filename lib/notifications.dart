@@ -74,7 +74,7 @@ void callbackDispatcher() {
           update.title,
           update.body,
           notificationDetails,
-          payload: update.conversationId,
+          payload: update.payload,
         );
       }
 
@@ -131,7 +131,7 @@ Future<void> initTasks() async {
       requiresBatteryNotLow: true,
       requiresCharging: false,
       requiresDeviceIdle: false,
-      requiresStorageNotLow: true,
+      requiresStorageNotLow: false,
     ),
     // tag: "my-tag",
     // backoffPolicy: BackoffPolicy.exponential,

@@ -1,4 +1,5 @@
-import 'dart:developer' as developer;
+import 'dart:convert';
+import 'dart:developer' show log;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models/conversation.dart';
+import 'models/huddle.dart';
 import 'models/huddles.dart';
 import 'models/microcosm.dart';
 import 'models/profile.dart';
@@ -19,6 +21,7 @@ import 'services/settings.dart';
 import 'widgets/adaptable_form.dart';
 import 'widgets/login_to_see.dart';
 import 'widgets/screens/future_conversation_screen.dart';
+import 'widgets/screens/future_huddle_screen.dart';
 import 'widgets/screens/future_huddles_screen.dart';
 import 'widgets/screens/future_microcosm_screen.dart';
 import 'widgets/screens/future_search_screen.dart';
@@ -154,7 +157,7 @@ class _HomePageState extends State<HomePage> {
         );
       },
       onError: (err) {
-        developer.log("getIntentDataStream error: $err");
+        log("getIntentDataStream error: $err");
       },
     );
 
@@ -175,7 +178,7 @@ class _HomePageState extends State<HomePage> {
         );
       },
       onError: (err) {
-        developer.log("getIntentDataStream error: $err");
+        log("getIntentDataStream error: $err");
       },
     );
   }
@@ -194,21 +197,38 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _handleNotification(NotificationResponse nr) {
-    String payload = nr.payload ?? "0";
-    developer.log("Payload: $payload");
+    String payload = nr.payload ?? "";
+    log("Payload: $payload");
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        maintainState: true,
-        builder: (context) => FutureConversationScreen(
-          conversation: Conversation.getById(
-            int.parse(payload),
-          ),
+    if (payload == "") return;
+
+    try {
+      final dynamic parsed = jsonDecode(payload);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          maintainState: true,
+          builder: (context) => switch (parsed["goto"] as String) {
+            "conversation" => FutureConversationScreen(
+                conversation: Conversation.getById(
+                  parsed["id"] as int,
+                ),
+              ),
+            "huddle" => FutureHuddleScreen(
+                huddle: Huddle.getById(
+                  parsed["id"] as int,
+                ),
+              ),
+            _ => Placeholder(child: Text("Not implemented: ${parsed["goto"]}")),
+          },
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      log("Notification error: ${e.toString()}");
+      return;
+    }
   }
 
   void _runWhileAppIsTerminated() async {
@@ -219,14 +239,25 @@ class _HomePageState extends State<HomePage> {
 
     if (details == null) return;
 
+    if (!context.mounted) return;
+
     if (details.didNotificationLaunchApp) {
       if (details.notificationResponse?.payload == null) {
-        developer.log("Empty payload");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            fullscreenDialog: true,
+            maintainState: true,
+            builder: (context) => FutureUpdatesScreen(
+              updates: Updates.root(),
+            ),
+          ),
+        );
       } else {
         _handleNotification(details.notificationResponse!);
       }
     } else {
-      developer.log("App start not triggered by notification");
+      log("App start not triggered by notification");
     }
   }
 
