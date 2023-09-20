@@ -3,13 +3,12 @@
 ## TODO
 
 - Implement settings
-  - Downloading images
   - Preview URLs
-  - 3rd party data
   - Embed Youtube
   - Embed Twitter
 - Search
 - Better selector UX
+- Auto-refresh after inactivity
 - Convert API client to ChangeNotifier
 - Manage caching across multiple accounts better
 - Better caching/cache invalidation

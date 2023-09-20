@@ -9,6 +9,7 @@ import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models/conversation.dart';
+import 'models/event.dart';
 import 'models/huddle.dart';
 import 'models/huddles.dart';
 import 'models/microcosm.dart';
@@ -21,6 +22,7 @@ import 'services/settings.dart';
 import 'widgets/adaptable_form.dart';
 import 'widgets/login_to_see.dart';
 import 'widgets/screens/future_conversation_screen.dart';
+import 'widgets/screens/future_event_screen.dart';
 import 'widgets/screens/future_huddle_screen.dart';
 import 'widgets/screens/future_huddles_screen.dart';
 import 'widgets/screens/future_microcosm_screen.dart';
@@ -216,6 +218,11 @@ class _HomePageState extends State<HomePage> {
                   parsed["id"] as int,
                 ),
               ),
+            "event" => FutureEventScreen(
+                event: Event.getById(
+                  parsed["id"] as int,
+                ),
+              ),
             "huddle" => FutureHuddleScreen(
                 huddle: Huddle.getById(
                   parsed["id"] as int,
@@ -320,8 +327,9 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             ListTile(
-              leading:
-                  Icon(MicrocosmClient().loggedIn ? Icons.logout : Icons.login),
+              leading: Icon(
+                MicrocosmClient().loggedIn ? Icons.logout : Icons.login,
+              ),
               title: Text(MicrocosmClient().loggedIn ? 'Logout' : 'Login'),
               onTap: () async {
                 if (MicrocosmClient().loggedIn) {
@@ -354,10 +362,12 @@ class _HomePageState extends State<HomePage> {
                 showAboutDialog(
                     context: context,
                     applicationIcon: const CircleAvatar(
-                      backgroundImage:
-                          AssetImage('assets/launcher_icon/background.png'),
-                      foregroundImage:
-                          AssetImage('assets/launcher_icon/foreground.png'),
+                      backgroundImage: AssetImage(
+                        'assets/launcher_icon/background.png',
+                      ),
+                      foregroundImage: AssetImage(
+                        'assets/launcher_icon/foreground.png',
+                      ),
                     ),
                     applicationVersion: '1.0.0',
                     children: const [

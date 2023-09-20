@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../widgets/tiles/update_tile.dart';
 import 'comment.dart';
 import 'conversation.dart';
+import 'event.dart';
 import 'flags.dart';
 import 'huddle.dart';
 import 'item.dart';
@@ -35,10 +36,15 @@ class Update extends Item {
           json["itemType"],
           json["item"],
         ),
-        parent = ItemParser.parseItemJson(
-          json["parentItemType"],
-          json["parentItem"],
-        );
+        parent = json["parentItemType"] == null
+            ? ItemParser.parseItemJson(
+                json["itemType"],
+                json["item"],
+              )
+            : ItemParser.parseItemJson(
+                json["parentItemType"],
+                json["parentItem"],
+              );
 
   String get title {
     if (parent is Conversation) {
@@ -56,6 +62,10 @@ class Update extends Item {
     if (parent is Conversation) {
       payload["goto"] = "conversation";
       payload["id"] = (parent as Conversation).id;
+      payload["commentId"] = (child as Comment).id;
+    } else if (parent is Event) {
+      payload["goto"] = "event";
+      payload["id"] = (parent as Event).id;
       payload["commentId"] = (child as Comment).id;
     } else if (child is Conversation) {
       payload["goto"] = "conversation";

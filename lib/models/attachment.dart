@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:lfgss_mobile/widgets/maybe_image.dart';
 
 import '../constants.dart';
 import '../widgets/image_gallery.dart';
@@ -31,23 +32,12 @@ class Attachment {
   Widget asHero({double? height}) {
     return Hero(
       tag: fileHash,
-      child: CachedNetworkImage(
+      child: MaybeImage(
         imageUrl: getUrl(),
         height: height,
         imageBuilder: (context, imageProvider) => ClipRRect(
           borderRadius: BorderRadius.circular(8.0),
           child: Image(image: imageProvider),
-        ),
-        progressIndicatorBuilder: (context, url, downloadProgress) => Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxHeight: 32.0,
-              maxWidth: 32.0,
-            ),
-            child: CircularProgressIndicator(
-              value: downloadProgress.progress,
-            ),
-          ),
         ),
         errorWidget: (context, url, error) => const Icon(
           Icons.error,

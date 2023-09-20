@@ -7,6 +7,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../../models/comment.dart';
 import '../../services/link_parser.dart';
+import '../maybe_image.dart';
 import '../missing_image.dart';
 
 class CommentTile extends StatefulWidget {
@@ -167,20 +168,11 @@ class _CommentTileState extends State<CommentTile> {
                     handleAssetImages: false,
                     handleDataImages: false,
                     builder: (ExtensionContext ec) {
-                      return CachedNetworkImage(
+                      return MaybeImage(
                         imageUrl: ec.attributes["src"]!,
-                        progressIndicatorBuilder:
-                            (context, url, downloadProgress) => Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              maxHeight: 32.0,
-                              maxWidth: 32.0,
-                            ),
-                            child: CircularProgressIndicator(
-                              value: downloadProgress.progress,
-                              // color: Theme.of(context).highlightColor,
-                            ),
-                          ),
+                        imageBuilder: (context, imageProvider) => ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image(image: imageProvider),
                         ),
                         errorWidget: (context, url, error) => const SizedBox(
                           width: 64,

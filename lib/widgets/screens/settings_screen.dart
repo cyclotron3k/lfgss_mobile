@@ -21,17 +21,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Layout _layout = Layout.horizontalSmall;
   Download _downloadImages = Download.always;
 
-  bool _shrinkLargeImages = false;
-  bool _sanitizeImages = false;
+  bool _shrinkLargeImages = true;
+  bool _sanitizeImages = true;
   bool _previewUrls = false;
-  bool _downloadThirdParty = false;
-  bool _embedYouTube = false;
+  bool _downloadThirdParty = true;
+  bool _embedYouTube = true;
   bool _embedTwitter = false;
-  bool _notifyNewComments = false;
-  bool _notifyNewConversations = false;
-  bool _notifyReplies = false;
-  bool _notifyMentions = false;
-  bool _notifyHuddles = false;
+  bool _notifyNewComments = true;
+  bool _notifyNewConversations = true;
+  bool _notifyReplies = true;
+  bool _notifyMentions = true;
+  bool _notifyHuddles = true;
 
   @override
   void initState() {
@@ -148,6 +148,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Text('Wifi & cellular data'),
               ),
               const PopupMenuItem<Download>(
+                enabled: false, // TODO
                 value: Download.wifi,
                 child: Text('Wifi only'),
               ),
