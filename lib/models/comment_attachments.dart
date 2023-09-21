@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/widgets/screens/settings_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
 import '../services/microcosm_client.dart';
 import '../services/settings.dart';
+import '../widgets/screens/settings_screen.dart';
 import 'attachment.dart';
 
 // TODO: refactor this whole file

@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/widgets/maybe_image.dart';
 
 import '../constants.dart';
 import '../widgets/image_gallery.dart';
+import '../widgets/maybe_image.dart';
 
 class Attachment {
   final int profileId;

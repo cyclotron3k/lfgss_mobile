@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../constants.dart';
 import '../models/conversation.dart';
 import '../models/profile.dart';
 import '../models/search.dart';
+import '../widgets/link_preview.dart';
 import '../widgets/screens/future_conversation_screen.dart';
 import '../widgets/screens/future_search_screen.dart';
 import '../widgets/screens/profile_screen.dart';
@@ -106,8 +108,35 @@ class LinkParser {
       return;
     }
 
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw Exception('Could not launch $link');
+    final sp = await SharedPreferences.getInstance();
+    final previewUrls = sp.getBool('previewUrls') ?? false;
+    if (!context.mounted) return;
+    String? action = "go";
+    if (previewUrls) {
+      action = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("URL Preview"),
+            content: LinkPreview(primary: uri),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop<String>(context),
+                child: const Text("CANCEL"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop<String>(context, "go"),
+                child: const Text("GO"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+    if (action == "go") {
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        throw Exception('Could not launch $link');
+      }
     }
   }
 }

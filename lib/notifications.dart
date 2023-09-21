@@ -1,11 +1,11 @@
 import 'dart:developer' show log;
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:lfgss_mobile/models/update_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'models/update.dart';
+import 'models/update_type.dart';
 import 'models/updates.dart';
 import 'services/microcosm_client.dart';
 
@@ -13,8 +13,7 @@ import 'services/microcosm_client.dart';
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     int totalExecutions;
-    final sharedPreference =
-        await SharedPreferences.getInstance(); // Initialize dependency
+    final sp = await SharedPreferences.getInstance(); // Initialize dependency
 
     try {
       final client = MicrocosmClient();
@@ -29,7 +28,6 @@ void callbackDispatcher() {
       List<Update> notifications = await updates.getNewUpdates();
       log("New updates: ${notifications.length}");
 
-      final sp = await SharedPreferences.getInstance();
       final bool notifyNewComments = sp.getBool("notifyNewComments") ?? true;
       final bool notifyNewConversations =
           sp.getBool("notifyNewConversations") ?? true;
@@ -78,9 +76,9 @@ void callbackDispatcher() {
         );
       }
 
-      totalExecutions = sharedPreference.getInt("totalExecutions") ?? 0;
+      totalExecutions = sp.getInt("totalExecutions") ?? 0;
       totalExecutions++;
-      sharedPreference.setInt(
+      sp.setInt(
         "totalExecutions",
         totalExecutions,
       );

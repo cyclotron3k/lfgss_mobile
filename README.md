@@ -3,7 +3,6 @@
 ## TODO
 
 - Implement settings
-  - Preview URLs
   - Embed Youtube
   - Embed Twitter
 - Search
@@ -46,3 +45,9 @@
 ## Maintenance
 
 - Automate updating the TZ db: https://pub.dev/packages/timezone
+
+## Refactor
+
+- Settings & default settings
+- Attachments
+- Notification handling
