@@ -2,9 +2,6 @@
 
 ## TODO
 
-- Implement settings
-  - Embed Youtube
-  - Embed Twitter
 - Search
 - Better selector UX
 - Auto-refresh after inactivity

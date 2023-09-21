@@ -26,7 +26,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _previewUrls = false;
   bool _downloadThirdParty = true;
   bool _embedYouTube = true;
-  bool _embedTwitter = false;
   bool _notifyNewComments = true;
   bool _notifyNewConversations = true;
   bool _notifyReplies = true;
@@ -54,7 +53,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _previewUrls = settings.getBool("previewUrls") ?? false;
     _downloadThirdParty = settings.getBool("downloadThirdParty") ?? true;
     _embedYouTube = settings.getBool("embedYouTube") ?? true;
-    _embedTwitter = settings.getBool("embedTwitter") ?? false;
     _notifyNewComments = settings.getBool("notifyNewComments") ?? true;
     _notifyNewConversations =
         settings.getBool("notifyNewConversations") ?? true;
@@ -230,7 +228,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             secondary: const Icon(Icons.download_for_offline),
           ),
           SwitchListTile(
-            title: const Text('Embed YouTube links'),
+            title: const Text('Embed YouTube videos'),
             value: _embedYouTube,
             onChanged: (bool value) {
               setState(() {
@@ -238,18 +236,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _embedYouTube = value;
               });
             },
-            secondary: const Icon(Icons.question_mark),
-          ),
-          SwitchListTile(
-            title: const Text('Embed Twitter links'),
-            value: _embedTwitter,
-            onChanged: (bool value) {
-              setState(() {
-                settings.setBool("embedTwitter", value).ignore();
-                _embedTwitter = value;
-              });
-            },
-            secondary: const Icon(Icons.question_mark),
+            secondary: const Icon(Icons.smart_display),
           ),
           const Divider(),
           const SettingsSectionTitle(title: "Notifications"),

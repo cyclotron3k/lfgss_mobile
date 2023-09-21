@@ -60,6 +60,7 @@ dependencies:
   flutter_image_compress: ^2.0.4
   image_size_getter: ^2.1.2
   collection: ^1.17.2
+  flutter_html_iframe: ^3.0.0-beta.2
 
 dev_dependencies:
   flutter_test:

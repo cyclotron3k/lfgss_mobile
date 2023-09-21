@@ -1,12 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html_iframe/flutter_html_iframe.dart';
 import 'package:intl/intl.dart';
-// import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../../models/comment.dart';
 import '../../services/link_parser.dart';
+import '../../services/settings.dart';
 import '../maybe_image.dart';
 import '../missing_image.dart';
 
@@ -153,65 +155,69 @@ class _CommentTileState extends State<CommentTile> {
                   ),
                 ],
               ),
-              Html(
-                data: widget.comment.html,
-                onLinkTap: (
-                  String? url,
-                  Map<String, String> attributes,
-                  element, // From 'package:html/dom.dart', not material
-                ) async {
-                  await LinkParser.parseLink(context, url ?? "");
-                },
-                extensions: [
-                  ImageExtension(
-                    handleNetworkImages: true,
-                    handleAssetImages: false,
-                    handleDataImages: false,
-                    builder: (ExtensionContext ec) {
-                      return MaybeImage(
-                        imageUrl: ec.attributes["src"]!,
-                        imageBuilder: (context, imageProvider) => ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Image(image: imageProvider),
-                        ),
-                        errorWidget: (context, url, error) => const SizedBox(
-                          width: 64,
-                          child: MissingImage(),
-                        ),
-                      );
-                    },
-                  )
-                ],
-                style: {
-                  "img": Style(
-                    padding: HtmlPaddings.only(
-                      top: 10.0,
-                      bottom: 10.0,
+              Consumer<Settings>(
+                builder: (context, settings, _) => Html(
+                  data: widget.comment.html,
+                  onLinkTap: (
+                    String? url,
+                    Map<String, String> attributes,
+                    element, // From 'package:html/dom.dart', not material
+                  ) async {
+                    await LinkParser.parseLink(context, url ?? "");
+                  },
+                  extensions: [
+                    if (settings.getBool('embedYouTube') ?? true)
+                      const IframeHtmlExtension(),
+                    ImageExtension(
+                      handleNetworkImages: true,
+                      handleAssetImages: false,
+                      handleDataImages: false,
+                      builder: (ExtensionContext ec) {
+                        return MaybeImage(
+                          imageUrl: ec.attributes["src"]!,
+                          imageBuilder: (context, imageProvider) => ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image(image: imageProvider),
+                          ),
+                          errorWidget: (context, url, error) => const SizedBox(
+                            width: 64,
+                            child: MissingImage(),
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                  style: {
+                    "img": Style(
+                      padding: HtmlPaddings.only(
+                        top: 10.0,
+                        bottom: 10.0,
+                      ),
                     ),
-                  ),
-                  "blockquote": Style(
-                    padding: HtmlPaddings.only(
-                      left: 10.0,
+                    "blockquote": Style(
+                      padding: HtmlPaddings.only(
+                        left: 10.0,
+                      ),
+                      margin: Margins(left: Margin(0.0)),
+                      // backgroundColor: Colors.grey[100],
+                      border: const Border(
+                        left: BorderSide(color: Colors.grey, width: 4.0),
+                      ),
+                      fontStyle: FontStyle.italic,
+                      color: Theme.of(context).primaryColorLight,
                     ),
-                    margin: Margins(left: Margin(0.0)),
-                    // backgroundColor: Colors.grey[100],
-                    border: const Border(
-                      left: BorderSide(color: Colors.grey, width: 4.0),
+                    "a": Style.fromTextStyle(
+                      const TextStyle(
+                        // See: https://github.com/Sub6Resources/flutter_html/issues/1361
+                        decorationColor: Colors.blue,
+                      ),
                     ),
-                    fontStyle: FontStyle.italic,
-                    color: Theme.of(context).primaryColorLight,
-                  ),
-                  "a": Style.fromTextStyle(
-                    const TextStyle(
-                      // See: https://github.com/Sub6Resources/flutter_html/issues/1361
-                      decorationColor: Colors.blue,
+                    "body": Style(
+                      // TODO: Workaround for the above issue. Remove when resolved
+                      textDecorationColor: Colors.blue,
                     ),
-                  ),
-                  "body": Style(
-                    // TODO: Workaround for the above issue. Remove when resolved
-                    textDecorationColor: Colors.blue,
-                  ),
-                },
+                  },
+                ),
               ),
               if (widget.comment.hasAttachments())
                 widget.comment.getAttachments(context: context),
