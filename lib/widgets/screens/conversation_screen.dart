@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../constants.dart';
 import '../../models/conversation.dart';
+import '../../services/microcosm_client.dart';
 import '../new_comment.dart';
 
 class ConversationScreen extends StatefulWidget {
@@ -51,7 +52,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
               ],
             ),
           ),
-          if (widget.conversation.flags.open)
+          if (widget.conversation.flags.open && MicrocosmClient().loggedIn)
             NewComment(
               itemId: widget.conversation.id,
               itemType: CommentableType.conversation,

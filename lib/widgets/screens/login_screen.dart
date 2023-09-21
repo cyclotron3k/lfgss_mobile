@@ -74,6 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
             """);
             loadingPercentage = 100;
             complete = true;
+            setState(() {});
           }
         },
         // onUrlChange: (change) {

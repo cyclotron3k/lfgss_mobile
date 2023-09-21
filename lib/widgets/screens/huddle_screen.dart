@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 
 import '../../constants.dart';
 import '../../models/huddle.dart';
+import '../../services/microcosm_client.dart';
 import '../new_comment.dart';
 
 class HuddleScreen extends StatefulWidget {
@@ -60,7 +61,7 @@ class _HuddleScreenState extends State<HuddleScreen> {
               ),
             ),
           ),
-          if (widget.huddle.permissions.create)
+          if (widget.huddle.permissions.create && MicrocosmClient().loggedIn)
             NewComment(
               itemId: widget.huddle.id,
               itemType: CommentableType.huddle,

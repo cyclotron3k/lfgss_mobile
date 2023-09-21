@@ -121,7 +121,9 @@ class _MaybeImageState extends State<MaybeImage> {
 
   bool _allowDownload(Settings settings) {
     if (imageState != ImageState.blocked) return true;
-    if (!(settings.getString('downloadImages') == 'always')) return false;
+    if (!((settings.getString('downloadImages') ?? 'always') == 'always')) {
+      return false;
+    }
     if (settings.getBool('downloadThirdParty') ?? true) return true;
     return _isFirstParty;
   }

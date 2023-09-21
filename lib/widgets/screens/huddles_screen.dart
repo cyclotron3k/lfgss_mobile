@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/huddles.dart';
+import '../../services/microcosm_client.dart';
 import '../adaptable_form.dart';
 
 class HuddlesScreen extends StatefulWidget {
@@ -17,23 +18,25 @@ class HuddlesScreen extends StatefulWidget {
 class _HuddlesScreenState extends State<HuddlesScreen> {
   @override
   Widget build(BuildContext context) {
-    final Widget fab = FloatingActionButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            fullscreenDialog: true,
-            maintainState: true,
-            builder: (context) => AdaptableForm(
-              onPostSuccess: () {},
-              defaultOperationType: OperationType.newHuddle,
-              lock: true,
-            ),
-          ),
-        );
-      },
-      child: const Icon(Icons.add_comment_rounded),
-    );
+    final Widget? fab = MicrocosmClient().loggedIn
+        ? FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  fullscreenDialog: true,
+                  maintainState: true,
+                  builder: (context) => AdaptableForm(
+                    onPostSuccess: () {},
+                    defaultOperationType: OperationType.newHuddle,
+                    lock: true,
+                  ),
+                ),
+              );
+            },
+            child: const Icon(Icons.add_comment_rounded),
+          )
+        : null;
 
     return Scaffold(
       floatingActionButton: fab,

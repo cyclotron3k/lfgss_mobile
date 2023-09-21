@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../new_comment.dart';
 import '../../constants.dart';
 import '../../models/event.dart';
+import '../../services/microcosm_client.dart';
+import '../new_comment.dart';
 
 class EventScreen extends StatefulWidget {
   final Event event;
@@ -106,7 +107,7 @@ class _EventScreenState extends State<EventScreen> {
               ],
             ),
           ),
-          if (widget.event.flags.open)
+          if (widget.event.flags.open && MicrocosmClient().loggedIn)
             NewComment(
               itemId: widget.event.id,
               itemType: CommentableType.event,

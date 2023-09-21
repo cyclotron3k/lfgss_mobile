@@ -26,6 +26,7 @@ class Conversation implements ItemWithChildren {
   final PartialProfile createdBy;
   // final Profile editedBy;
   final DateTime created;
+  final DateTime? lastActivity;
 
   final int _totalChildren;
   final Map<int, Item> _children = {};
@@ -46,6 +47,7 @@ class Conversation implements ItemWithChildren {
         permissions = Permissions.fromJson(
           json: json["meta"]["permissions"] ?? {},
         ),
+        lastActivity = DateTime.tryParse(json["lastComment"]?["created"] ?? ""),
         _totalChildren = json["comments"]?["total"] ?? json["totalComments"] {
     if (json.containsKey("comments")) {
       parsePage(json);

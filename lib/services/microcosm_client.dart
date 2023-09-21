@@ -42,13 +42,21 @@ class MicrocosmClient {
 
   final Map<Uri, _ExpiringResponse> _inFlight = {};
 
+  void clearCache() {
+    _inFlight.removeWhere((key, value) => true);
+  }
+
   bool get loggedIn {
     return accessToken != null;
   }
 
   Future<void> updateAccessToken() async {
     final sharedPreference = await SharedPreferences.getInstance();
-    accessToken = sharedPreference.getString("accessToken");
+    final newAccessToken = sharedPreference.getString("accessToken");
+    if (accessToken != newAccessToken) {
+      clearCache();
+      accessToken = newAccessToken;
+    }
   }
 
   Future<http.Response> get(Uri url) async {
