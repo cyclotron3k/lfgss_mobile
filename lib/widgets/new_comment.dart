@@ -76,7 +76,7 @@ class _NewCommentState extends State<NewComment> {
           children: [
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(8.0, 0.0, 4.0, 4.0),
+                padding: const EdgeInsets.fromLTRB(8.0, 16.0, 0.0, 4.0),
                 child: TextField(
                   controller: _controller,
                   autofocus: false,
@@ -84,7 +84,17 @@ class _NewCommentState extends State<NewComment> {
                   minLines: 1,
                   keyboardType: TextInputType.multiline,
                   enabled: !_sending,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
+                    isDense: true,
+                    filled: true,
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(32.0),
+                      borderSide: const BorderSide(
+                        width: 0,
+                        style: BorderStyle.none,
+                      ),
+                    ),
                     labelText: 'New comment...',
                   ),
                 ),
@@ -92,6 +102,7 @@ class _NewCommentState extends State<NewComment> {
             ),
             IconButton(
               icon: const Icon(Icons.attach_file),
+              visualDensity: VisualDensity.compact,
               onPressed: () async {
                 final ImagePicker picker = ImagePicker();
                 final List<XFile> images = await picker.pickMultiImage();
@@ -104,6 +115,7 @@ class _NewCommentState extends State<NewComment> {
             ),
             IconButton(
               icon: const Icon(Icons.camera_alt),
+              visualDensity: VisualDensity.compact,
               onPressed: () async {
                 final ImagePicker picker = ImagePicker();
                 // Capture a photo.
@@ -118,6 +130,7 @@ class _NewCommentState extends State<NewComment> {
               },
             ),
             IconButton(
+              visualDensity: VisualDensity.compact,
               icon: Icon(
                 _sending ? Icons.timer : Icons.send,
               ),
