@@ -11,8 +11,6 @@
 - Caching (json, images, thumbnails, metrics)
 - Page navigation (lozenge or indexed scroller?)
 - Edit comment
-- Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
-- Animated containers for loading content?
 - Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
 - Thread view
 - Attachment gallery
@@ -25,6 +23,7 @@
 - Widget keys
 - Instrumentation
 - https://docs.flutter.dev/cookbook/effects/expandable-fab
+- Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
 - Use FlutterSecureStorage?
 - Blurha.sh shader?
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/comment.dart';
 import '../../models/item.dart';
+import 'comment_shimmer.dart';
 
 class FutureCommentTile extends StatefulWidget {
   final Future<Comment> comment;
@@ -19,28 +20,30 @@ class FutureCommentTile extends StatefulWidget {
 class _FutureCommentTileState extends State<FutureCommentTile> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Item>(
-      future: widget.comment,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          Comment comment = snapshot.data! as Comment;
-          return comment.renderAsTile(
-            highlight: comment.id == widget.highlight,
-          );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Icon(
-              Icons.error_outline,
-              color: Theme.of(context).colorScheme.error,
-              size: 64.0,
-            ),
-          );
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-      },
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeInOut,
+      child: FutureBuilder<Item>(
+        future: widget.comment,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            Comment comment = snapshot.data! as Comment;
+            return comment.renderAsTile(
+              highlight: comment.id == widget.highlight,
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Icon(
+                Icons.error_outline,
+                color: Theme.of(context).colorScheme.error,
+                size: 64.0,
+              ),
+            );
+          } else {
+            return const CommmentShimmer();
+          }
+        },
+      ),
     );
   }
 }

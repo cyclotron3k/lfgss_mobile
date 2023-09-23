@@ -1,4 +1,4 @@
-package com.example.lfgss_mobile
+package com.lfgss.lfgss_mobile
 
 import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity

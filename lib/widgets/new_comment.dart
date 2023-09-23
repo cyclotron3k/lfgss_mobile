@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 import '../constants.dart';
 import '../services/microcosm_client.dart';
@@ -38,7 +37,7 @@ class NewComment extends StatefulWidget {
 class _NewCommentState extends State<NewComment> {
   final TextEditingController _controller = TextEditingController();
   bool _sending = false;
-  List<XFile> _attachments = [];
+  final List<XFile> _attachments = [];
 
   @override
   void initState() {
