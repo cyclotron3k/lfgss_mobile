@@ -12,7 +12,7 @@ import 'unknown_item.dart';
 class Search extends ItemWithChildren {
   SearchParameters searchParameters;
 
-  final int _totalChildren;
+  int _totalChildren;
   final Map<int, Item> _children = {};
 
   Search.fromJson({required this.searchParameters, required Json json})
@@ -82,6 +82,8 @@ class Search extends ItemWithChildren {
 
   @override
   void parsePage(Json json) {
+    _totalChildren = json["results"]["total"];
+
     List<SearchResult> results = json["results"]["items"]
         .map<SearchResult>((item) => SearchResult.fromJson(item))
         .toList();

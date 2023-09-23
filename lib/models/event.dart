@@ -4,7 +4,7 @@ import 'package:html_unescape/html_unescape_small.dart';
 import '../constants.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/event_tile.dart';
-import '../widgets/tiles/future_item_tile.dart';
+import '../widgets/tiles/future_comment_tile.dart';
 import 'comment.dart';
 // import 'package:timezone/data/latest_10y.dart';
 
@@ -48,11 +48,16 @@ class Event implements ItemWithChildren {
   // final Profile editedBy;
   final DateTime created;
 
-  final int _totalChildren;
+  int _totalChildren;
   final Map<int, Item> _children = {};
 
-  Event.fromJson({required Map<String, dynamic> json, this.startPage = 0})
-      : id = json["id"],
+  final int highlight;
+
+  Event.fromJson({
+    required Map<String, dynamic> json,
+    this.startPage = 0,
+    this.highlight = 0,
+  })  : id = json["id"],
         title = HtmlUnescape().convert(json["title"]),
         microcosmId = json["microcosmId"],
         when = DateTime.parse(
@@ -85,6 +90,24 @@ class Event implements ItemWithChildren {
     }
   }
 
+  static Future<Event> getByCommentId(int commentId) async {
+    Uri uri = Uri.https(
+      HOST,
+      "/api/v1/comments/$commentId/incontext",
+      {
+        "limit": PAGE_SIZE.toString(),
+      },
+    );
+
+    Json json = await MicrocosmClient().getJson(uri);
+
+    return Event.fromJson(
+      json: json,
+      startPage: json["comments"]["page"] - 1,
+      highlight: commentId,
+    );
+  }
+
   DateTime get whenEnd {
     return when.add(Duration(minutes: duration));
   }
@@ -105,6 +128,8 @@ class Event implements ItemWithChildren {
 
   @override
   void parsePage(Json json) {
+    _totalChildren = json["comments"]["total"];
+
     List<Comment> comments = json["comments"]["items"]
         .map<Comment>(
           (comment) => Comment.fromJson(json: comment),
@@ -147,14 +172,17 @@ class Event implements ItemWithChildren {
       },
     );
 
-    Json json = await MicrocosmClient().getJson(uri);
+    final bool lastPage = i == totalChildren ~/ PAGE_SIZE;
+    final int ttl = i == 0 || lastPage ? 5 : 3600;
+    Json json = await MicrocosmClient().getJson(uri, ttl: ttl);
     parsePage(json);
   }
 
   @override
   Future<void> resetChildren() async {
-    await getPageOfChildren(0);
-    _children.removeWhere((key, _) => key >= PAGE_SIZE);
+    final int lastPage = _totalChildren ~/ PAGE_SIZE;
+    await getPageOfChildren(lastPage);
+    _children.removeWhere((key, _) => key >= lastPage * PAGE_SIZE);
   }
 
   @override
@@ -168,9 +196,13 @@ class Event implements ItemWithChildren {
   @override
   Widget childTile(int i) {
     if (_children.containsKey(i)) {
-      return _children[i]!.renderAsTile();
+      var comment = _children[i]! as Comment;
+      return comment.renderAsTile(highlight: highlight == comment.id);
     }
-    return FutureItemTile(item: getChild(i));
+    return FutureCommentTile(
+      comment: getChild(i).then((e) => e as Comment),
+      highlight: highlight,
+    );
   }
 
   @override

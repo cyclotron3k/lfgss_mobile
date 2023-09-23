@@ -34,7 +34,7 @@ class Microcosm implements ItemWithChildren {
   // final Profile editedBy;
   final DateTime created;
 
-  final int _totalChildren;
+  int _totalChildren;
 
   final Map<int, Item> _children = {};
 
@@ -62,6 +62,8 @@ class Microcosm implements ItemWithChildren {
 
   @override
   void parsePage(Json json) {
+    _totalChildren = json["items"]["total"];
+
     List<Item> items = json["items"]["items"].map<Item>(
       (item) {
         switch (item["itemType"]) {

@@ -10,7 +10,7 @@ import 'unknown_item.dart';
 import 'update.dart';
 
 class Updates extends ItemWithChildren {
-  final int _totalChildren;
+  int _totalChildren;
   final Map<int, Update> _children = {};
 
   Updates.fromJson(Json json) : _totalChildren = json["updates"]["total"] {
@@ -78,6 +78,7 @@ class Updates extends ItemWithChildren {
 
   @override
   void parsePage(Json json) {
+    _totalChildren = json["updates"]["total"];
     List<Update> items = json["updates"]["items"]
         .map<Update>((item) => Update.fromJson(item))
         .toList();

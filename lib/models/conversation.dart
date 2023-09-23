@@ -28,7 +28,7 @@ class Conversation implements ItemWithChildren {
   final DateTime created;
   final DateTime? lastActivity;
 
-  final int _totalChildren;
+  int _totalChildren;
   final Map<int, Item> _children = {};
 
   final int highlight;
@@ -56,6 +56,8 @@ class Conversation implements ItemWithChildren {
 
   @override
   void parsePage(Json json) {
+    _totalChildren = json["comments"]["total"];
+
     List<Comment> comments = json["comments"]["items"]
         .map<Comment>(
           (comment) => Comment.fromJson(json: comment),
@@ -116,14 +118,18 @@ class Conversation implements ItemWithChildren {
       },
     );
 
-    Json json = await MicrocosmClient().getJson(uri);
+    final bool lastPage = i == totalChildren ~/ PAGE_SIZE;
+    final int ttl = lastPage ? 5 : 3600;
+
+    Json json = await MicrocosmClient().getJson(uri, ttl: ttl);
     parsePage(json);
   }
 
   @override
   Future<void> resetChildren() async {
-    await getPageOfChildren(0);
-    _children.removeWhere((key, _) => key >= PAGE_SIZE);
+    final int lastPage = _totalChildren ~/ PAGE_SIZE;
+    await getPageOfChildren(lastPage);
+    _children.removeWhere((key, _) => key >= lastPage * PAGE_SIZE);
   }
 
   @override

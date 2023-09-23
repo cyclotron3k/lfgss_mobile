@@ -11,7 +11,7 @@ import 'unknown_item.dart';
 class Profiles extends ItemWithChildren {
   String query;
 
-  final int _totalChildren;
+  int _totalChildren;
   final Map<int, Item> _children = {};
 
   Profiles.fromJson({required this.query, required Json json})
@@ -73,6 +73,8 @@ class Profiles extends ItemWithChildren {
 
   @override
   void parsePage(Json json) {
+    _totalChildren = json["profiles"]["total"];
+
     List<PartialProfile> results = json["profiles"]["items"]
         .map<PartialProfile>((item) => PartialProfile.fromJson(json: item))
         .toList();
