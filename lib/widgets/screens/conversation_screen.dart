@@ -14,17 +14,34 @@ class ConversationScreen extends StatefulWidget {
 }
 
 class _ConversationScreenState extends State<ConversationScreen> {
+  bool refreshDisabled = false;
+
+  Future<void> _refresh() async {
+    setState(() => refreshDisabled = true);
+    await widget.conversation.resetChildren();
+    setState(() => refreshDisabled = false);
+  }
+
   @override
   Widget build(BuildContext context) {
+    int forwardItemCount = widget.conversation.totalChildren -
+        widget.conversation.startPage * PAGE_SIZE;
     Key forwardListKey = UniqueKey();
     Widget forwardList = SliverList.builder(
       key: forwardListKey,
-      itemBuilder: (BuildContext context, int index) =>
-          widget.conversation.childTile(
-        widget.conversation.startPage * PAGE_SIZE + index,
-      ),
-      itemCount: widget.conversation.totalChildren -
-          widget.conversation.startPage * PAGE_SIZE,
+      itemBuilder: (BuildContext context, int index) {
+        if (forwardItemCount == index) {
+          return ElevatedButton.icon(
+            onPressed: refreshDisabled ? null : _refresh,
+            icon: const Icon(Icons.refresh),
+            label: Text(refreshDisabled ? 'Refreshing...' : 'Refresh'),
+          );
+        }
+        return widget.conversation.childTile(
+          widget.conversation.startPage * PAGE_SIZE + index,
+        );
+      },
+      itemCount: forwardItemCount + 1,
     );
 
     Widget reverseList = SliverList.builder(

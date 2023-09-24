@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lfgss_mobile/widgets/tiles/item_shimmer.dart';
 
 import '../../models/item.dart';
 
@@ -27,9 +28,7 @@ class _FutureItemTileState extends State<FutureItemTile> {
             ),
           );
         } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const ItemShimmer();
         }
       },
     );

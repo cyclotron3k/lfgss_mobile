@@ -15,24 +15,33 @@ class EventScreen extends StatefulWidget {
 }
 
 class _EventScreenState extends State<EventScreen> {
+  bool refreshDisabled = false;
+
+  Future<void> _refresh() async {
+    setState(() => refreshDisabled = true);
+    await widget.event.resetChildren();
+    setState(() => refreshDisabled = false);
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final Widget? fab = widget.event.flags.open
-    //     ? FloatingActionButton(
-    //         onPressed: () {
-    //           // Add your onPressed code here!
-    //         },
-    //         // backgroundColor: Colors.green,
-    //         child: const Icon(Icons.add_comment),
-    //       )
-    //     : null;
-
+    int forwardItemCount =
+        widget.event.totalChildren - widget.event.startPage * PAGE_SIZE;
     Key forwardListKey = UniqueKey();
     Widget forwardList = SliverList.builder(
       key: forwardListKey,
-      itemBuilder: (BuildContext context, int index) => widget.event.childTile(
-        widget.event.startPage * PAGE_SIZE + index,
-      ),
+      itemBuilder: (BuildContext context, int index) {
+        if (forwardItemCount == index) {
+          return ElevatedButton.icon(
+            onPressed: refreshDisabled ? null : _refresh,
+            icon: const Icon(Icons.refresh),
+            label: Text(refreshDisabled ? 'Refreshing...' : 'Refresh'),
+          );
+        }
+        return widget.event.childTile(
+          forwardItemCount + 1,
+        );
+      },
       itemCount:
           widget.event.totalChildren - widget.event.startPage * PAGE_SIZE,
     );
@@ -45,7 +54,6 @@ class _EventScreenState extends State<EventScreen> {
     );
 
     return Scaffold(
-      // floatingActionButton: fab,
       body: Column(
         children: [
           Expanded(
@@ -55,11 +63,6 @@ class _EventScreenState extends State<EventScreen> {
                 SliverAppBar(
                   // TODO: https://github.com/flutter/flutter/issues/132841
                   floating: true,
-                  // expandedHeight: 200.0,
-                  // flexibleSpace: const FlexibleSpaceBar(
-                  //   title: Text('Available seats'),
-                  //   background:
-                  // ),
                   title: Text(widget.event.title),
                 ),
                 SliverToBoxAdapter(

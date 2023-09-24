@@ -47,3 +47,4 @@
 - Settings & default settings
 - Attachments
 - Notification handling
+- comment/incontext -> event/huddle
