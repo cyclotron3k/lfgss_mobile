@@ -35,8 +35,9 @@ class Updates extends ItemWithChildren {
 
     final int lastUpdateId = sharedPreference.getInt("lastUpdateId") ?? 0;
 
-    final Iterable<Update> newUpdates = _children.values
-        .where((update) => update.id > lastUpdateId && update.flags.unread);
+    final Iterable<Update> newUpdates = _children.values.where(
+      (update) => update.id > lastUpdateId && update.flags.unread,
+    );
 
     if (newUpdates.isNotEmpty) {
       await sharedPreference.setInt(
@@ -46,19 +47,6 @@ class Updates extends ItemWithChildren {
     }
 
     return newUpdates.toList();
-  }
-
-  Future<Map<int, String>> updatesAsNotifications() async {
-    var newUpdates = await getNewUpdates();
-    Map<int, String> resultMap = newUpdates.fold({}, (
-      Map<int, String> map,
-      Update obj,
-    ) {
-      map[obj.id] = obj.description;
-      return map;
-    });
-
-    return resultMap;
   }
 
   @override

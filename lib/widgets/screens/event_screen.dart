@@ -32,10 +32,12 @@ class _EventScreenState extends State<EventScreen> {
       key: forwardListKey,
       itemBuilder: (BuildContext context, int index) {
         if (forwardItemCount == index) {
-          return ElevatedButton.icon(
-            onPressed: refreshDisabled ? null : _refresh,
-            icon: const Icon(Icons.refresh),
-            label: Text(refreshDisabled ? 'Refreshing...' : 'Refresh'),
+          return Center(
+            child: ElevatedButton.icon(
+              onPressed: refreshDisabled ? null : _refresh,
+              icon: const Icon(Icons.refresh),
+              label: Text(refreshDisabled ? 'Refreshing...' : 'Refresh'),
+            ),
           );
         }
         return widget.event.childTile(

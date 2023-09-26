@@ -84,9 +84,7 @@ void callbackDispatcher() {
       );
       log("Total executions: $totalExecutions");
     } catch (err) {
-      log(
-        err.toString(),
-      );
+      log(err.toString());
       throw Exception(err);
     }
 
@@ -100,7 +98,7 @@ Future<FlutterLocalNotificationsPlugin> initNotifications(
       FlutterLocalNotificationsPlugin();
 
   const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('favicon_alpha');
+      AndroidInitializationSettings('ic_stat_lfgss_notification');
 
   const InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,

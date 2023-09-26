@@ -303,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       'assets/launcher_icon/foreground.png',
                     ),
                   ),
-                  applicationVersion: '1.0.3',
+                  applicationVersion: '1.0.4',
                   children: [
                     const Text("Built by me, Aidan Samuel"),
                     const Text("aka @cyclotron3k"),

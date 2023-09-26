@@ -59,7 +59,10 @@ class Update extends Item {
   String get payload {
     var payload = <String, dynamic>{};
 
-    if (parent is Conversation) {
+    if (child is Conversation) {
+      payload["goto"] = "conversation";
+      payload["id"] = (child as Conversation).id;
+    } else if (parent is Conversation) {
       payload["goto"] = "conversation";
       payload["id"] = (parent as Conversation).id;
       payload["commentId"] = (child as Comment).id;
@@ -67,9 +70,6 @@ class Update extends Item {
       payload["goto"] = "event";
       payload["id"] = (parent as Event).id;
       payload["commentId"] = (child as Comment).id;
-    } else if (child is Conversation) {
-      payload["goto"] = "conversation";
-      payload["id"] = (child as Conversation).id;
     } else if (parent is Huddle) {
       payload["goto"] = "huddle";
       payload["id"] = (parent as Huddle).id;
