@@ -61,6 +61,12 @@ class Microcosm implements ItemWithChildren {
   }
 
   @override
+  Uri get selfUrl => Uri.https(
+        WEB_HOST,
+        "/microcosms/$id/",
+      );
+
+  @override
   void parsePage(Json json) {
     _totalChildren = json["items"]["total"];
 

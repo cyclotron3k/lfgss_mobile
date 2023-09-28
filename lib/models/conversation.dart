@@ -55,6 +55,12 @@ class Conversation implements ItemWithChildren {
   }
 
   @override
+  Uri get selfUrl => Uri.https(
+        WEB_HOST,
+        "/conversations/$id/newest",
+      );
+
+  @override
   void parsePage(Json json) {
     _totalChildren = json["comments"]["total"];
 
@@ -104,6 +110,32 @@ class Conversation implements ItemWithChildren {
       json: json,
       startPage: json["comments"]["page"] - 1,
       highlight: commentId,
+    );
+  }
+
+  // `pageNo` is the "public" page number, not our page number
+  static Future<Conversation> getByPageNo(
+    int conversationId,
+    int pageNo,
+  ) async {
+    int offset = (pageNo - 1) * 25;
+    // incase we ever increase _our_ page size above 25:
+    offset -= offset % PAGE_SIZE;
+
+    Uri uri = Uri.https(
+      HOST,
+      "/api/v1/conversations/$conversationId",
+      {
+        "limit": PAGE_SIZE.toString(),
+        "offset": offset.toString(),
+      },
+    );
+
+    Json json = await MicrocosmClient().getJson(uri);
+
+    return Conversation.fromJson(
+      json: json,
+      startPage: json["comments"]["page"] - 1,
     );
   }
 

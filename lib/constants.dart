@@ -2,4 +2,5 @@
 
 const int PAGE_SIZE = 5;
 const String HOST = 'lfgss.microcosm.app';
+const String WEB_HOST = 'www.lfgss.com';
 const Duration TOAST_DURATION = Duration(milliseconds: 1500);

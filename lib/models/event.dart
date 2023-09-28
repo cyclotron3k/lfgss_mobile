@@ -144,6 +144,12 @@ class Event implements ItemWithChildren {
   @override
   int get totalChildren => _totalChildren;
 
+  @override
+  Uri get selfUrl => Uri.https(
+        WEB_HOST,
+        "/events/$id/newest",
+      );
+
   static Future<Event> getById(int id) async {
     Uri uri = Uri.https(
       HOST,

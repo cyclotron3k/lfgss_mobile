@@ -29,6 +29,12 @@ class Updates extends ItemWithChildren {
     return Updates.fromJson(json);
   }
 
+  @override
+  Uri get selfUrl => Uri.https(
+        WEB_HOST,
+        "/updates/",
+      );
+
   Future<List<Update>> getNewUpdates() async {
     final sharedPreference =
         await SharedPreferences.getInstance(); //Initialize dependency

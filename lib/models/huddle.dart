@@ -62,6 +62,12 @@ class Huddle extends ItemWithChildren {
   }
 
   @override
+  Uri get selfUrl => Uri.https(
+        WEB_HOST,
+        "/huddles/$id/newest",
+      );
+
+  @override
   Future<void> getPageOfChildren(int i) async {
     Uri uri = Uri.https(
       HOST,

@@ -60,6 +60,13 @@ class Search extends ItemWithChildren {
   }
 
   @override
+  Uri get selfUrl => Uri.https(
+        WEB_HOST,
+        "/search/",
+        searchParameters.asQueryParameters,
+      );
+
+  @override
   int get totalChildren {
     return _totalChildren;
   }

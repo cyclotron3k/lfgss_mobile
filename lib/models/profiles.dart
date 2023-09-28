@@ -72,6 +72,9 @@ class Profiles extends ItemWithChildren {
   }
 
   @override
+  Uri get selfUrl => Uri.https(WEB_HOST, "/profiles/", {"top": "true"});
+
+  @override
   void parsePage(Json json) {
     _totalChildren = json["profiles"]["total"];
 

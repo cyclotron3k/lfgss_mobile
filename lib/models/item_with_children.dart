@@ -7,6 +7,8 @@ abstract class ItemWithChildren implements Item {
 
   int get totalChildren;
 
+  Uri get selfUrl;
+
   Widget childTile(int i);
 
   Future<Item> getChild(int i);

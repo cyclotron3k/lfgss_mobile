@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:lfgss_mobile/models/search.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../constants.dart';
 import '../../models/conversation.dart';
+import '../../models/search_parameters.dart';
 import '../../services/microcosm_client.dart';
 import '../new_comment.dart';
+import 'future_conversation_screen.dart';
+import 'future_search_screen.dart';
 
 class ConversationScreen extends StatefulWidget {
   final Conversation conversation;
@@ -15,6 +21,15 @@ class ConversationScreen extends StatefulWidget {
 
 class _ConversationScreenState extends State<ConversationScreen> {
   bool refreshDisabled = false;
+  final TextEditingController _pageNoController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
+  late int maxPageNumber;
+
+  @override
+  void initState() {
+    super.initState();
+    maxPageNumber = (widget.conversation.totalChildren / 25).ceil();
+  }
 
   Future<void> _refresh() async {
     setState(() => refreshDisabled = true);
@@ -55,17 +70,110 @@ class _ConversationScreenState extends State<ConversationScreen> {
     );
 
     return Scaffold(
+      appBar: AppBar(
+        leading: null,
+        automaticallyImplyLeading: false,
+        actions: <Widget>[
+          MenuAnchor(
+            builder: (
+              BuildContext context,
+              MenuController controller,
+              Widget? child,
+            ) {
+              return IconButton(
+                onPressed: () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+                icon: const Icon(Icons.more_vert),
+                tooltip: 'Show menu',
+              );
+            },
+            menuChildren: <MenuItemButton>[
+              MenuItemButton(
+                onPressed: () async {
+                  String? query = await _showSearchDialog(context);
+
+                  if (query != null) {
+                    if (!context.mounted) return;
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        fullscreenDialog: true,
+                        maintainState: true,
+                        builder: (context) => FutureSearchScreen(
+                          search: Search.search(
+                            searchParameters: SearchParameters(
+                              query: "$query id:${widget.conversation.id}",
+                              type: {'conversation', 'comment'},
+                              sort: 'date',
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                },
+                leadingIcon: const Icon(Icons.search),
+                child: const Text('Find in conversation'),
+              ),
+              MenuItemButton(
+                onPressed: null, // TODO
+                leadingIcon: Icon(Icons.adaptive.share),
+                child: const Text('Share...'),
+              ),
+              const MenuItemButton(
+                onPressed: null, // TODO
+                leadingIcon: Icon(Icons.notification_add_outlined),
+                child: Text('Follow conversation'),
+              ),
+              MenuItemButton(
+                onPressed: () async {
+                  String? ret = await _showPageJumpDialog(context);
+
+                  if (ret != null) {
+                    int pageNo = int.parse(ret);
+                    if (!context.mounted) return;
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        fullscreenDialog: true,
+                        maintainState: true,
+                        builder: (context) => FutureConversationScreen(
+                          conversation: Conversation.getByPageNo(
+                            widget.conversation.id,
+                            pageNo,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                },
+                leadingIcon: const Icon(Icons.numbers),
+                child: const Text('Jump to page'),
+              ),
+              MenuItemButton(
+                onPressed: () => launchUrl(
+                  widget.conversation.selfUrl,
+                  mode: LaunchMode.externalApplication,
+                ),
+                leadingIcon: const Icon(Icons.open_in_browser),
+                child: const Text('Open in browser'),
+              ),
+            ],
+          ),
+        ],
+        title: Text(widget.conversation.title),
+      ),
       body: Column(
         children: [
           Expanded(
             child: CustomScrollView(
               center: forwardListKey,
               slivers: [
-                SliverAppBar(
-                  // TODO: https://github.com/flutter/flutter/issues/132841
-                  floating: true,
-                  title: Text(widget.conversation.title),
-                ),
                 reverseList,
                 forwardList,
               ],
@@ -84,4 +192,96 @@ class _ConversationScreenState extends State<ConversationScreen> {
       ),
     );
   }
+
+  Future<String?> _showPageJumpDialog(BuildContext context) => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Jump to page...'),
+          content: Row(
+            children: [
+              SizedBox(
+                width: 100,
+                child: TextField(
+                  controller: _pageNoController,
+                  maxLength: 6,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  onChanged: (value) {
+                    final number = int.tryParse(value);
+                    if (number != null) {
+                      final text = number.clamp(1, maxPageNumber).toString();
+                      final selection = TextSelection.collapsed(
+                        offset: text.length,
+                      );
+                      _pageNoController.value = TextEditingValue(
+                        text: text,
+                        selection: selection,
+                      );
+                    }
+                  },
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    counterText: "",
+                    hintText: "Page number",
+                  ),
+                ),
+              ),
+              Text("/ $maxPageNumber")
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('CANCEL'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              child: const Text('GO'),
+              onPressed: () {
+                Navigator.pop<String?>(
+                  context,
+                  _pageNoController.text,
+                );
+              },
+            ),
+          ],
+        ),
+      );
+
+  Future<String?> _showSearchDialog(BuildContext context) => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Search in thread'),
+          content: SizedBox(
+            width: 100,
+            child: TextField(
+              controller: _searchController,
+              maxLength: 512,
+              decoration: const InputDecoration(
+                counterText: "",
+                hintText: "Search for...",
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('CANCEL'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              child: const Text('GO'),
+              onPressed: () {
+                Navigator.pop<String?>(
+                  context,
+                  _searchController.text,
+                );
+              },
+            ),
+          ],
+        ),
+      );
 }
