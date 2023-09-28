@@ -206,6 +206,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
                     }
                   },
                   keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
                   enabled: !_sending,
                   spellCheckConfiguration:
                       kIsWeb ? null : const SpellCheckConfiguration(),
@@ -242,9 +243,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
                               key: ObjectKey(attachment),
                               image: attachment,
                               onRemoveItem: (XFile image) {
-                                setState(() {
-                                  _attachments.remove(image);
-                                });
+                                setState(() => _attachments.remove(image));
                               },
                             ),
                         ],
@@ -261,9 +260,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
                         final List<XFile> images =
                             await picker.pickMultiImage();
                         if (images.isNotEmpty) {
-                          setState(() {
-                            _attachments.addAll(images);
-                          });
+                          setState(() => _attachments.addAll(images));
                         }
                       },
                     ),
@@ -276,9 +273,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
                           source: ImageSource.camera,
                         );
                         if (photo != null) {
-                          setState(() {
-                            _attachments.add(photo);
-                          });
+                          setState(() => _attachments.add(photo));
                         }
                       },
                     ),
@@ -325,6 +320,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
           minLines: 1,
           maxLength: 150,
           keyboardType: TextInputType.multiline,
+          textCapitalization: TextCapitalization.sentences,
           enabled: !_sending,
           validator: (val) {
             if (val == null || val.isEmpty) {
@@ -357,9 +353,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
               return null;
             }
           },
-          onSelected: (c) => setState(() {
-            _selectedConversation = c;
-          }),
+          onSelected: (c) => setState(() => _selectedConversation = c),
         ),
         Text(_selectedConversation?.title ?? "Nothing selected"),
       ],
@@ -388,6 +382,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
           minLines: 1,
           maxLength: 150,
           keyboardType: TextInputType.multiline,
+          textCapitalization: TextCapitalization.sentences,
           enabled: !_sending,
           validator: (val) {
             if (val == null || val.isEmpty) {
@@ -419,9 +414,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
               return null;
             }
           },
-          onSelected: (h) => setState(() {
-            _selectedHuddle = h;
-          }),
+          onSelected: (h) => setState(() => _selectedHuddle = h),
         ),
         Text(_selectedHuddle?.title ?? "Nothing selected"),
       ],
@@ -593,11 +586,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
         ),
       );
     } catch (error) {
-      setState(
-        () {
-          _sending = false;
-        },
-      );
+      setState(() => _sending = false);
 
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

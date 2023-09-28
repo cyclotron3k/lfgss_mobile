@@ -65,9 +65,7 @@ class _NewCommentState extends State<NewComment> {
                   key: ObjectKey(attachment),
                   image: attachment,
                   onRemoveItem: (XFile image) {
-                    setState(() {
-                      _attachments.remove(image);
-                    });
+                    setState(() => _attachments.remove(image));
                   },
                 ),
             ],
@@ -83,6 +81,7 @@ class _NewCommentState extends State<NewComment> {
                   maxLines: 5,
                   minLines: 1,
                   keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
                   enabled: !_sending,
                   decoration: InputDecoration(
                     isDense: true,
@@ -107,9 +106,7 @@ class _NewCommentState extends State<NewComment> {
                 final ImagePicker picker = ImagePicker();
                 final List<XFile> images = await picker.pickMultiImage();
                 if (images.isNotEmpty) {
-                  setState(() {
-                    _attachments.addAll(images);
-                  });
+                  setState(() => _attachments.addAll(images));
                 }
               },
             ),
@@ -123,9 +120,7 @@ class _NewCommentState extends State<NewComment> {
                   source: ImageSource.camera,
                 );
                 if (photo != null) {
-                  setState(() {
-                    _attachments.add(photo);
-                  });
+                  setState(() => _attachments.add(photo));
                 }
               },
             ),
@@ -188,9 +183,7 @@ class _NewCommentState extends State<NewComment> {
       return;
     }
 
-    setState(() {
-      _sending = true;
-    });
+    setState(() => _sending = true);
     developer.log("Sending message...");
 
     try {
@@ -229,11 +222,7 @@ class _NewCommentState extends State<NewComment> {
         ),
       );
     } catch (error) {
-      setState(
-        () {
-          _sending = false;
-        },
-      );
+      setState(() => _sending = false);
 
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

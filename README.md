@@ -2,9 +2,15 @@
 
 ## TODO
 
+- Creating a new comment or post -> thread/post
+- Auto-refresh updates page
+- Fix RefreshIndicator
+- Reply to comment
+- Notifications limited to 5
+
+- Embed tweets
 - Search
 - Better selector UX
-- Auto-refresh after inactivity
 - Convert API client to ChangeNotifier
 - Manage caching across multiple accounts better
 - Better caching/cache invalidation

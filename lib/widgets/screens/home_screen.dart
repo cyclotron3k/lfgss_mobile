@@ -385,9 +385,7 @@ class _HomeScreenState extends State<HomeScreen> {
           if (value == 4) {
             _toggleDrawer();
           } else {
-            setState(() {
-              _currentIndex = value;
-            });
+            setState(() => _currentIndex = value);
           }
         },
       ),

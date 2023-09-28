@@ -58,9 +58,7 @@ class _AttachmentThumbnailState extends State<AttachmentThumbnail> {
                 (dy! - details.localPosition.dy).abs()) >
             80.0;
         if (remove ^ newRemove) {
-          setState(() {
-            remove = newRemove;
-          });
+          setState(() => remove = newRemove);
         }
       },
       feedback: image,
