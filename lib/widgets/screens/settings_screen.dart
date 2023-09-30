@@ -26,6 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _previewUrls = false;
   bool _downloadThirdParty = true;
   bool _embedYouTube = true;
+  bool _embedTweets = true;
   bool _notifyNewComments = true;
   bool _notifyNewConversations = true;
   bool _notifyReplies = true;
@@ -53,6 +54,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _previewUrls = settings.getBool("previewUrls") ?? false;
     _downloadThirdParty = settings.getBool("downloadThirdParty") ?? true;
     _embedYouTube = settings.getBool("embedYouTube") ?? true;
+    _embedTweets = settings.getBool("embedTweets") ?? true;
     _notifyNewComments = settings.getBool("notifyNewComments") ?? true;
     _notifyNewConversations =
         settings.getBool("notifyNewConversations") ?? true;
@@ -237,6 +239,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               });
             },
             secondary: const Icon(Icons.smart_display),
+          ),
+          SwitchListTile(
+            title: const Text('Embed tweets'),
+            value: _embedTweets,
+            onChanged: (bool value) {
+              setState(() {
+                settings.setBool("embedTweets", value).ignore();
+                _embedTweets = value;
+              });
+            },
+            secondary: const Icon(Icons.chat_bubble),
           ),
           const Divider(),
           const SettingsSectionTitle(title: "Notifications"),

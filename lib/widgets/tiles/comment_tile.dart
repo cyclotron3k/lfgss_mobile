@@ -26,6 +26,7 @@ class CommentTile extends StatefulWidget {
 
 class _CommentTileState extends State<CommentTile> {
   late final Document doc;
+  late final Document orig;
 
   @override
   void initState() {
@@ -35,6 +36,7 @@ class _CommentTileState extends State<CommentTile> {
       r'^https://twitter\.com/\w+/status/\d+$',
     );
     doc = parse(widget.comment.html);
+    orig = doc.clone(true); // TODO: don't be lazy
     final anchors = doc.querySelectorAll('a');
     for (final anchor in anchors) {
       // There are soft hyphens in the text, to help layout, but it doesn't help us
@@ -176,7 +178,12 @@ class _CommentTileState extends State<CommentTile> {
               ),
               Consumer<Settings>(
                 builder: (context, settings, _) => Html.fromDom(
-                  document: doc,
+                  document: (settings.getBool(
+                            'embedTweets',
+                          ) ??
+                          true)
+                      ? doc
+                      : orig,
                   // data: widget.comment.html,
                   onLinkTap: (
                     String? url,
