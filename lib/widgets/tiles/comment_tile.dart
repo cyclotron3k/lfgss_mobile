@@ -4,6 +4,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_iframe/flutter_html_iframe.dart';
 import 'package:html/dom.dart' show Document, Element;
 import 'package:html/parser.dart' show parse;
+import 'package:html_unescape/html_unescape_small.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -145,7 +146,7 @@ class _CommentTileState extends State<CommentTile> {
                               );
                             },
                             child: Text(
-                              " replied to ${widget.comment.links["inReplyToAuthor"]!.title}",
+                              " replied to ${HtmlUnescape().convert(widget.comment.links["inReplyToAuthor"]!.title ?? "")}",
                               style: const TextStyle(color: Colors.grey),
                             ),
                           )
