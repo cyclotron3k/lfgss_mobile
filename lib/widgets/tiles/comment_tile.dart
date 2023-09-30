@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Element;
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_iframe/flutter_html_iframe.dart';
+import 'package:html/dom.dart' show Document, Element;
+import 'package:html/parser.dart' show parse;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -11,6 +13,7 @@ import '../../services/link_parser.dart';
 import '../../services/settings.dart';
 import '../maybe_image.dart';
 import '../missing_image.dart';
+import '../tweet.dart';
 
 class CommentTile extends StatefulWidget {
   final Comment comment;
@@ -22,10 +25,26 @@ class CommentTile extends StatefulWidget {
 }
 
 class _CommentTileState extends State<CommentTile> {
-  final List<String> validSchemes = ['https', 'http', 'mailto', 'tel'];
-  final RegExp profileMatcher = RegExp(r'^/profiles/(\d+)$');
-  final RegExp hashtagMatcher = RegExp(r'^/search/\?q=(%23\w+)$');
-  final RegExp commentMatcher = RegExp(r'^/comments/(\d+)$');
+  late final Document doc;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final RegExp tweetMatcher = RegExp(
+      r'^https://twitter\.com/\w+/status/\d+$',
+    );
+    doc = parse(widget.comment.html);
+    final anchors = doc.querySelectorAll('a');
+    for (final anchor in anchors) {
+      // There are soft hyphens in the text, to help layout, but it doesn't help us
+      final cleaned = anchor.text.replaceAll('\xad', '');
+      if (!tweetMatcher.hasMatch(cleaned)) continue;
+      anchor.replaceWith(
+        Element.html('<tweet>${cleaned}</tweet>'),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,8 +175,9 @@ class _CommentTileState extends State<CommentTile> {
                 ],
               ),
               Consumer<Settings>(
-                builder: (context, settings, _) => Html(
-                  data: widget.comment.html,
+                builder: (context, settings, _) => Html.fromDom(
+                  document: doc,
+                  // data: widget.comment.html,
                   onLinkTap: (
                     String? url,
                     Map<String, String> attributes,
@@ -185,7 +205,11 @@ class _CommentTileState extends State<CommentTile> {
                           ),
                         );
                       },
-                    )
+                    ),
+                    TagExtension(
+                      tagsToExtend: {"tweet"},
+                      builder: (context) => Tweet(url: context.innerHtml),
+                    ),
                   ],
                   style: {
                     "img": Style(
