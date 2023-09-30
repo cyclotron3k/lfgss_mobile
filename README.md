@@ -2,21 +2,21 @@
 
 ## TODO
 
-- Creating a new comment or post -> thread/post
-- Auto-refresh updates page
-- Fix RefreshIndicator
 - Reply to comment
+- Auto-refresh updates page
+- Creating a new comment or post -> thread/post
+- Fix RefreshIndicator
 - Notifications limited to 5
+- Refreshing on page break disabled refresh button
 
-- Embed tweets
+- Better caching/cache invalidation
+- Edit comment
 - Search
 - Better selector UX
 - Convert API client to ChangeNotifier
 - Manage caching across multiple accounts better
-- Better caching/cache invalidation
 - Caching (json, images, thumbnails, metrics)
 - Page navigation (lozenge or indexed scroller?)
-- Edit comment
 - Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
 - Thread view
 - Attachment gallery
