@@ -2,14 +2,15 @@
 
 ## TODO
 
-- Reply to comment
+- Evict expired pages from cache
+- Useless notification group
 - Auto-refresh updates page
-- Creating a new comment or post -> thread/post
-- Fix RefreshIndicator
-- Notifications limited to 5
-- Refreshing on page break disabled refresh button
-
+- Reply to comment
 - Better caching/cache invalidation
+- Remember last page
+- Creating a new comment or post -> thread/post
+- Refreshing on page break disabled refresh button
+- Fix RefreshIndicator
 - Edit comment
 - Search
 - Better selector UX

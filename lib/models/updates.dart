@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,11 +18,11 @@ class Updates extends ItemWithChildren {
     parsePage(json);
   }
 
-  static Future<Updates> root() async {
+  static Future<Updates> root({int pageSize = PAGE_SIZE}) async {
     var uri = Uri.https(
       HOST,
       "/api/v1/updates",
-      {"limit": PAGE_SIZE.toString(), "offset": "0"},
+      {"limit": pageSize.toString(), "offset": "0"},
     );
 
     Json json = await MicrocosmClient().getJson(uri, ttl: 5);
@@ -36,23 +37,34 @@ class Updates extends ItemWithChildren {
       );
 
   Future<List<Update>> getNewUpdates() async {
-    final sharedPreference =
-        await SharedPreferences.getInstance(); //Initialize dependency
+    final sharedPreference = await SharedPreferences.getInstance();
 
-    final int lastUpdateId = sharedPreference.getInt("lastUpdateId") ?? 0;
+    final int? spUpdateId = sharedPreference.getInt("lastUpdateId");
+
+    // Only show updates newer than this:
+    final int lastUpdateId = spUpdateId ?? _highTide ?? 0;
 
     final Iterable<Update> newUpdates = _children.values.where(
       (update) => update.id > lastUpdateId && update.flags.unread,
     );
 
-    if (newUpdates.isNotEmpty) {
+    if (newUpdates.isNotEmpty || spUpdateId != lastUpdateId) {
+      int id = newUpdates.isNotEmpty ? newUpdates.first.id : lastUpdateId;
       await sharedPreference.setInt(
         "lastUpdateId",
-        newUpdates.first.id,
+        id,
       );
     }
 
     return newUpdates.toList();
+  }
+
+  int? get _highTide {
+    Update? lastUpdate = maxBy<Update, int>(_children.values, (c) => c.id);
+    if (lastUpdate != null) {
+      return lastUpdate.id;
+    }
+    return null;
   }
 
   @override

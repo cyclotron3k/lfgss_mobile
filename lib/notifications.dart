@@ -24,7 +24,7 @@ void callbackDispatcher() {
         return Future.value(true);
       }
 
-      Updates updates = await Updates.root();
+      Updates updates = await Updates.root(pageSize: 25);
       List<Update> notifications = await updates.getNewUpdates();
       log("New updates: ${notifications.length}");
 
