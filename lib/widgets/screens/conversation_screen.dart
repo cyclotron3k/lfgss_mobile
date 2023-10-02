@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lfgss_mobile/models/search.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../constants.dart';
 import '../../models/conversation.dart';
+import '../../models/reply_notifier.dart';
 import '../../models/search_parameters.dart';
 import '../../services/microcosm_client.dart';
 import '../new_comment.dart';
@@ -49,12 +51,20 @@ class _ConversationScreenState extends State<ConversationScreen> {
       key: forwardListKey,
       itemBuilder: (BuildContext context, int index) {
         if (forwardItemCount == index) {
-          return Center(
-            child: ElevatedButton.icon(
-              onPressed: refreshDisabled ? null : _refresh,
-              icon: const Icon(Icons.refresh),
-              label: Text(refreshDisabled ? 'Refreshing...' : 'Refresh'),
-            ),
+          return Column(
+            children: [
+              const Divider(),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 28.0),
+                child: Center(
+                  child: ElevatedButton.icon(
+                    onPressed: refreshDisabled ? null : _refresh,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(refreshDisabled ? 'Refreshing...' : 'Refresh'),
+                  ),
+                ),
+              ),
+            ],
           );
         }
         return widget.conversation.childTile(
@@ -171,27 +181,30 @@ class _ConversationScreenState extends State<ConversationScreen> {
         ],
         title: Text(widget.conversation.title),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: CustomScrollView(
-              center: forwardListKey,
-              slivers: [
-                reverseList,
-                forwardList,
-              ],
+      body: ChangeNotifierProvider<ReplyNotifier>(
+        create: (BuildContext context) => ReplyNotifier(),
+        child: Column(
+          children: [
+            Expanded(
+              child: CustomScrollView(
+                center: forwardListKey,
+                slivers: [
+                  reverseList,
+                  forwardList,
+                ],
+              ),
             ),
-          ),
-          if (widget.conversation.flags.open && MicrocosmClient().loggedIn)
-            NewComment(
-              itemId: widget.conversation.id,
-              itemType: CommentableType.conversation,
-              onPostSuccess: () async {
-                await widget.conversation.resetChildren();
-                setState(() {});
-              },
-            )
-        ],
+            if (widget.conversation.flags.open && MicrocosmClient().loggedIn)
+              NewComment(
+                itemId: widget.conversation.id,
+                itemType: CommentableType.conversation,
+                onPostSuccess: () async {
+                  await widget.conversation.resetChildren();
+                  setState(() {});
+                },
+              )
+          ],
+        ),
       ),
     );
   }

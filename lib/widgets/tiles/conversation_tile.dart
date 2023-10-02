@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:intl/intl.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 import '../../models/conversation.dart';
 import '../screens/future_conversation_screen.dart';
+import '../time_ago.dart';
 
 class ConversationTile extends StatefulWidget {
   final Conversation conversation;
@@ -76,7 +76,7 @@ class _ConversationTileState extends State<ConversationTile> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               if (widget.conversation.lastActivity != null)
-                Text(timeago.format(widget.conversation.lastActivity!)),
+                TimeAgo(widget.conversation.lastActivity!),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Icon(

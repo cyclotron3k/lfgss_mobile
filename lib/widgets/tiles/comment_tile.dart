@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter_html/flutter_html.dart';
@@ -5,15 +7,16 @@ import 'package:flutter_html_iframe/flutter_html_iframe.dart';
 import 'package:html/dom.dart' show Document, Element;
 import 'package:html/parser.dart' show parse;
 import 'package:html_unescape/html_unescape_small.dart';
-import 'package:intl/intl.dart';
+import 'package:lfgss_mobile/models/reply_notifier.dart';
 import 'package:provider/provider.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 import '../../models/comment.dart';
 import '../../services/link_parser.dart';
 import '../../services/settings.dart';
 import '../maybe_image.dart';
 import '../missing_image.dart';
+import '../swipeable.dart';
+import '../time_ago.dart';
 import '../tweet.dart';
 
 class CommentTile extends StatefulWidget {
@@ -31,6 +34,7 @@ class _CommentTileState extends State<CommentTile> {
 
   late final bool showEdited;
   late final bool showReplied;
+  bool replyActivated = false;
 
   @override
   void initState() {
@@ -57,6 +61,51 @@ class _CommentTileState extends State<CommentTile> {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Divider(),
+        Swipeable(
+          direction: SwipeDirection.startToEnd,
+          swipeThresholds: const {SwipeDirection.startToEnd: 0.20},
+          background: Container(
+            alignment: Alignment.centerLeft,
+            // color: Colors.green,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: AnimatedSize(
+                duration: const Duration(seconds: 1),
+                curve: Curves.elasticOut,
+                child: Icon(
+                  Icons.reply,
+                  size: replyActivated ? 32.0 : 22,
+                  color: replyActivated ? Colors.green.shade300 : Colors.grey,
+                ),
+              ),
+            ),
+          ),
+          onUpdate: (details) => setState(
+            () => replyActivated = details.reached,
+          ),
+          onRelease: (details) {
+            setState(() {
+              if (details.reached) {
+                Provider.of<ReplyNotifier>(
+                  context,
+                  listen: false,
+                ).setReplyTarget(
+                  widget.comment,
+                );
+              }
+            });
+          },
+          key: ObjectKey(widget.comment),
+          child: _body(context),
+        ),
+      ],
+    );
+  }
+
+  Material _body(BuildContext context) {
     return Material(
       child: Stack(
         children: [
@@ -83,7 +132,6 @@ class _CommentTileState extends State<CommentTile> {
           Column(
             // key: ValueKey(widget.comment.id),
             children: [
-              const Divider(),
               _titleBar(context),
               Consumer<Settings>(
                 builder: (context, settings, _) => Html.fromDom(
@@ -223,15 +271,7 @@ class _CommentTileState extends State<CommentTile> {
                     fontStyle: FontStyle.italic,
                   ),
                 ),
-              Tooltip(
-                message: DateFormat.yMMMEd().add_Hms().format(
-                      widget.comment.created,
-                    ),
-                child: Text(
-                  timeago.format(widget.comment.created),
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              ),
+              TimeAgo(widget.comment.created, color: Colors.grey),
             ],
           ),
         ),

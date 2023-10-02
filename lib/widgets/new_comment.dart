@@ -3,8 +3,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import '../constants.dart';
+import '../models/comment.dart';
+import '../models/reply_notifier.dart';
 import '../services/microcosm_client.dart';
 import 'attachment_thumbnail.dart';
 
@@ -18,7 +21,7 @@ class NewComment extends StatefulWidget {
   final int itemId;
   final CommentableType itemType;
   final String initialState;
-  final int? inReplyTo;
+  // final int? inReplyTo;
   final Function onPostSuccess;
 
   const NewComment({
@@ -27,7 +30,7 @@ class NewComment extends StatefulWidget {
     required this.itemType,
     required this.onPostSuccess,
     this.initialState = "",
-    this.inReplyTo,
+    // this.inReplyTo,
   });
 
   @override
@@ -35,9 +38,10 @@ class NewComment extends StatefulWidget {
 }
 
 class _NewCommentState extends State<NewComment> {
-  final TextEditingController _controller = TextEditingController();
-  bool _sending = false;
+  final _controller = TextEditingController();
   final List<XFile> _attachments = [];
+  Comment? _inReplyTo;
+  bool _sending = false;
 
   @override
   void initState() {
@@ -53,22 +57,51 @@ class _NewCommentState extends State<NewComment> {
 
   @override
   Widget build(BuildContext context) {
+    _inReplyTo = context.watch<ReplyNotifier>().replyTarget;
+
     return Column(
       children: [
-        if (_attachments.isNotEmpty)
-          Wrap(
-            runSpacing: 8.0,
-            spacing: 8.0,
+        if (_inReplyTo != null) ...[
+          const Divider(thickness: 1.0, height: 0.0),
+          Row(
             children: [
-              for (final attachment in _attachments)
-                AttachmentThumbnail(
-                  key: ObjectKey(attachment),
-                  image: attachment,
-                  onRemoveItem: (XFile image) {
-                    setState(() => _attachments.remove(image));
-                  },
+              const SizedBox(width: 8.0),
+              const Icon(Icons.reply),
+              const SizedBox(width: 8.0),
+              Expanded(
+                child: Text(
+                  "${_inReplyTo!.createdBy.profileName}: ${_inReplyTo!.markdown}",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
+              ),
+              const SizedBox(width: 8.0),
+              IconButton(
+                icon: const Icon(Icons.close),
+                visualDensity: VisualDensity.compact,
+                onPressed: () => context.read<ReplyNotifier>().clear(),
+              ),
             ],
+          ),
+        ],
+        if (_attachments.isNotEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Wrap(
+              runSpacing: 8.0,
+              spacing: 8.0,
+              children: [
+                for (final attachment in _attachments)
+                  AttachmentThumbnail(
+                    key: ObjectKey(attachment),
+                    image: attachment,
+                    onRemoveItem: (XFile image) {
+                      setState(() => _attachments.remove(image));
+                    },
+                  ),
+              ],
+            ),
           ),
         Row(
           children: [
@@ -193,11 +226,12 @@ class _NewCommentState extends State<NewComment> {
         HOST,
         "/api/v1/comments",
       );
+
       Map<String, dynamic> payload = {
         "itemType": widget.itemType.name,
         "itemId": widget.itemId,
         "markdown": _controller.text,
-        if (widget.inReplyTo != null) "inReplyTo": widget.inReplyTo
+        if (_inReplyTo != null) "inReplyTo": _inReplyTo!.id,
       };
       developer.log("Posting new comment...");
       Json comment = await MicrocosmClient().postJson(url, payload);
@@ -210,6 +244,7 @@ class _NewCommentState extends State<NewComment> {
         _sending = false;
         _controller.text = "";
         _attachments.clear();
+        _inReplyTo = null;
         widget.onPostSuccess();
       });
 

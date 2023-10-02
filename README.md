@@ -5,11 +5,9 @@
 - Evict expired pages from cache
 - Useless notification group
 - Auto-refresh updates page
-- Reply to comment
 - Better caching/cache invalidation
 - Remember last page
 - Creating a new comment or post -> thread/post
-- Refreshing on page break disabled refresh button
 - Fix RefreshIndicator
 - Edit comment
 - Search
@@ -18,19 +16,18 @@
 - Manage caching across multiple accounts better
 - Caching (json, images, thumbnails, metrics)
 - Page navigation (lozenge or indexed scroller?)
-- Swipe to reply `Draggable(axis: ...),` & https://docs.flutter.dev/cookbook/animation/physics-simulation
 - Thread view
 - Attachment gallery
 - Download dots
 - Maps
 - Persistent connections & HTTP3 (See: https://pub.dev/packages/dio)
 - DRY (future_x widgets, mixins, codegen?)
-- Consolidated notifications
 - Social sharing
 - Widget keys
 - Instrumentation
 - https://docs.flutter.dev/cookbook/effects/expandable-fab
 - Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
+- Swipe to reply - https://docs.flutter.dev/cookbook/animation/physics-simulation
 - Use FlutterSecureStorage?
 - Blurha.sh shader?
 
