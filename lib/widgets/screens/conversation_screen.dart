@@ -33,8 +33,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   Future<void> _refresh() async {
     setState(() => refreshDisabled = true);
-    await widget.conversation.resetChildren();
-    setState(() => refreshDisabled = false);
+    try {
+      await widget.conversation.resetChildren();
+    } finally {
+      setState(() => refreshDisabled = false);
+    }
   }
 
   @override

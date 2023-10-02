@@ -19,8 +19,11 @@ class _EventScreenState extends State<EventScreen> {
 
   Future<void> _refresh() async {
     setState(() => refreshDisabled = true);
-    await widget.event.resetChildren();
-    setState(() => refreshDisabled = false);
+    try {
+      await widget.event.resetChildren();
+    } finally {
+      setState(() => refreshDisabled = false);
+    }
   }
 
   @override

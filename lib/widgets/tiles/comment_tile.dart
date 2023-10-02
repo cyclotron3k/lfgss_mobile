@@ -29,9 +29,15 @@ class _CommentTileState extends State<CommentTile> {
   late final Document doc;
   late final Document orig;
 
+  late final bool showEdited;
+  late final bool showReplied;
+
   @override
   void initState() {
     super.initState();
+
+    showEdited = widget.comment.revisions > 1;
+    showReplied = widget.comment.links.containsKey("inReplyToAuthor");
 
     final RegExp tweetMatcher = RegExp(
       r'^https://twitter\.com/\w+/status/\d+$',
@@ -78,105 +84,7 @@ class _CommentTileState extends State<CommentTile> {
             // key: ValueKey(widget.comment.id),
             children: [
               const Divider(),
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: CachedNetworkImage(
-                      imageUrl: widget.comment.createdBy.avatar,
-                      width: 22,
-                      height: 22,
-                      errorWidget: (context, url, error) => const Icon(
-                        Icons.person_outline,
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      showModalBottomSheet<void>(
-                        enableDrag: true,
-                        showDragHandle: true,
-                        context: context,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20.0),
-                          ),
-                        ),
-                        builder: (BuildContext context) {
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                CachedNetworkImage(
-                                  imageUrl: widget.comment.createdBy.avatar,
-                                  width: 256,
-                                  height: 256,
-                                  errorWidget: (context, url, error) =>
-                                      const Icon(
-                                    Icons.person_outline,
-                                  ),
-                                ),
-                                Text(
-                                  widget.comment.createdBy.profileName,
-                                ),
-                                ElevatedButton(
-                                  child: const Text(
-                                    'Close',
-                                  ),
-                                  onPressed: () => Navigator.pop(context),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    child: Text(
-                      widget.comment.createdBy.profileName,
-                    ),
-                  ),
-                  Expanded(
-                    child: widget.comment.links.containsKey("inReplyToAuthor")
-                        ? InkWell(
-                            onTap: () async {
-                              LinkParser.parseUri(
-                                context,
-                                widget.comment.links["inReplyTo"]!.href,
-                              );
-                            },
-                            child: Text(
-                              " replied to ${HtmlUnescape().convert(widget.comment.links["inReplyToAuthor"]!.title ?? "")}",
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          )
-                        : const Text(""),
-                  ),
-                  if (widget.comment.revisions > 1)
-                    const Text(
-                      " Edited • ",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Tooltip(
-                        message: DateFormat.yMMMEd().add_Hms().format(
-                              widget.comment.created,
-                            ),
-                        child: Text(
-                          timeago.format(widget.comment.created),
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              _titleBar(context),
               Consumer<Settings>(
                 builder: (context, settings, _) => Html.fromDom(
                   document: (settings.getBool(
@@ -259,4 +167,113 @@ class _CommentTileState extends State<CommentTile> {
       ),
     );
   }
+
+  Widget _titleBar(BuildContext context) => Row(children: [
+        Container(
+          width: 38.0,
+          padding: const EdgeInsets.all(8.0),
+          child: CachedNetworkImage(
+            imageUrl: widget.comment.createdBy.avatar,
+            width: 22,
+            height: 22,
+            errorWidget: (context, url, error) => const Icon(
+              Icons.person_outline,
+            ),
+          ),
+        ),
+        Expanded(
+          flex: showReplied ? 2 : 1,
+          child: Wrap(
+            spacing: 4.0,
+            children: [
+              InkWell(
+                onTap: () => _showProfileModal(context),
+                child: Text(
+                  widget.comment.createdBy.profileName,
+                ),
+              ),
+              if (showReplied)
+                InkWell(
+                  onTap: () async {
+                    LinkParser.parseUri(
+                      context,
+                      widget.comment.links["inReplyTo"]!.href,
+                    );
+                  },
+                  child: Text(
+                    "replied to ${HtmlUnescape().convert(widget.comment.links["inReplyToAuthor"]!.title ?? "")}",
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: showEdited ? 2 : 1,
+          child: Wrap(
+            runAlignment: WrapAlignment.end,
+            alignment: WrapAlignment.end,
+            spacing: 4.0,
+            children: [
+              if (showEdited)
+                const Text(
+                  "Edited •",
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              Tooltip(
+                message: DateFormat.yMMMEd().add_Hms().format(
+                      widget.comment.created,
+                    ),
+                child: Text(
+                  timeago.format(widget.comment.created),
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8.0),
+      ]);
+
+  Future<void> _showProfileModal(BuildContext context) =>
+      showModalBottomSheet<void>(
+        enableDrag: true,
+        showDragHandle: true,
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(20.0),
+          ),
+        ),
+        builder: (BuildContext context) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                CachedNetworkImage(
+                  imageUrl: widget.comment.createdBy.avatar,
+                  width: 256,
+                  height: 256,
+                  errorWidget: (context, url, error) => const Icon(
+                    Icons.person_outline,
+                  ),
+                ),
+                Text(
+                  widget.comment.createdBy.profileName,
+                ),
+                ElevatedButton(
+                  child: const Text(
+                    'Close',
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          );
+        },
+      );
 }
