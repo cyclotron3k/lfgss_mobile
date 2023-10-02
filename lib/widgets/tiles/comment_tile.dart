@@ -40,7 +40,7 @@ class _CommentTileState extends State<CommentTile> {
     showReplied = widget.comment.links.containsKey("inReplyToAuthor");
 
     final RegExp tweetMatcher = RegExp(
-      r'^https://twitter\.com/\w+/status/\d+$',
+      r'^https://twitter\.com/\w+/status/\d+',
     );
     doc = parse(widget.comment.html);
     orig = doc.clone(true); // TODO: don't be lazy
@@ -50,7 +50,7 @@ class _CommentTileState extends State<CommentTile> {
       final cleaned = anchor.text.replaceAll('\xad', '');
       if (!tweetMatcher.hasMatch(cleaned)) continue;
       anchor.replaceWith(
-        Element.html('<tweet>${cleaned}</tweet>'),
+        Element.html('<tweet>$cleaned</tweet>'),
       );
     }
   }
