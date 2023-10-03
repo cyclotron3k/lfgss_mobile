@@ -4,11 +4,10 @@
 
 - Evict expired pages from cache
 - Useless notification group
-- Auto-refresh updates page
+- Auto-refresh updates page - https://pub.dev/packages/visibility_detector
 - Better caching/cache invalidation
 - Remember last page
 - Creating a new comment or post -> thread/post
-- Fix RefreshIndicator
 - Edit comment
 - Search
 - Better selector UX
@@ -27,7 +26,8 @@
 - Instrumentation
 - https://docs.flutter.dev/cookbook/effects/expandable-fab
 - Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
-- Swipe to reply - https://docs.flutter.dev/cookbook/animation/physics-simulation
+- Better swipe to reply - https://docs.flutter.dev/cookbook/animation/physics-simulation
+- Better RefreshIndicator UX
 - Use FlutterSecureStorage?
 - Blurha.sh shader?
 
