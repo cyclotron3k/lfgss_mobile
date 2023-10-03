@@ -69,8 +69,7 @@ class _TweetState extends State<Tweet> {
 
     http.get(oembed).then<Map<String, dynamic>>((response) {
       if (response.statusCode != 200) throw Exception("Probably missing?");
-      String page = const Utf8Decoder().convert(response.body.codeUnits);
-      return json.decode(page);
+      return json.decode(response.body);
     }).then((response) {
       // TODO: Don't guess colours
       controller.loadHtmlString("""
@@ -85,12 +84,14 @@ class _TweetState extends State<Tweet> {
         </body>
         </html>
       """);
-      setState(() => loading = false);
+      if (mounted) setState(() => loading = false);
     }, onError: (_) {
-      setState(() {
-        loading = false;
-        error = true;
-      });
+      if (mounted) {
+        setState(() {
+          loading = false;
+          error = true;
+        });
+      }
     });
   }
 

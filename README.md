@@ -3,8 +3,8 @@
 ## TODO
 
 - Evict expired pages from cache
-- Useless notification group
 - Auto-refresh updates page - https://pub.dev/packages/visibility_detector
+- Useless notification group
 - Better caching/cache invalidation
 - Remember last page
 - Creating a new comment or post -> thread/post
