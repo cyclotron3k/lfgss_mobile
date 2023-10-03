@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../constants.dart';
 import '../../models/event.dart';
+import '../../models/reply_notifier.dart';
 import '../../services/microcosm_client.dart';
 import '../new_comment.dart';
 
@@ -59,72 +61,75 @@ class _EventScreenState extends State<EventScreen> {
     );
 
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: CustomScrollView(
-              center: forwardListKey,
-              slivers: [
-                SliverAppBar(
-                  // TODO: https://github.com/flutter/flutter/issues/132841
-                  floating: true,
-                  title: Text(widget.event.title),
-                ),
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(children: [
-                              ListTile(
-                                leading: const Icon(Icons.calendar_today),
-                                title: Text(
-                                  DateFormat.yMMMd()
-                                      .add_jm()
-                                      .format(widget.event.when),
-                                ),
-                              ),
-                              ListTile(
-                                leading: const Icon(Icons.calendar_today),
-                                title: Text(
-                                  DateFormat.yMMMd()
-                                      .add_jm()
-                                      .format(widget.event.whenEnd),
-                                ),
-                              ),
-                              ListTile(
-                                leading: const Icon(Icons.map),
-                                title: Text(widget.event.where),
-                              ),
-                            ]),
-                          ),
-                          const Expanded(
-                            child: Placeholder(
-                              fallbackHeight: 200.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                      widget.event.getAttendees(),
-                    ],
+      body: ChangeNotifierProvider<ReplyNotifier>(
+        create: (BuildContext context) => ReplyNotifier(),
+        child: Column(
+          children: [
+            Expanded(
+              child: CustomScrollView(
+                center: forwardListKey,
+                slivers: [
+                  SliverAppBar(
+                    // TODO: https://github.com/flutter/flutter/issues/132841
+                    floating: true,
+                    title: Text(widget.event.title),
                   ),
-                ),
-                reverseList,
-                forwardList,
-              ],
+                  SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(children: [
+                                ListTile(
+                                  leading: const Icon(Icons.calendar_today),
+                                  title: Text(
+                                    DateFormat.yMMMd()
+                                        .add_jm()
+                                        .format(widget.event.when),
+                                  ),
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.calendar_today),
+                                  title: Text(
+                                    DateFormat.yMMMd()
+                                        .add_jm()
+                                        .format(widget.event.whenEnd),
+                                  ),
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.map),
+                                  title: Text(widget.event.where),
+                                ),
+                              ]),
+                            ),
+                            const Expanded(
+                              child: Placeholder(
+                                fallbackHeight: 200.0,
+                              ),
+                            ),
+                          ],
+                        ),
+                        widget.event.getAttendees(),
+                      ],
+                    ),
+                  ),
+                  reverseList,
+                  forwardList,
+                ],
+              ),
             ),
-          ),
-          if (widget.event.flags.open && MicrocosmClient().loggedIn)
-            NewComment(
-              itemId: widget.event.id,
-              itemType: CommentableType.event,
-              onPostSuccess: () async {
-                await widget.event.resetChildren();
-                setState(() {});
-              },
-            )
-        ],
+            if (widget.event.flags.open && MicrocosmClient().loggedIn)
+              NewComment(
+                itemId: widget.event.id,
+                itemType: CommentableType.event,
+                onPostSuccess: () async {
+                  await widget.event.resetChildren();
+                  setState(() {});
+                },
+              )
+          ],
+        ),
       ),
     );
   }

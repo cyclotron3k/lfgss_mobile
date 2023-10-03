@@ -245,6 +245,9 @@ class _NewCommentState extends State<NewComment> {
         _controller.text = "";
         _attachments.clear();
         _inReplyTo = null;
+        if (context.mounted) {
+          context.read<ReplyNotifier>().clear();
+        }
         widget.onPostSuccess();
       });
 
