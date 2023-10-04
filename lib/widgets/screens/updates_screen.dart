@@ -18,8 +18,8 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        widget.updates.resetChildren();
-        setState(() {});
+        await widget.updates.resetChildren();
+        if (context.mounted) setState(() {});
       },
       child: CustomScrollView(
         // cacheExtent: 400.0,

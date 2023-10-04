@@ -47,7 +47,7 @@ class _MicrocosmScreenState extends State<MicrocosmScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           await widget.microcosm.resetChildren();
-          setState(() {});
+          if (context.mounted) setState(() {});
         },
         child: CustomScrollView(
           // cacheExtent: 400.0,

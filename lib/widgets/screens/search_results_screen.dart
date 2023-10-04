@@ -15,8 +15,8 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        widget.search.resetChildren();
-        setState(() {});
+        await widget.search.resetChildren();
+        if (context.mounted) setState(() {});
       },
       child: CustomScrollView(
         // cacheExtent: 400.0,

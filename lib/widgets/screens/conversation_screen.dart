@@ -205,7 +205,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 itemType: CommentableType.conversation,
                 onPostSuccess: () async {
                   await widget.conversation.resetChildren();
-                  setState(() {});
+                  if (context.mounted) setState(() {});
                 },
               )
           ],

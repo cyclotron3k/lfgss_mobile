@@ -43,7 +43,7 @@ class _HuddlesScreenState extends State<HuddlesScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           await widget.huddles.resetChildren();
-          setState(() {});
+          if (context.mounted) setState(() {});
         },
         child: CustomScrollView(
           // cacheExtent: 400.0,

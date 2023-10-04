@@ -30,7 +30,7 @@ class _ExpiringResponse {
 }
 
 class MicrocosmClient {
-  static const String userAgent = "LFGSSMobile/1.0.8 (android;cyclotron3k)";
+  static const String userAgent = "LFGSSMobile/1.0.9 (android;cyclotron3k)";
   static final MicrocosmClient _singleton = MicrocosmClient._internal();
   String? accessToken;
 

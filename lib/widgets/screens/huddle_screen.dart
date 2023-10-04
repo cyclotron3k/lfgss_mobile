@@ -45,7 +45,7 @@ class _HuddleScreenState extends State<HuddleScreen> {
               child: RefreshIndicator(
                 onRefresh: () async {
                   await widget.huddle.resetChildren();
-                  setState(() {});
+                  if (context.mounted) setState(() {});
                 },
                 child: Scrollable(
                   viewportBuilder:
@@ -72,7 +72,7 @@ class _HuddleScreenState extends State<HuddleScreen> {
                 itemType: CommentableType.huddle,
                 onPostSuccess: () async {
                   await widget.huddle.resetChildren();
-                  setState(() {});
+                  if (context.mounted) setState(() {});
                 },
               )
           ],
