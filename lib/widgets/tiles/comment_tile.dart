@@ -296,8 +296,8 @@ class _CommentTileState extends State<CommentTile> {
               children: <Widget>[
                 CachedNetworkImage(
                   imageUrl: widget.comment.createdBy.avatar,
-                  width: 256,
-                  height: 256,
+                  width: 256.0,
+                  height: 256.0,
                   errorWidget: (context, url, error) => const Icon(
                     Icons.person_outline,
                   ),

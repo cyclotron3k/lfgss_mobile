@@ -1,10 +1,6 @@
-import 'dart:developer' as developer;
-
 import 'package:flutter/material.dart';
 
 import '../../models/updates.dart';
-
-// enum Size { extraSmall, small, medium, large, extraLarge }
 
 class UpdatesScreen extends StatefulWidget {
   final Updates updates;
@@ -22,7 +18,6 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        developer.log("Refreshing updates screen...");
         widget.updates.resetChildren();
         setState(() {});
       },

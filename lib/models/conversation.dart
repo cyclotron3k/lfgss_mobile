@@ -54,6 +54,39 @@ class Conversation implements ItemWithChildren {
     }
   }
 
+  Future<bool> subscribe() async {
+    Uri uri = Uri.https(
+      HOST,
+      "/api/v1/watchers",
+    );
+
+    final response = await MicrocosmClient().post(uri, {
+      "itemType": "conversation",
+      "itemId": id,
+      "updateTypeId": 1,
+    });
+    final bool success = response.statusCode == 200;
+    if (success) flags.watched = true;
+    return success;
+  }
+
+  Future<bool> unsubscribe() async {
+    Uri uri = Uri.https(
+      HOST,
+      "/api/v1/watchers/delete",
+      {
+        "updateTypeId": "1",
+        "itemId": id.toString(),
+        "itemType": "conversation",
+      },
+    );
+
+    final response = await MicrocosmClient().delete(uri);
+    final bool success = response.statusCode == 200;
+    if (success) flags.watched = false;
+    return success;
+  }
+
   @override
   Uri get selfUrl => Uri.https(
         WEB_HOST,

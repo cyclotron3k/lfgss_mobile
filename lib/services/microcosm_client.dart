@@ -165,6 +165,17 @@ class MicrocosmClient {
     return data["data"];
   }
 
+  Future<http.Response> delete(Uri url) async {
+    return http.delete(
+      url,
+      headers: <String, String>{
+        'User-Agent': userAgent,
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer $accessToken",
+      },
+    );
+  }
+
   Future<http.Response> post(Uri url, Object body) async {
     String jsonBody = jsonEncode(body);
     return http.post(

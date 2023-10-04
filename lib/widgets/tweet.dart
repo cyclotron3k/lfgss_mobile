@@ -50,7 +50,7 @@ class _TweetState extends State<Tweet> {
         onMessageReceived: (JavaScriptMessage message) {
           final double newHeight = int.parse(message.message).toDouble();
           if (height != newHeight) {
-            setState(() => height = newHeight);
+            if (mounted) setState(() => height = newHeight);
           }
         },
       )
@@ -71,7 +71,6 @@ class _TweetState extends State<Tweet> {
       if (response.statusCode != 200) throw Exception("Probably missing?");
       return json.decode(response.body);
     }).then((response) {
-      // TODO: Don't guess colours
       controller.loadHtmlString("""
         <html lang="en" dir="ltr">
         <head>
@@ -79,7 +78,7 @@ class _TweetState extends State<Tweet> {
           <title>Twitter Publish</title>
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimal-ui">
         </head>
-        <body style="background-color:#${isDarkMode ? "1c1b1f" : "eee"};">
+        <body style="background-color:#${isDarkMode ? "1c1b1f" : "fdfbff"};">
         ${response["html"]}
         </body>
         </html>

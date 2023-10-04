@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lfgss_mobile/models/search.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../constants.dart';
@@ -134,14 +135,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 child: const Text('Find in conversation'),
               ),
               MenuItemButton(
-                onPressed: null, // TODO
+                onPressed: () => Share.shareUri(widget.conversation.selfUrl),
                 leadingIcon: Icon(Icons.adaptive.share),
-                child: const Text('Share...'),
+                child: const Text('Share'),
               ),
-              const MenuItemButton(
-                onPressed: null, // TODO
-                leadingIcon: Icon(Icons.notification_add_outlined),
-                child: Text('Follow conversation'),
+              MenuItemButton(
+                onPressed: _toggleSubscription,
+                leadingIcon: Icon(widget.conversation.flags.watched
+                    ? Icons.notifications_on
+                    : Icons.notification_add_outlined),
+                child: Text(widget.conversation.flags.watched
+                    ? "Unfollow conversation"
+                    : "Follow conversation"),
               ),
               MenuItemButton(
                 onPressed: () async {
@@ -207,6 +212,33 @@ class _ConversationScreenState extends State<ConversationScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _toggleSubscription() async {
+    var result = widget.conversation.flags.watched
+        ? await widget.conversation.unsubscribe()
+        : await widget.conversation.subscribe();
+
+    if (!context.mounted) return;
+    setState(() {});
+
+    if (result) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Successfully updated subscription"),
+          duration: TOAST_DURATION,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Failed to update subscription"),
+          duration: TOAST_DURATION,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   Future<String?> _showPageJumpDialog(BuildContext context) => showDialog(
