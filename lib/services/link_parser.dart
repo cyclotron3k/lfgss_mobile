@@ -4,10 +4,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../constants.dart';
 import '../models/conversation.dart';
-import '../models/profile.dart';
+import '../models/full_profile.dart';
 import '../models/search.dart';
 import '../widgets/link_preview.dart';
-import '../widgets/screens/future_conversation_screen.dart';
+import '../widgets/screens/future_screen.dart';
 import '../widgets/screens/future_search_screen.dart';
 import '../widgets/screens/profile_screen.dart';
 
@@ -38,7 +38,7 @@ class LinkParser {
           fullscreenDialog: true,
           maintainState: true,
           builder: (context) => ProfileScreen(
-            profile: Profile.getProfile(
+            profile: FullProfile.getProfile(
               int.parse(
                 profileMatcher.firstMatch(link)![1]!,
               ),
@@ -71,8 +71,8 @@ class LinkParser {
         MaterialPageRoute(
           fullscreenDialog: true,
           maintainState: true,
-          builder: (context) => FutureConversationScreen(
-            conversation: Conversation.getByCommentId(
+          builder: (context) => FutureScreen(
+            item: Conversation.getByCommentId(
               otherCommentId,
             ),
           ),
@@ -89,8 +89,8 @@ class LinkParser {
         MaterialPageRoute(
           fullscreenDialog: true,
           maintainState: true,
-          builder: (context) => FutureConversationScreen(
-            conversation: Conversation.getById(
+          builder: (context) => FutureScreen(
+            item: Conversation.getById(
               conversationId,
             ),
           ),

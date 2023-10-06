@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/widgets/tiles/item_shimmer.dart';
 
-import '../../models/item.dart';
+import '../../core/item.dart';
+import 'item_shimmer.dart';
 
 class FutureItemTile extends StatefulWidget {
   final Future<Item> item;

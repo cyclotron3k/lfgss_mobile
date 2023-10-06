@@ -9,15 +9,17 @@ import 'conversation.dart';
 import 'event.dart';
 import 'flags.dart';
 import 'huddle.dart';
-import 'item.dart';
+import '../core/item.dart';
 import 'item_parser.dart' hide Json;
 import 'update_type.dart';
 
-class Update extends Item {
+class Update implements Item {
+  @override
   final int id;
   final UpdateType updateType;
   final Item parent;
   final Item child;
+  @override
   final Flags flags;
 
   Update({
@@ -104,7 +106,7 @@ class Update extends Item {
     } else {
       return "";
     }
-  } // TODO: promote id?
+  }
 
   String get description {
     switch (updateType) {
@@ -138,4 +140,7 @@ class Update extends Item {
   Widget renderAsTile({bool? overrideUnreadFlag}) {
     return UpdateTile(update: this);
   }
+
+  @override
+  Uri get selfUrl => throw UnimplementedError();
 }

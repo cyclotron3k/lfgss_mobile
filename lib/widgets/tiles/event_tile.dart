@@ -3,7 +3,7 @@ import 'package:html_unescape/html_unescape_small.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/event.dart';
-import '../screens/future_event_screen.dart';
+import '../screens/future_screen.dart';
 
 class EventTile extends StatefulWidget {
   final Event event;
@@ -33,8 +33,8 @@ class _EventTileState extends State<EventTile> {
             MaterialPageRoute(
               fullscreenDialog: true,
               maintainState: true,
-              builder: (context) => FutureEventScreen(
-                event: Event.getById(widget.event.id),
+              builder: (context) => FutureScreen(
+                item: Event.getById(widget.event.id),
               ),
             ),
           );

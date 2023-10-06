@@ -3,7 +3,7 @@ import 'package:html_unescape/html_unescape_small.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/conversation.dart';
-import '../screens/future_conversation_screen.dart';
+import '../screens/future_screen.dart';
 import '../time_ago.dart';
 
 class ConversationTile extends StatefulWidget {
@@ -34,8 +34,8 @@ class _ConversationTileState extends State<ConversationTile> {
             MaterialPageRoute(
               fullscreenDialog: true,
               maintainState: true,
-              builder: (context) => FutureConversationScreen(
-                conversation: Conversation.getById(widget.conversation.id),
+              builder: (context) => FutureScreen(
+                item: Conversation.getById(widget.conversation.id),
               ),
             ),
           );

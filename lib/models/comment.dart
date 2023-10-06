@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
 import '../constants.dart';
+import '../core/authored.dart';
+import '../core/item.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/comment_tile.dart';
 import 'comment_attachments.dart';
 import 'flags.dart';
-import 'item.dart';
 import 'links.dart' hide Json;
-import 'partial_profile.dart';
+import 'profile.dart';
 
-class Comment implements Item {
+class Comment implements Item, Authored {
+  @override
   final int id;
   final String itemType; //  "conversation", "profile", etc
   final int itemId;
@@ -21,16 +23,22 @@ class Comment implements Item {
   final String html;
   final Links links;
 
+  @override
+  DateTime created;
+
+  @override
+  Profile createdBy;
+
+  @override
+  Flags flags;
+
   Comment? _replyTo;
   List<Comment>? _replies;
 
-  // Metadata
-  final Flags flags;
-  final PartialProfile createdBy;
-  // final Profile editedBy;
-  final DateTime created;
-
   CommentAttachments? commentAttachments;
+
+  @override
+  Uri get selfUrl => Uri.https(WEB_HOST, "/comments/$id");
 
   Future<Comment> getReplyTo() async {
     if (_replyTo != null) return _replyTo!;
@@ -66,7 +74,7 @@ class Comment implements Item {
         markdown = HtmlUnescape().convert(json["markdown"]),
         inReplyTo = json["inReplyTo"],
         html = json["html"],
-        createdBy = PartialProfile.fromJson(json: json["meta"]["createdBy"]),
+        createdBy = Profile.fromJson(json: json["meta"]["createdBy"]),
         // editedBy = Profile.fromJson(json: json['meta']['editedBy']),
         created = DateTime.parse(json['meta']['created']),
         flags = Flags.fromJson(json: json["meta"]["flags"]),

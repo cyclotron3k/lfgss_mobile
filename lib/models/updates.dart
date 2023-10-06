@@ -5,16 +5,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/future_item_tile.dart';
-import 'item.dart';
-import 'item_with_children.dart';
+import '../core/item.dart';
+import '../core/paginated.dart';
 import 'unknown_item.dart';
 import 'update.dart';
 
-class Updates extends ItemWithChildren {
+class Updates extends Paginated<Item> {
+  @override
+  final int startPage;
   int _totalChildren;
   final Map<int, Update> _children = {};
 
-  Updates.fromJson(Json json) : _totalChildren = json["updates"]["total"] {
+  Updates.fromJson({
+    required Json json,
+    this.startPage = 0,
+  }) : _totalChildren = json["updates"]["total"] {
     parsePage(json);
   }
 
@@ -27,10 +32,9 @@ class Updates extends ItemWithChildren {
 
     Json json = await MicrocosmClient().getJson(uri, ttl: 5);
 
-    return Updates.fromJson(json);
+    return Updates.fromJson(json: json);
   }
 
-  @override
   Uri get selfUrl => Uri.https(
         WEB_HOST,
         "/updates/",
@@ -68,7 +72,7 @@ class Updates extends ItemWithChildren {
   }
 
   @override
-  Future<void> getPageOfChildren(int i) async {
+  Future<void> loadPage(int i) async {
     Uri uri = Uri.https(
       HOST,
       "/api/v1/updates",
@@ -107,20 +111,15 @@ class Updates extends ItemWithChildren {
     if (_children.containsKey(i)) {
       return _children[i]!;
     }
-    await getPageOfChildren(i ~/ PAGE_SIZE);
+    await loadPage(i ~/ PAGE_SIZE);
 
-    return _children[i] ?? UnknownItem(type: "Unknown");
+    return _children[i] ?? UnknownItem(id: 0, type: "Unknown");
   }
 
   @override
   Future<void> resetChildren() async {
-    await getPageOfChildren(0);
+    await loadPage(0);
     _children.removeWhere((key, _) => key >= PAGE_SIZE);
-  }
-
-  @override
-  Widget renderAsTile({bool? overrideUnreadFlag}) {
-    throw UnimplementedError();
   }
 
   @override

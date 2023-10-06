@@ -3,20 +3,24 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/future_item_tile.dart';
-import 'item.dart';
-import 'item_with_children.dart';
+import '../core/item.dart';
+import '../core/paginated.dart';
 import 'search_parameters.dart';
 import 'search_result.dart';
-import 'unknown_item.dart';
 
-class Search extends ItemWithChildren {
+class Search implements Paginated<SearchResult> {
+  @override
+  final int startPage;
   SearchParameters searchParameters;
 
   int _totalChildren;
-  final Map<int, Item> _children = {};
+  final Map<int, SearchResult> _children = {};
 
-  Search.fromJson({required this.searchParameters, required Json json})
-      : _totalChildren = json["results"]["total"] {
+  Search.fromJson({
+    required this.searchParameters,
+    required Json json,
+    this.startPage = 0,
+  }) : _totalChildren = json["results"]["total"] {
     parsePage(json);
   }
 
@@ -59,7 +63,6 @@ class Search extends ItemWithChildren {
     );
   }
 
-  @override
   Uri get selfUrl => Uri.https(
         WEB_HOST,
         "/search/",
@@ -72,7 +75,7 @@ class Search extends ItemWithChildren {
   }
 
   @override
-  Future<void> getPageOfChildren(int i) async {
+  Future<void> loadPage(int i) async {
     var parameters = searchParameters.asQueryParameters;
     parameters["limit"] = PAGE_SIZE.toString();
     parameters["offset"] = (PAGE_SIZE * i).toString();
@@ -109,23 +112,17 @@ class Search extends ItemWithChildren {
   }
 
   @override
-  Future<Item> getChild(int i) async {
+  Future<SearchResult> getChild(int i) async {
     if (_children.containsKey(i)) {
       return _children[i]!;
     }
-    await getPageOfChildren(i ~/ PAGE_SIZE);
-    return _children[i] ?? UnknownItem(type: "Unknown");
+    await loadPage(i ~/ PAGE_SIZE);
+    return _children[i]!;
   }
 
   @override
   Future<void> resetChildren() async {
-    await getPageOfChildren(0);
+    await loadPage(0);
     _children.removeWhere((key, _) => key >= PAGE_SIZE);
-  }
-
-  @override
-  Widget renderAsTile({bool? overrideUnreadFlag}) {
-    // TODO: implement renderAsTile
-    return const Placeholder();
   }
 }

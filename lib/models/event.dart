@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
 import '../constants.dart';
+import '../core/commentable.dart';
+import '../core/item.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/event_tile.dart';
 import '../widgets/tiles/future_comment_tile.dart';
@@ -10,18 +12,19 @@ import 'comment.dart';
 
 import 'event_attendees.dart';
 import 'flags.dart';
-import 'item.dart';
-import 'item_with_children.dart';
-import 'partial_profile.dart';
 import 'permissions.dart';
-import 'unknown_item.dart';
+import 'profile.dart';
 
 enum EventStatus { proposed, upcoming, postponed, cancelled }
 
-class Event implements ItemWithChildren {
+class Event implements CommentableItem {
+  @override
   final int startPage;
 
+  @override
   final int id;
+
+  @override
   final String title;
   final int microcosmId;
 
@@ -42,14 +45,17 @@ class Event implements ItemWithChildren {
   final double? west; // -0.055789947509765625
 
   // Metadata
+  @override
   final Flags flags;
   final Permissions permissions;
-  final PartialProfile createdBy;
+  @override
+  final Profile createdBy;
   // final Profile editedBy;
+  @override
   final DateTime created;
 
   int _totalChildren;
-  final Map<int, Item> _children = {};
+  final Map<int, Comment> _children = {};
 
   final int highlight;
 
@@ -77,7 +83,7 @@ class Event implements ItemWithChildren {
         east = json["east"],
         south = json["south"],
         west = json["west"],
-        createdBy = PartialProfile.fromJson(json: json["meta"]["createdBy"]),
+        createdBy = Profile.fromJson(json: json["meta"]["createdBy"]),
         // editedBy = Profile.fromJson(json: json["meta"]["editedBy"]),
         created = DateTime.parse(json["meta"]["created"]),
         flags = Flags.fromJson(json: json["meta"]["flags"]),
@@ -105,6 +111,31 @@ class Event implements ItemWithChildren {
       json: json,
       startPage: json["comments"]["page"] - 1,
       highlight: commentId,
+    );
+  }
+
+  @override
+  Future<Event> getByPageNo(
+    int pageNo,
+  ) async {
+    int offset = (pageNo - 1) * 25;
+    // incase we ever increase _our_ page size above 25:
+    offset -= offset % PAGE_SIZE;
+
+    Uri uri = Uri.https(
+      HOST,
+      "/api/v1/events/$id",
+      {
+        "limit": PAGE_SIZE.toString(),
+        "offset": offset.toString(),
+      },
+    );
+
+    Json json = await MicrocosmClient().getJson(uri);
+
+    return Event.fromJson(
+      json: json,
+      startPage: json["comments"]["page"] - 1,
     );
   }
 
@@ -168,7 +199,7 @@ class Event implements ItemWithChildren {
   }
 
   @override
-  Future<void> getPageOfChildren(int i) async {
+  Future<void> loadPage(int i) async {
     Uri uri = Uri.https(
       HOST,
       "/api/v1/events/$id",
@@ -187,7 +218,7 @@ class Event implements ItemWithChildren {
   @override
   Future<void> resetChildren() async {
     final int lastPage = _totalChildren ~/ PAGE_SIZE;
-    await getPageOfChildren(lastPage);
+    await loadPage(lastPage);
     _children.removeWhere((key, _) => key >= lastPage * PAGE_SIZE);
   }
 
@@ -202,21 +233,56 @@ class Event implements ItemWithChildren {
   @override
   Widget childTile(int i) {
     if (_children.containsKey(i)) {
-      var comment = _children[i]! as Comment;
+      var comment = _children[i]!;
       return comment.renderAsTile(highlight: highlight == comment.id);
     }
     return FutureCommentTile(
-      comment: getChild(i).then((e) => e as Comment),
+      comment: getChild(i),
       highlight: highlight,
     );
   }
 
   @override
-  Future<Item> getChild(int i) async {
+  Future<Comment> getChild(int i) async {
     if (_children.containsKey(i)) {
       return _children[i]!;
     }
-    await getPageOfChildren(i ~/ PAGE_SIZE);
-    return _children[i] ?? UnknownItem(type: "Unknown");
+    await loadPage(i ~/ PAGE_SIZE);
+    return _children[i]!;
+  }
+
+  @override
+  Future<bool> subscribe() async {
+    Uri uri = Uri.https(
+      HOST,
+      "/api/v1/watchers",
+    );
+
+    final response = await MicrocosmClient().post(uri, {
+      "itemType": "event",
+      "itemId": id,
+      "updateTypeId": 1,
+    });
+    final bool success = response.statusCode == 200;
+    if (success) flags.watched = true;
+    return success;
+  }
+
+  @override
+  Future<bool> unsubscribe() async {
+    Uri uri = Uri.https(
+      HOST,
+      "/api/v1/watchers/delete",
+      {
+        "updateTypeId": "1",
+        "itemId": id.toString(),
+        "itemType": "event",
+      },
+    );
+
+    final response = await MicrocosmClient().delete(uri);
+    final bool success = response.statusCode == 200;
+    if (success) flags.watched = false;
+    return success;
   }
 }

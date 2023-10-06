@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
+import '../core/item.dart';
+import '../core/paginated.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/future_item_tile.dart';
 import 'huddle.dart';
-import 'item.dart';
-import 'item_with_children.dart';
-import 'unknown_item.dart';
 
-class Huddles extends ItemWithChildren {
+class Huddles implements Paginated<Huddle> {
+  @override
+  final int startPage;
   int _totalChildren;
-  final Map<int, Item> _children = {};
+  final Map<int, Huddle> _children = {};
 
-  Huddles.fromJson({required Json json})
-      : _totalChildren = json["huddles"]["total"] {
+  Huddles.fromJson({
+    required Json json,
+    this.startPage = 0,
+  }) : _totalChildren = json["huddles"]["total"] {
     parsePage(json);
   }
 
@@ -32,13 +35,7 @@ class Huddles extends ItemWithChildren {
   }
 
   @override
-  Uri get selfUrl => Uri.https(
-        WEB_HOST,
-        "/huddles/",
-      );
-
-  @override
-  Future<void> getPageOfChildren(int i) async {
+  Future<void> loadPage(int i) async {
     Uri uri = Uri.https(
       HOST,
       "/api/v1/huddles",
@@ -61,13 +58,13 @@ class Huddles extends ItemWithChildren {
   }
 
   @override
-  Future<Item> getChild(int i) async {
+  Future<Huddle> getChild(int i) async {
     if (_children.containsKey(i)) {
       return _children[i]!;
     }
-    await getPageOfChildren(i ~/ PAGE_SIZE);
+    await loadPage(i ~/ PAGE_SIZE);
 
-    return _children[i] ?? UnknownItem(type: "Unknown");
+    return _children[i]!;
   }
 
   @override
@@ -86,14 +83,8 @@ class Huddles extends ItemWithChildren {
   }
 
   @override
-  Widget renderAsTile({bool? overrideUnreadFlag}) {
-    // TODO: implement renderAsTile
-    return const Placeholder();
-  }
-
-  @override
   Future<void> resetChildren() async {
-    await getPageOfChildren(0);
+    await loadPage(0);
     _children.removeWhere((key, _) => key >= PAGE_SIZE);
   }
 

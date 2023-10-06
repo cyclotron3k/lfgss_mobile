@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../models/profile.dart';
+import '../../models/full_profile.dart';
 
 class FutureProfileScreen extends StatefulWidget {
-  final Future<Profile> profile;
+  final Future<FullProfile> profile;
   const FutureProfileScreen({super.key, required this.profile});
 
   @override
@@ -13,7 +13,7 @@ class FutureProfileScreen extends StatefulWidget {
 class _FutureProfileScreenState extends State<FutureProfileScreen> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Profile>(
+    return FutureBuilder<FullProfile>(
       future: widget.profile,
       builder: (context, snapshot) {
         if (snapshot.hasData) {

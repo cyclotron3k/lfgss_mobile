@@ -3,7 +3,7 @@ import 'conversation.dart';
 import 'event.dart';
 import 'huddle.dart';
 import 'microcosm.dart';
-import 'partial_profile.dart';
+import 'profile.dart';
 import 'unknown_item.dart';
 
 typedef Json = Map<String, dynamic>;
@@ -24,13 +24,13 @@ class ItemParser {
         return Event.fromJson(json: json);
 
       case "poll":
-        return UnknownItem(type: itemType);
+        return UnknownItem(id: json["id"], type: itemType);
 
       case "huddle":
         return Huddle.fromJson(json: json);
 
       case "profile":
-        return PartialProfile.fromJson(json: json);
+        return Profile.fromJson(json: json);
 
       default:
         throw "Don't know how to handle itemType of $itemType";

@@ -2,6 +2,7 @@
 
 ## TODO
 
+- Refactor event_attendees.dart
 - Evict expired pages from cache
 - Auto-refresh updates page - https://pub.dev/packages/visibility_detector
 - Useless notification group
@@ -11,7 +12,7 @@
 - Edit comment
 - Search
 - Better selector UX
-- Convert API client to ChangeNotifier
+- Convert API client to ChangeNotifier?
 - Manage caching across multiple accounts better
 - Caching (json, images, thumbnails, metrics)
 - Page navigation (lozenge or indexed scroller?)
@@ -30,6 +31,7 @@
 - Better RefreshIndicator UX
 - Use FlutterSecureStorage?
 - Blurha.sh shader?
+- Abstract participant/attendee widget
 
 ## TBD
 

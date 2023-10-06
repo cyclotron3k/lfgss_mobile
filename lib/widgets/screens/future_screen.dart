@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 
-import '../../models/event.dart';
-import 'event_screen.dart';
+import '../../core/commentable.dart';
+import 'commentable_item_screen.dart';
 
-class FutureEventScreen extends StatefulWidget {
-  final Future<Event> event;
-  const FutureEventScreen({super.key, required this.event});
+class FutureScreen extends StatefulWidget {
+  final Future<CommentableItem> item;
+  const FutureScreen({super.key, required this.item});
 
   @override
-  State<FutureEventScreen> createState() => _FutureEventScreenState();
+  State<FutureScreen> createState() => _FutureScreenState();
 }
 
-class _FutureEventScreenState extends State<FutureEventScreen> {
+class _FutureScreenState extends State<FutureScreen> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Event>(
-      future: widget.event,
+    return FutureBuilder<CommentableItem>(
+      future: widget.item,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return EventScreen(event: snapshot.data!);
+          return CommentableItemScreen(item: snapshot.data!);
         } else if (snapshot.hasError) {
           return Center(
             child: Icon(

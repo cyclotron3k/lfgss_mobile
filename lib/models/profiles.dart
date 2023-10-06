@@ -3,19 +3,23 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/future_item_tile.dart';
-import 'item.dart';
-import 'item_with_children.dart';
-import 'partial_profile.dart';
-import 'unknown_item.dart';
+import '../core/item.dart';
+import '../core/paginated.dart';
+import 'profile.dart';
 
-class Profiles extends ItemWithChildren {
+class Profiles implements Paginated<Profile> {
+  @override
+  final int startPage;
   String query;
 
   int _totalChildren;
-  final Map<int, Item> _children = {};
+  final Map<int, Profile> _children = {};
 
-  Profiles.fromJson({required this.query, required Json json})
-      : _totalChildren = json["profiles"]["total"] {
+  Profiles.fromJson({
+    required this.query,
+    required Json json,
+    this.startPage = 0,
+  }) : _totalChildren = json["profiles"]["total"] {
     parsePage(json);
   }
 
@@ -53,7 +57,7 @@ class Profiles extends ItemWithChildren {
   }
 
   @override
-  Future<void> getPageOfChildren(int i) async {
+  Future<void> loadPage(int i) async {
     Map<String, String> parameters = {
       "q": query,
       "top": "true",
@@ -71,15 +75,14 @@ class Profiles extends ItemWithChildren {
     parsePage(json);
   }
 
-  @override
-  Uri get selfUrl => Uri.https(WEB_HOST, "/profiles/", {"top": "true"});
+  // Uri get selfUrl => Uri.https(WEB_HOST, "/profiles/", {"top": "true"});
 
   @override
   void parsePage(Json json) {
     _totalChildren = json["profiles"]["total"];
 
-    List<PartialProfile> results = json["profiles"]["items"]
-        .map<PartialProfile>((item) => PartialProfile.fromJson(json: item))
+    List<Profile> results = json["profiles"]["items"]
+        .map<Profile>((item) => Profile.fromJson(json: item))
         .toList();
 
     for (final (index, item) in results.indexed) {
@@ -96,23 +99,17 @@ class Profiles extends ItemWithChildren {
   }
 
   @override
-  Future<Item> getChild(int i) async {
+  Future<Profile> getChild(int i) async {
     if (_children.containsKey(i)) {
       return _children[i]!;
     }
-    await getPageOfChildren(i ~/ _pageSize);
-    return _children[i] ?? UnknownItem(type: "Unknown");
+    await loadPage(i ~/ _pageSize);
+    return _children[i]!;
   }
 
   @override
   Future<void> resetChildren() async {
-    await getPageOfChildren(0);
+    await loadPage(0);
     _children.removeWhere((key, _) => key >= _pageSize);
-  }
-
-  @override
-  Widget renderAsTile({bool? overrideUnreadFlag}) {
-    // TODO: implement renderAsTile
-    return const Placeholder();
   }
 }

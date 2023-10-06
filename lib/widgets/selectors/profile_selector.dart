@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/partial_profile.dart';
+import '../../models/profile.dart';
 import '../../models/profiles.dart';
 
 class ProfileSelector extends StatefulWidget {
-  final Function(PartialProfile) onSelected;
+  final Function(Profile) onSelected;
   const ProfileSelector({
     super.key,
     required this.onSelected,
@@ -50,7 +50,7 @@ class _ProfileSelectorState extends State<ProfileSelector> {
         List<Widget> results = [];
 
         for (int i = 0; i < count; i++) {
-          PartialProfile profile = await profiles.getChild(i) as PartialProfile;
+          Profile profile = await profiles.getChild(i) as Profile;
           results.add(
             ListTile(
               title: Text(profile.profileName),

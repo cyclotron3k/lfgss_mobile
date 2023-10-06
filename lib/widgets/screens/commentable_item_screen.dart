@@ -1,28 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lfgss_mobile/models/search.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../constants.dart';
-import '../../models/conversation.dart';
+import '../../core/commentable.dart';
+import '../../models/event.dart';
+import '../../models/huddle.dart';
 import '../../models/reply_notifier.dart';
+import '../../models/search.dart';
 import '../../models/search_parameters.dart';
 import '../../services/microcosm_client.dart';
+import '../event_header.dart';
+import '../huddle_header.dart';
 import '../new_comment.dart';
-import 'future_conversation_screen.dart';
+import 'future_screen.dart';
 import 'future_search_screen.dart';
 
-class ConversationScreen extends StatefulWidget {
-  final Conversation conversation;
-  const ConversationScreen({super.key, required this.conversation});
+class CommentableItemScreen extends StatefulWidget {
+  final CommentableItem item;
+
+  const CommentableItemScreen({super.key, required this.item});
 
   @override
-  State<ConversationScreen> createState() => _ConversationScreenState();
+  State<CommentableItemScreen> createState() => _CommentableItemScreenState();
 }
 
-class _ConversationScreenState extends State<ConversationScreen> {
+class _CommentableItemScreenState extends State<CommentableItemScreen> {
   bool refreshDisabled = false;
   final TextEditingController _pageNoController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
@@ -31,22 +36,36 @@ class _ConversationScreenState extends State<ConversationScreen> {
   @override
   void initState() {
     super.initState();
-    maxPageNumber = (widget.conversation.totalChildren / 25).ceil();
+    maxPageNumber = (widget.item.totalChildren / 25).ceil();
   }
 
   Future<void> _refresh() async {
     setState(() => refreshDisabled = true);
     try {
-      await widget.conversation.resetChildren();
+      await widget.item.resetChildren();
     } finally {
       setState(() => refreshDisabled = false);
     }
   }
 
+  bool get hasCustomHeader {
+    return widget.item is Event || widget.item is Huddle;
+  }
+
+  Widget buildHeader() {
+    if (widget.item is Event) {
+      return EventHeader(event: widget.item as Event);
+    } else if (widget.item is Huddle) {
+      return HuddleHeader(huddle: widget.item as Huddle);
+    }
+    throw Exception(
+        "Tried to create a header element for a ${widget.item.runtimeType} which doesn't have a handler defined.");
+  }
+
   @override
   Widget build(BuildContext context) {
-    int forwardItemCount = widget.conversation.totalChildren -
-        widget.conversation.startPage * PAGE_SIZE;
+    int forwardItemCount =
+        widget.item.totalChildren - widget.item.startPage * PAGE_SIZE;
     Key forwardListKey = UniqueKey();
     Widget forwardList = SliverList.builder(
       key: forwardListKey,
@@ -68,19 +87,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
             ],
           );
         }
-        return widget.conversation.childTile(
-          widget.conversation.startPage * PAGE_SIZE + index,
+        return widget.item.childTile(
+          widget.item.startPage * PAGE_SIZE + index,
         );
       },
       itemCount: forwardItemCount + 1,
     );
 
     Widget reverseList = SliverList.builder(
-      itemBuilder: (BuildContext context, int index) =>
-          widget.conversation.childTile(
-        widget.conversation.startPage * PAGE_SIZE - index - 1,
+      itemBuilder: (BuildContext context, int index) => widget.item.childTile(
+        widget.item.startPage * PAGE_SIZE - index - 1,
       ),
-      itemCount: widget.conversation.startPage * PAGE_SIZE,
+      itemCount: widget.item.startPage * PAGE_SIZE,
     );
 
     return Scaffold(
@@ -121,8 +139,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         builder: (context) => FutureSearchScreen(
                           search: Search.search(
                             searchParameters: SearchParameters(
-                              query: "$query id:${widget.conversation.id}",
-                              type: {'conversation', 'comment'},
+                              query: "$query id:${widget.item.id}",
+                              type: {
+                                widget.item.runtimeType
+                                    .toString()
+                                    .toLowerCase(),
+                                'comment',
+                              },
                               sort: 'date',
                             ),
                           ),
@@ -132,21 +155,21 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   }
                 },
                 leadingIcon: const Icon(Icons.search),
-                child: const Text('Find in conversation'),
+                child: Text("Find in ${widget.item.runtimeType}"),
               ),
               MenuItemButton(
-                onPressed: () => Share.shareUri(widget.conversation.selfUrl),
+                onPressed: () => Share.shareUri(widget.item.selfUrl),
                 leadingIcon: Icon(Icons.adaptive.share),
                 child: const Text('Share'),
               ),
               MenuItemButton(
                 onPressed: _toggleSubscription,
-                leadingIcon: Icon(widget.conversation.flags.watched
+                leadingIcon: Icon(widget.item.flags.watched
                     ? Icons.notifications_on
                     : Icons.notification_add_outlined),
-                child: Text(widget.conversation.flags.watched
-                    ? "Unfollow conversation"
-                    : "Follow conversation"),
+                child: Text(widget.item.flags.watched
+                    ? "Unfollow ${widget.item.runtimeType}"
+                    : "Follow ${widget.item.runtimeType}"),
               ),
               MenuItemButton(
                 onPressed: () async {
@@ -160,11 +183,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       MaterialPageRoute(
                         fullscreenDialog: true,
                         maintainState: true,
-                        builder: (context) => FutureConversationScreen(
-                          conversation: Conversation.getByPageNo(
-                            widget.conversation.id,
-                            pageNo,
-                          ),
+                        builder: (context) => FutureScreen(
+                          item: widget.item.getByPageNo(pageNo),
                         ),
                       ),
                     );
@@ -175,7 +195,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
               ),
               MenuItemButton(
                 onPressed: () => launchUrl(
-                  widget.conversation.selfUrl,
+                  widget.item.selfUrl,
                   mode: LaunchMode.externalApplication,
                 ),
                 leadingIcon: const Icon(Icons.open_in_browser),
@@ -184,7 +204,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
             ],
           ),
         ],
-        title: Text(widget.conversation.title),
+        title: Text(widget.item.title),
       ),
       body: ChangeNotifierProvider<ReplyNotifier>(
         create: (BuildContext context) => ReplyNotifier(),
@@ -194,17 +214,23 @@ class _ConversationScreenState extends State<ConversationScreen> {
               child: CustomScrollView(
                 center: forwardListKey,
                 slivers: [
+                  if (hasCustomHeader)
+                    SliverToBoxAdapter(
+                      child: buildHeader(),
+                    ),
                   reverseList,
                   forwardList,
                 ],
               ),
             ),
-            if (widget.conversation.flags.open && MicrocosmClient().loggedIn)
+            if (widget.item.flags.open && MicrocosmClient().loggedIn)
               NewComment(
-                itemId: widget.conversation.id,
-                itemType: CommentableType.conversation,
+                itemId: widget.item.id,
+                itemType: CommentableType.values.byName(
+                  widget.item.runtimeType.toString().toLowerCase(),
+                ),
                 onPostSuccess: () async {
-                  await widget.conversation.resetChildren();
+                  await widget.item.resetChildren();
                   if (context.mounted) setState(() {});
                 },
               )
@@ -215,9 +241,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   Future<void> _toggleSubscription() async {
-    var result = widget.conversation.flags.watched
-        ? await widget.conversation.unsubscribe()
-        : await widget.conversation.subscribe();
+    var result = widget.item.flags.watched
+        ? await widget.item.unsubscribe()
+        : await widget.item.subscribe();
 
     if (!context.mounted) return;
     setState(() {});

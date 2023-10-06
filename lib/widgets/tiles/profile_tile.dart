@@ -1,17 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/partial_profile.dart';
 import '../../models/profile.dart';
+import '../../models/full_profile.dart';
 import '../screens/profile_screen.dart';
 
-class PartialProfileTile extends StatelessWidget {
-  const PartialProfileTile({
+class ProfileTile extends StatelessWidget {
+  const ProfileTile({
     super.key,
-    required this.partialProfile,
+    required this.profile,
   });
 
-  final PartialProfile partialProfile;
+  final Profile profile;
 
   @override
   Widget build(BuildContext context) {
@@ -24,24 +24,24 @@ class PartialProfileTile extends StatelessWidget {
               fullscreenDialog: true,
               maintainState: true,
               builder: (context) => ProfileScreen(
-                profile: Profile.getProfile(partialProfile.id),
+                profile: FullProfile.getProfile(profile.id),
               ),
             ),
           );
         },
         child: ListTile(
-          leading: (partialProfile.avatar.isEmpty
+          leading: (profile.avatar.isEmpty
               ? const Icon(
                   Icons.person_2_outlined,
                   color: Colors.grey,
                 )
-              : (partialProfile.avatar.endsWith('.svg')
+              : (profile.avatar.endsWith('.svg')
                   ? Icon(
                       Icons.error_outline,
                       color: Theme.of(context).colorScheme.error,
                     )
                   : CachedNetworkImage(
-                      imageUrl: partialProfile.avatar,
+                      imageUrl: profile.avatar,
                       width: 28,
                       height: 28,
                       errorWidget: (context, url, error) => const Icon(
@@ -49,7 +49,7 @@ class PartialProfileTile extends StatelessWidget {
                       ),
                     ))),
           title: Text(
-            partialProfile.profileName,
+            profile.profileName,
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
           ),

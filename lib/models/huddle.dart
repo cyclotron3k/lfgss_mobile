@@ -2,29 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
 import '../constants.dart';
+import '../core/commentable.dart';
+import '../core/item.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/future_comment_tile.dart';
 import '../widgets/tiles/huddle_tile.dart';
 import 'comment.dart';
 import 'flags.dart';
-import 'item.dart';
-import 'item_with_children.dart';
-import 'partial_profile.dart';
 import 'permissions.dart';
-import 'unknown_item.dart';
+import 'profile.dart';
 
-class Huddle extends ItemWithChildren {
+class Huddle implements CommentableItem {
+  @override
   final int id;
+  @override
   final String title;
-  final List<PartialProfile> participants;
+  final List<Profile> participants;
+  @override
   final Flags flags;
   final Permissions permissions;
-  final PartialProfile createdBy;
+  @override
+  final Profile createdBy;
+  @override
   final DateTime created;
+  @override
   final int startPage;
 
   int _totalChildren;
-  final Map<int, Item> _children = {};
+  final Map<int, Comment> _children = {};
 
   final int highlight;
 
@@ -35,12 +40,12 @@ class Huddle extends ItemWithChildren {
   })  : id = json["id"],
         title = HtmlUnescape().convert(json["title"]),
         flags = Flags.fromJson(json: json["meta"]["flags"]),
-        createdBy = PartialProfile.fromJson(json: json["meta"]["createdBy"]),
+        createdBy = Profile.fromJson(json: json["meta"]["createdBy"]),
         created = DateTime.parse(json['meta']['created']),
         _totalChildren = json["totalComments"] ?? json["comments"]["total"],
         permissions = Permissions.fromJson(json: json['meta']['permissions']),
         participants = json["participants"]
-            .map<PartialProfile>((p) => PartialProfile.fromJson(json: p))
+            .map<Profile>((p) => Profile.fromJson(json: p))
             .toList();
 
   static Future<Huddle> getByCommentId(int commentId) async {
@@ -68,7 +73,7 @@ class Huddle extends ItemWithChildren {
       );
 
   @override
-  Future<void> getPageOfChildren(int i) async {
+  Future<void> loadPage(int i) async {
     Uri uri = Uri.https(
       HOST,
       "/api/v1/huddles/$id",
@@ -106,25 +111,50 @@ class Huddle extends ItemWithChildren {
   }
 
   @override
+  Future<Huddle> getByPageNo(
+    int pageNo,
+  ) async {
+    int offset = (pageNo - 1) * 25;
+    // incase we ever increase _our_ page size above 25:
+    offset -= offset % PAGE_SIZE;
+
+    Uri uri = Uri.https(
+      HOST,
+      "/api/v1/huddles/$id",
+      {
+        "limit": PAGE_SIZE.toString(),
+        "offset": offset.toString(),
+      },
+    );
+
+    Json json = await MicrocosmClient().getJson(uri);
+
+    return Huddle.fromJson(
+      json: json,
+      startPage: json["comments"]["page"] - 1,
+    );
+  }
+
+  @override
   Widget childTile(int i) {
     if (_children.containsKey(i)) {
-      var comment = _children[i]! as Comment;
+      var comment = _children[i]!;
       return comment.renderAsTile(highlight: highlight == comment.id);
     }
     return FutureCommentTile(
-      comment: getChild(i).then((e) => e as Comment),
+      comment: getChild(i),
       highlight: highlight,
     );
   }
 
   @override
-  Future<Item> getChild(int i) async {
+  Future<Comment> getChild(int i) async {
     if (_children.containsKey(i)) {
       return _children[i]!;
     }
-    await getPageOfChildren(i ~/ PAGE_SIZE);
+    await loadPage(i ~/ PAGE_SIZE);
 
-    return _children[i] ?? UnknownItem(type: "Unknown");
+    return _children[i]!;
   }
 
   @override
@@ -150,10 +180,45 @@ class Huddle extends ItemWithChildren {
   @override
   Future<void> resetChildren() async {
     final int lastPage = _totalChildren ~/ PAGE_SIZE;
-    await getPageOfChildren(lastPage);
+    await loadPage(lastPage);
     _children.removeWhere((key, _) => key >= lastPage * PAGE_SIZE);
   }
 
   @override
   int get totalChildren => _totalChildren;
+
+  @override
+  Future<bool> subscribe() async {
+    Uri uri = Uri.https(
+      HOST,
+      "/api/v1/watchers",
+    );
+
+    final response = await MicrocosmClient().post(uri, {
+      "itemType": "huddle",
+      "itemId": id,
+      "updateTypeId": 1,
+    });
+    final bool success = response.statusCode == 200;
+    if (success) flags.watched = true;
+    return success;
+  }
+
+  @override
+  Future<bool> unsubscribe() async {
+    Uri uri = Uri.https(
+      HOST,
+      "/api/v1/watchers/delete",
+      {
+        "updateTypeId": "1",
+        "itemId": id.toString(),
+        "itemType": "huddle",
+      },
+    );
+
+    final response = await MicrocosmClient().delete(uri);
+    final bool success = response.statusCode == 200;
+    if (success) flags.watched = false;
+    return success;
+  }
 }

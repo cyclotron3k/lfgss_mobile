@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../models/item.dart';
+import '../../core/item.dart';
 
 class ItemTile extends StatefulWidget {
   final Future<Item> item;

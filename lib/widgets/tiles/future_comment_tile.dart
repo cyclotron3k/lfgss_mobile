@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/item.dart';
 import '../../models/comment.dart';
-import '../../models/item.dart';
 import 'comment_shimmer.dart';
 
 class FutureCommentTile extends StatefulWidget {

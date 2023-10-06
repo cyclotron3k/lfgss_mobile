@@ -3,7 +3,7 @@ import 'package:html_unescape/html_unescape_small.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/huddle.dart';
-import '../screens/future_huddle_screen.dart';
+import '../screens/future_screen.dart';
 
 class HuddleTile extends StatefulWidget {
   final Huddle huddle;
@@ -26,8 +26,8 @@ class _HuddleTileState extends State<HuddleTile> {
             MaterialPageRoute(
               fullscreenDialog: true,
               maintainState: true,
-              builder: (context) => FutureHuddleScreen(
-                huddle: Huddle.getById(widget.huddle.id),
+              builder: (context) => FutureScreen(
+                item: Huddle.getById(widget.huddle.id),
               ),
             ),
           );

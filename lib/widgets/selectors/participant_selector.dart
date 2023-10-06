@@ -1,12 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/partial_profile.dart';
+import '../../models/profile.dart';
 import 'profile_selector.dart';
 
 class ParticipantSelector extends StatefulWidget {
-  final String? Function(Set<PartialProfile>?) validator;
-  final Function(Set<PartialProfile>) onChanged;
+  final String? Function(Set<Profile>?) validator;
+  final Function(Set<Profile>) onChanged;
 
   const ParticipantSelector({
     super.key,
@@ -19,11 +19,11 @@ class ParticipantSelector extends StatefulWidget {
 }
 
 class _ParticipantSelectorState extends State<ParticipantSelector> {
-  final Set<PartialProfile> _selectedParticipants = {};
+  final Set<Profile> _selectedParticipants = {};
 
   @override
   Widget build(BuildContext context) {
-    return FormField<Set<PartialProfile>>(
+    return FormField<Set<Profile>>(
       validator: (_) => widget.validator(_selectedParticipants),
       builder: (formFieldState) {
         return Column(

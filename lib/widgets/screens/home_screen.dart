@@ -5,30 +5,28 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:lfgss_mobile/notifications.dart';
-import 'package:lfgss_mobile/widgets/screens/settings_screen.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/conversation.dart';
 import '../../models/event.dart';
+import '../../models/full_profile.dart';
 import '../../models/huddle.dart';
 import '../../models/huddles.dart';
 import '../../models/microcosm.dart';
-import '../../models/profile.dart';
 import '../../models/search.dart';
 import '../../models/updates.dart';
+import '../../notifications.dart';
 import '../../services/microcosm_client.dart';
 import '../adaptable_form.dart';
 import '../login_to_see.dart';
-import 'future_conversation_screen.dart';
-import 'future_event_screen.dart';
-import 'future_huddle_screen.dart';
 import 'future_huddles_screen.dart';
 import 'future_microcosm_screen.dart';
+import 'future_screen.dart';
 import 'future_search_screen.dart';
 import 'future_updates_screen.dart';
 import 'login_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -44,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  Future<Profile>? profile;
+  Future<FullProfile>? profile;
   String? profileName;
   String? profileAvatar;
   String? profileEmail;
@@ -127,8 +125,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _initProfile() {
     if (MicrocosmClient().loggedIn) {
-      profile = Profile.getProfile();
-      profile!.then((Profile p) {
+      profile = FullProfile.getProfile();
+      profile!.then((FullProfile p) {
         setState(() {
           profileName = p.profileName;
           profileAvatar = p.avatar;
@@ -158,18 +156,18 @@ class _HomeScreenState extends State<HomeScreen> {
           fullscreenDialog: true,
           maintainState: true,
           builder: (context) => switch (parsed["goto"] as String) {
-            "conversation" => FutureConversationScreen(
-                conversation: Conversation.getById(
+            "conversation" => FutureScreen(
+                item: Conversation.getById(
                   parsed["id"] as int,
                 ),
               ),
-            "event" => FutureEventScreen(
-                event: Event.getById(
+            "event" => FutureScreen(
+                item: Event.getById(
                   parsed["id"] as int,
                 ),
               ),
-            "huddle" => FutureHuddleScreen(
-                huddle: Huddle.getById(
+            "huddle" => FutureScreen(
+                item: Huddle.getById(
                   parsed["id"] as int,
                 ),
               ),

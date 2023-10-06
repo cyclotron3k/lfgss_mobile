@@ -2,60 +2,61 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
 import '../constants.dart';
-import '../services/microcosm_client.dart';
-import 'comment.dart';
-import 'item.dart';
+import '../core/item.dart';
+import '../widgets/tiles/profile_tile.dart';
+import 'flags.dart';
+import 'full_profile.dart';
 
-class Profile extends Item {
+class Profile implements Item {
+  @override
   final int id;
-  final String? email; // only visible for self
   final String profileName;
-  final int itemCount;
-  final int commentCount;
-  final DateTime created;
-  final DateTime lastActive;
+  final bool visible;
   final String _avatar;
-  final Comment? profileComment;
-  final bool? member; // only visible for self
-  // final int siteId; // not useful?
-  // final int userId; // some other id?
-  // final bool visible; // is it ever false?
-  // final int styleId = 0; // no idea
+
+  Profile({
+    required this.id,
+    required this.profileName,
+    required this.visible,
+    required String avatar,
+  }) : _avatar = avatar;
+
+  Profile.fromJson({required Json json})
+      : id = json["id"],
+        profileName = HtmlUnescape().convert(json["profileName"]),
+        visible = json["visible"],
+        _avatar = json["avatar"];
 
   String get avatar {
-    // TODO: Pull domain from Site - don't hard-code it
     return _avatar.toString().startsWith('/')
-        ? "https://lfgss.com$_avatar"
+        ? "https://$WEB_HOST$_avatar"
         : _avatar;
   }
 
-  Profile.fromJson({required Map<String, dynamic> json})
-      : id = json["id"],
-        // siteId = json["siteId"],
-        email = json["email"],
-        profileName = HtmlUnescape().convert(json["profileName"]),
-        itemCount = json["itemCount"],
-        commentCount = json["commentCount"],
-        created = DateTime.parse(json['created']),
-        lastActive = DateTime.parse(json['lastActive']),
-        _avatar = json["avatar"],
-        member = json["member"],
-        profileComment = json["comment"] == null
-            ? null
-            : Comment.fromJson(json: json["comment"]);
-
-  static Future<Profile> getProfile([int id = 0]) async {
-    Uri uri = Uri.parse(
-      "https://$HOST/api/v1/${id == 0 ? 'whoami' : "profiles/$id"}",
-    );
-
-    Map<String, dynamic> json = await MicrocosmClient().getJson(uri);
-
-    return Profile.fromJson(json: json);
+  Future<FullProfile> getFullProfile() async {
+    return FullProfile.getProfile(id);
   }
 
   @override
   Widget renderAsTile({bool? overrideUnreadFlag}) {
-    return const Placeholder();
+    return ProfileTile(profile: this);
   }
+
+  // So that Sets of profiles behave as expected...
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Profile && other.id == id;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode;
+  }
+
+  @override
+  Uri get selfUrl => Uri.https(WEB_HOST, "/profiles/$id/");
+
+  @override
+  Flags get flags => throw UnimplementedError();
 }

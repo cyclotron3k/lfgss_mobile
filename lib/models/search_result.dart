@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'item.dart';
+import '../core/item.dart';
+import 'flags.dart';
 import 'item_parser.dart' hide Json;
 
-class SearchResult extends Item {
+class SearchResult implements Item {
   final Item child;
   final Item? parent;
 
@@ -39,4 +40,13 @@ class SearchResult extends Item {
   Widget renderAsTile({bool? overrideUnreadFlag}) {
     return child.renderAsTile(overrideUnreadFlag: overrideUnreadFlag ?? unread);
   }
+
+  @override
+  int get id => throw UnimplementedError();
+
+  @override
+  Uri get selfUrl => throw UnimplementedError();
+
+  @override
+  Flags get flags => throw UnimplementedError();
 }

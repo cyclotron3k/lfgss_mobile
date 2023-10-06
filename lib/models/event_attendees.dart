@@ -1,34 +1,35 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../services/microcosm_client.dart';
 import '../constants.dart';
-import 'partial_profile.dart';
+import '../services/microcosm_client.dart';
+import '../core/paginated.dart';
+import 'profile.dart';
 
 // TODO: refactor this whole file
 // Maybe make it an ItemWithChildren
 
-class EventAttendees {
+class EventAttendees implements Paginated<Profile> {
   final int eventId;
   final int attendeeCount;
   final int pageSize = 250;
-  List<PartialProfile>? attendees;
+  List<Profile>? attendees;
 
   EventAttendees({
     required this.eventId,
     required this.attendeeCount,
   });
 
-  Future<List<PartialProfile>> getPageOfChildren(int pageId) async {
+  Future<List<Profile>> getPageOfChildren(int pageId) async {
     Uri uri = Uri.parse(
       "https://$HOST/api/v1/events/$eventId/attendees?limit=$pageSize&offset=${pageSize * pageId}",
     );
 
     Json json = await MicrocosmClient().getJson(uri);
 
-    List<PartialProfile> items = json["attendees"]["items"]
-        .map<PartialProfile>(
-          (item) => PartialProfile.fromJson(
+    List<Profile> items = json["attendees"]["items"]
+        .map<Profile>(
+          (item) => Profile.fromJson(
             json: item["profile"],
           ),
         )
@@ -37,18 +38,18 @@ class EventAttendees {
     return items;
   }
 
-  Future<List<PartialProfile>> getAttendeeList() async {
+  Future<List<Profile>> getAttendeeList() async {
     attendees ??= await getPageOfChildren(0);
     return attendees!;
   }
 
-  Widget getPartialProfile(int index) {
+  Widget getProfile(int index) {
     return FutureBuilder(
       future: getAttendeeList(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           // return const SizedBox(width: 100.0, height: 158.0);
-          PartialProfile profile = snapshot.data![index];
+          Profile profile = snapshot.data![index];
           return Chip(
             avatar: CircleAvatar(
               foregroundImage: CachedNetworkImageProvider(profile.avatar),
@@ -76,7 +77,7 @@ class EventAttendees {
     List<Widget> profiles = [];
 
     for (int i = 0; i < attendeeCount; i++) {
-      profiles.add(getPartialProfile(i));
+      profiles.add(getProfile(i));
     }
 
     return Column(
@@ -93,4 +94,40 @@ class EventAttendees {
       ],
     );
   }
+
+  @override
+  Widget childTile(int i) {
+    // TODO: implement childTile
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Profile> getChild(int i) {
+    // TODO: implement getChild
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> loadPage(int i) {
+    // TODO: implement loadOfChildren
+    throw UnimplementedError();
+  }
+
+  @override
+  void parsePage(Json json) {
+    // TODO: implement parsePage
+  }
+
+  @override
+  Future<void> resetChildren() {
+    // TODO: implement resetChildren
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement startPage
+  int get startPage => throw UnimplementedError();
+
+  @override
+  int get totalChildren => attendeeCount;
 }

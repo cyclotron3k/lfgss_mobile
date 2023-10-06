@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'item.dart';
+import '../core/item.dart';
+import 'flags.dart';
 
 class UnknownItem implements Item {
+  @override
+  final int id;
   String type;
 
-  UnknownItem({required this.type});
+  UnknownItem({required this.id, required this.type});
 
   @override
   Widget renderAsTile({bool? overrideUnreadFlag}) {
@@ -21,4 +24,10 @@ class UnknownItem implements Item {
       ),
     );
   }
+
+  @override
+  Uri get selfUrl => throw UnimplementedError();
+
+  @override
+  Flags get flags => throw UnimplementedError();
 }

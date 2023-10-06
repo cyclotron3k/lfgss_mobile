@@ -2,10 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../models/profile.dart';
+import '../../models/full_profile.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final Future<Profile> profile;
+  final Future<FullProfile> profile;
   const ProfileScreen({super.key, required this.profile});
 
   @override
@@ -17,11 +17,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: FutureBuilder<Profile>(
+        child: FutureBuilder<FullProfile>(
           future: widget.profile,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              Profile profile = snapshot.data!;
+              FullProfile profile = snapshot.data!;
               DateFormat.yMMMd().format(profile.lastActive);
 
               return ListView(

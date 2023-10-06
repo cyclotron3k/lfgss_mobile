@@ -2,34 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
 import '../constants.dart';
+import '../core/commentable.dart';
+import '../core/item.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/conversation_tile.dart';
 import '../widgets/tiles/future_comment_tile.dart';
 import 'comment.dart';
 import 'flags.dart';
-import 'item.dart';
-import 'item_with_children.dart';
-import 'partial_profile.dart';
 import 'permissions.dart';
-import 'unknown_item.dart';
+import 'profile.dart';
 
-class Conversation implements ItemWithChildren {
+class Conversation implements CommentableItem {
+  @override
   final int startPage;
 
+  @override
   final int id;
+
+  @override
   final String title;
   final int microcosmId;
 
   // Metadata
-  final Flags flags;
   final Permissions permissions;
-  final PartialProfile createdBy;
-  // final Profile editedBy;
-  final DateTime created;
+
+  @override
+  DateTime created;
+
+  @override
+  Profile createdBy;
+
+  @override
+  Flags flags;
   final DateTime? lastActivity;
 
   int _totalChildren;
-  final Map<int, Item> _children = {};
+  final Map<int, Comment> _children = {};
 
   final int highlight;
 
@@ -40,7 +48,7 @@ class Conversation implements ItemWithChildren {
   })  : id = json["id"],
         title = HtmlUnescape().convert(json["title"]),
         microcosmId = json["microcosmId"],
-        createdBy = PartialProfile.fromJson(json: json["meta"]["createdBy"]),
+        createdBy = Profile.fromJson(json: json["meta"]["createdBy"]),
         // editedBy = Profile.fromJson(json: json['meta']['editedBy']),
         created = DateTime.parse(json['meta']['created']),
         flags = Flags.fromJson(json: json["meta"]["flags"]),
@@ -54,6 +62,7 @@ class Conversation implements ItemWithChildren {
     }
   }
 
+  @override
   Future<bool> subscribe() async {
     Uri uri = Uri.https(
       HOST,
@@ -70,6 +79,7 @@ class Conversation implements ItemWithChildren {
     return success;
   }
 
+  @override
   Future<bool> unsubscribe() async {
     Uri uri = Uri.https(
       HOST,
@@ -146,9 +156,8 @@ class Conversation implements ItemWithChildren {
     );
   }
 
-  // `pageNo` is the "public" page number, not our page number
-  static Future<Conversation> getByPageNo(
-    int conversationId,
+  @override
+  Future<Conversation> getByPageNo(
     int pageNo,
   ) async {
     int offset = (pageNo - 1) * 25;
@@ -157,7 +166,7 @@ class Conversation implements ItemWithChildren {
 
     Uri uri = Uri.https(
       HOST,
-      "/api/v1/conversations/$conversationId",
+      "/api/v1/conversations/$id",
       {
         "limit": PAGE_SIZE.toString(),
         "offset": offset.toString(),
@@ -173,17 +182,17 @@ class Conversation implements ItemWithChildren {
   }
 
   @override
-  Future<void> getPageOfChildren(int i) async {
+  Future<void> loadPage(int pageId) async {
     Uri uri = Uri.https(
       HOST,
       "/api/v1/conversations/$id",
       {
         "limit": PAGE_SIZE.toString(),
-        "offset": (PAGE_SIZE * i).toString(),
+        "offset": (PAGE_SIZE * pageId).toString(),
       },
     );
 
-    final bool lastPage = i == totalChildren ~/ PAGE_SIZE;
+    final bool lastPage = pageId == totalChildren ~/ PAGE_SIZE;
     final int ttl = lastPage ? 5 : 3600;
 
     Json json = await MicrocosmClient().getJson(uri, ttl: ttl);
@@ -193,7 +202,7 @@ class Conversation implements ItemWithChildren {
   @override
   Future<void> resetChildren() async {
     final int lastPage = _totalChildren ~/ PAGE_SIZE;
-    await getPageOfChildren(lastPage);
+    await loadPage(lastPage);
     _children.removeWhere((key, _) => key >= lastPage * PAGE_SIZE);
   }
 
@@ -208,21 +217,21 @@ class Conversation implements ItemWithChildren {
   @override
   Widget childTile(int i) {
     if (_children.containsKey(i)) {
-      var comment = _children[i]! as Comment;
+      var comment = _children[i]!;
       return comment.renderAsTile(highlight: highlight == comment.id);
     }
     return FutureCommentTile(
-      comment: getChild(i).then((e) => e as Comment),
+      comment: getChild(i),
       highlight: highlight,
     );
   }
 
   @override
-  Future<Item> getChild(int i) async {
+  Future<Comment> getChild(int i) async {
     if (_children.containsKey(i)) {
       return _children[i]!;
     }
-    await getPageOfChildren(i ~/ PAGE_SIZE);
-    return _children[i] ?? UnknownItem(type: "Unknown");
+    await loadPage(i ~/ PAGE_SIZE);
+    return _children[i]!;
   }
 }

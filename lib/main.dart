@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/widgets/screens/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'notifications.dart';
 import 'services/microcosm_client.dart';
 import 'services/settings.dart';
+import 'widgets/screens/home_screen.dart';
 
 typedef Json = Map<String, dynamic>;
 

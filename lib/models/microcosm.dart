@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
 import '../constants.dart';
+import '../core/authored.dart';
+import '../core/item.dart';
+import '../core/paginated_item.dart';
 import '../models/unknown_item.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/future_item_tile.dart';
@@ -11,14 +14,14 @@ import '../widgets/tiles/microcosm_tile.dart';
 import 'conversation.dart';
 import 'event.dart';
 import 'flags.dart';
-import 'item.dart';
-import 'item_with_children.dart';
-import 'partial_profile.dart';
 import 'permissions.dart';
+import 'profile.dart';
 
-class Microcosm implements ItemWithChildren {
-  final int startIndex;
+class Microcosm implements PaginatedItem<Item>, Authored {
+  @override
+  final int startPage;
 
+  @override
   final int id; //  509,
   final int parentId; //  807,
   final int siteId; //  234,
@@ -28,26 +31,30 @@ class Microcosm implements ItemWithChildren {
   final String _logoUrl; //  "https://lfgss.microcosm.app/api/v1/files/
 
   // Metadata
+  @override
   final Flags flags;
   final Permissions permissions;
-  final PartialProfile createdBy;
+  @override
+  final Profile createdBy;
   // final Profile editedBy;
+  @override
   final DateTime created;
 
   int _totalChildren;
 
   final Map<int, Item> _children = {};
 
-  // Microcosm({this.startIndex = 0});
-  Microcosm.fromJson({required Map<String, dynamic> json, this.startIndex = 0})
-      : id = json["id"],
+  Microcosm.fromJson({
+    required Map<String, dynamic> json,
+    this.startPage = 0,
+  })  : id = json["id"],
         parentId = json["parentId"] ?? 0,
         siteId = json["siteId"],
         visibility = json["visibility"],
         title = HtmlUnescape().convert(json["title"]),
         description = HtmlUnescape().convert(json["description"]),
         _logoUrl = json["logoUrl"],
-        createdBy = PartialProfile.fromJson(json: json["meta"]["createdBy"]),
+        createdBy = Profile.fromJson(json: json["meta"]["createdBy"]),
         // editedBy = Profile.fromJson(json: json['meta']['editedBy']),
         created = DateTime.parse(json['meta']['created']),
         flags = Flags.fromJson(json: json["meta"]["flags"]),
@@ -72,25 +79,30 @@ class Microcosm implements ItemWithChildren {
 
     List<Item> items = json["items"]["items"].map<Item>(
       (item) {
+        late Item ret;
         switch (item["itemType"]) {
           case "microcosm":
             {
-              return Microcosm.fromJson(json: item["item"]);
+              ret = Microcosm.fromJson(json: item["item"]);
             }
           case "conversation":
             {
-              return Conversation.fromJson(json: item["item"]);
+              ret = Conversation.fromJson(json: item["item"]);
             }
           case "event":
             {
-              return Event.fromJson(json: item["item"]);
+              ret = Event.fromJson(json: item["item"]);
             }
           default:
             {
               developer.log("Unknown itemType: ${item["itemType"]}");
-              return UnknownItem(type: item["itemType"]);
+              ret = UnknownItem(
+                id: item["item"]["id"],
+                type: item["itemType"],
+              );
             }
         }
+        return ret;
       },
     ).toList();
 
@@ -100,9 +112,8 @@ class Microcosm implements ItemWithChildren {
   }
 
   String get logoUrl {
-    // TODO: Pull domain from Site - don't hard-code it
     return _logoUrl.toString().startsWith('/')
-        ? "https://lfgss.com$_logoUrl"
+        ? "https://$WEB_HOST$_logoUrl"
         : _logoUrl;
   }
 
@@ -132,7 +143,7 @@ class Microcosm implements ItemWithChildren {
   }
 
   @override
-  Future<void> getPageOfChildren(int pageId) async {
+  Future<void> loadPage(int pageId) async {
     Uri uri = Uri.https(
       HOST,
       "/api/v1/microcosms/$id",
@@ -161,7 +172,7 @@ class Microcosm implements ItemWithChildren {
 
   @override
   Future<void> resetChildren() async {
-    await getPageOfChildren(0);
+    await loadPage(0);
     _children.removeWhere((key, _) => key >= PAGE_SIZE);
   }
 
@@ -170,8 +181,8 @@ class Microcosm implements ItemWithChildren {
     if (_children.containsKey(i)) {
       return _children[i]!;
     }
-    await getPageOfChildren(i ~/ PAGE_SIZE);
+    await loadPage(i ~/ PAGE_SIZE);
 
-    return _children[i] ?? UnknownItem(type: "Unknown");
+    return _children[i] ?? UnknownItem(id: 0, type: "Unknown");
   }
 }

@@ -11,7 +11,7 @@ import '../models/comment.dart';
 import '../models/conversation.dart';
 import '../models/huddle.dart';
 import '../models/microcosm.dart';
-import '../models/partial_profile.dart';
+import '../models/profile.dart';
 import '../services/microcosm_client.dart';
 import 'attachment_thumbnail.dart';
 import 'selectors/conversation_selector.dart';
@@ -69,7 +69,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
   Microcosm? _selectedMicrocosm;
   Conversation? _selectedConversation;
   Huddle? _selectedHuddle;
-  Set<PartialProfile> _selectedParticipants = {};
+  Set<Profile> _selectedParticipants = {};
 
   List<XFile> _attachments = [];
   bool _sending = false;

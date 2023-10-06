@@ -12,7 +12,6 @@ class Link {
 }
 
 class Links {
-  // List<Link> links;
   final Map<String, Link> links;
 
   static Map<String, Link> _linkParser({required List<dynamic>? json}) {
