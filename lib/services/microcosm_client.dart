@@ -77,6 +77,7 @@ class MicrocosmClient {
     final sharedPreference = await SharedPreferences.getInstance();
     await sharedPreference.remove("accessToken");
     accessToken = null;
+    clearCache();
 
     // var uri = Uri.https(
     //   HOST,

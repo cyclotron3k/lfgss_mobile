@@ -23,6 +23,11 @@ class _LoginScreenState extends State<LoginScreen> {
   bool complete = false;
 
   @override
+  void setState(VoidCallback fn) {
+    if (context.mounted) super.setState(fn);
+  }
+
+  @override
   void initState() {
     super.initState();
 
@@ -31,9 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
         onPageStarted: (url) async {
           var settings = Provider.of<Settings>(context, listen: false);
 
-          List<Cookie> cookies = await cookieManager.getCookies(
-            'www.lfgss.com',
-          );
+          List<Cookie> cookies = await cookieManager.getCookies(WEB_HOST);
 
           String? accessToken;
           for (Cookie cookie in cookies) {
@@ -64,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
           setState(() => loadingPercentage = progress);
         },
         onPageFinished: (url) async {
-          if (url == 'https://www.lfgss.com/') {
+          if (url == "https://$WEB_HOST/") {
             // Disable Google SSO button because it doesn't work in a WebView:
             await controller.runJavaScript("""
               document.getElementById("login").click();
@@ -82,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // },
         // onWebResourceError: (WebResourceError error) {},
         // onNavigationRequest: (NavigationRequest request) {
-        //   if (request.url.startsWith('https://www.lfgss.com/')) {
+        //   if (request.url.startsWith('https://$WEB_HOST/')) {
         //     return NavigationDecision.navigate;
         //   }
         //   return NavigationDecision.prevent;
@@ -92,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
         MicrocosmClient.userAgent,
       )
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(Uri.parse('https://www.lfgss.com/'));
+      ..loadRequest(Uri.parse('https://$WEB_HOST/'));
   }
 
   @override
