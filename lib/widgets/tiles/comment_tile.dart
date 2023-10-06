@@ -7,10 +7,10 @@ import 'package:flutter_html_iframe/flutter_html_iframe.dart';
 import 'package:html/dom.dart' show Document, Element;
 import 'package:html/parser.dart' show parse;
 import 'package:html_unescape/html_unescape_small.dart';
-import 'package:lfgss_mobile/models/reply_notifier.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/comment.dart';
+import '../../models/reply_notifier.dart';
 import '../../services/link_parser.dart';
 import '../../services/settings.dart';
 import '../maybe_image.dart';
@@ -61,12 +61,15 @@ class _CommentTileState extends State<CommentTile> {
 
   @override
   Widget build(BuildContext context) {
+    bool swipingEnabled = context.read<ReplyNotifier?>() != null;
+
     return Column(
       children: [
         const Divider(),
         Swipeable(
-          direction: SwipeDirection.startToEnd,
-          swipeThresholds: const {SwipeDirection.startToEnd: 0.20},
+          direction:
+              swipingEnabled ? SwipeDirection.startToEnd : SwipeDirection.none,
+          swipeThresholds: const {SwipeDirection.startToEnd: 0.18},
           background: Container(
             alignment: Alignment.centerLeft,
             // color: Colors.green,
@@ -89,10 +92,10 @@ class _CommentTileState extends State<CommentTile> {
           onRelease: (details) {
             setState(() {
               if (details.reached) {
-                Provider.of<ReplyNotifier>(
+                Provider.of<ReplyNotifier?>(
                   context,
                   listen: false,
-                ).setReplyTarget(
+                )?.setReplyTarget(
                   widget.comment,
                 );
               }
