@@ -165,7 +165,7 @@ class RelaxedJpegDecoder extends BaseDecoder {
     // Check app1 block exif info is valid
     final exifIdentifier = app1blockData.sublist(4, 10);
 
-    final listEquality = ListEquality();
+    const listEquality = ListEquality();
 
     if (!listEquality
         .equals(exifIdentifier, [0x45, 0x78, 0x69, 0x66, 0x00, 0x00])) {

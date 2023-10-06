@@ -50,7 +50,7 @@ class _ProfileSelectorState extends State<ProfileSelector> {
         List<Widget> results = [];
 
         for (int i = 0; i < count; i++) {
-          Profile profile = await profiles.getChild(i) as Profile;
+          Profile profile = await profiles.getChild(i);
           results.add(
             ListTile(
               title: Text(profile.profileName),

@@ -100,7 +100,7 @@ class _MicrocosmSelectorState extends State<MicrocosmSelector> {
     List<Widget> results = [];
 
     for (int i = 0; i < count; i++) {
-      SearchResult sr = await search.getChild(i) as SearchResult;
+      SearchResult sr = await search.getChild(i);
       Microcosm microcosm = sr.child as Microcosm;
       log("Adding: ${microcosm.title}");
       results.add(

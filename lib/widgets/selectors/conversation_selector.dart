@@ -100,7 +100,7 @@ class _ConversationSelectorState extends State<ConversationSelector> {
     List<Widget> results = [];
 
     for (int i = 0; i < count; i++) {
-      SearchResult sr = await search.getChild(i) as SearchResult;
+      SearchResult sr = await search.getChild(i);
       Conversation conversation = sr.child as Conversation;
       log("Adding: ${conversation.title}");
       results.add(

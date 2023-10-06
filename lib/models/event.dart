@@ -32,7 +32,7 @@ class Event implements CommentableItem {
   final String tz; // : "Europe/London",
   // final int whentz; // : "2022-10-14T20:00:00Z",
   final int duration; // : 2880,
-  final String where; // : "Lee Valley Velodrome",
+  final String? where; // : "Lee Valley Velodrome",
   final EventStatus status; // : "upcoming",
   final int rsvpLimit; // : 0,
   final int rsvpAttend; // : 4,

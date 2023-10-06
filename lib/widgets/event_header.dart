@@ -33,7 +33,15 @@ class EventHeader extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.map),
-                  title: Text(event.where),
+                  title: event.where != null
+                      ? Text(event.where!)
+                      : const Text(
+                          "TBD",
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey,
+                          ),
+                        ),
                 ),
               ]),
             ),

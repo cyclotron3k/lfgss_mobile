@@ -72,13 +72,13 @@ class Updates extends Paginated<Item> {
   }
 
   @override
-  Future<void> loadPage(int i) async {
+  Future<void> loadPage(int pageId) async {
     Uri uri = Uri.https(
       HOST,
       "/api/v1/updates",
       {
         "limit": PAGE_SIZE.toString(),
-        "offset": (PAGE_SIZE * i).toString(),
+        "offset": (PAGE_SIZE * pageId).toString(),
       },
     );
 

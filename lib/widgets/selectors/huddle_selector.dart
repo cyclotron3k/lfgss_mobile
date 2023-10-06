@@ -100,7 +100,7 @@ class _HuddleSelectorState extends State<HuddleSelector> {
     List<Widget> results = [];
 
     for (int i = 0; i < count; i++) {
-      SearchResult sr = await search.getChild(i) as SearchResult;
+      SearchResult sr = await search.getChild(i);
       Huddle huddle = sr.child as Huddle;
       log("Adding: ${huddle.title}");
       results.add(

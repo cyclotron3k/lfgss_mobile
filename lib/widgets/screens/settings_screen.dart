@@ -147,11 +147,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: Download.always,
                 child: Text('Wifi & cellular data'),
               ),
-              const PopupMenuItem<Download>(
-                enabled: false, // TODO
-                value: Download.wifi,
-                child: Text('Wifi only'),
-              ),
+              // TODO: implement wifi only
+              // const PopupMenuItem<Download>(
+              //   enabled: false,
+              //   value: Download.wifi,
+              //   child: Text('Wifi only'),
+              // ),
               const PopupMenuItem<Download>(
                 value: Download.manual,
                 child: Text('Manual'),
