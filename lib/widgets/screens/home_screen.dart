@@ -37,7 +37,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   List<Widget> _tabs = [];
   int _currentIndex = 0;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -53,18 +53,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     _initProfile();
     _initTabs();
-
-    if (MicrocosmClient().loggedIn) {
-      _currentIndex = 2;
-    }
+    if (MicrocosmClient().loggedIn) _currentIndex = 2;
 
     _runWhileAppIsTerminated();
 
     // For sharing images coming from outside the app while the app is in the memory
-
     ReceiveSharingIntent.getMediaStream().listen(
       (List<SharedMediaFile> value) {
         if (value.isEmpty) return;
@@ -107,18 +104,44 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _refresh();
+  }
+
+  void _refresh() {
+    _following?.then((value) => value.resetChildren());
+    _huddles?.then((value) => value.resetChildren());
+    _today.then((value) => value.resetChildren());
+  }
+
+  Future<Updates>? _following;
+  Future<Huddles>? _huddles;
+  final Future<Search> _today = Search.today();
+
   void _initTabs() {
+    if (MicrocosmClient().loggedIn) {
+      _following = Updates.root();
+      _huddles = Huddles.root();
+    }
+
     _tabs = <Widget>[
       FutureMicrocosmScreen(microcosm: Microcosm.root()),
-      FutureSearchScreen(search: Search.today()),
+      FutureSearchScreen(search: _today),
       MicrocosmClient().loggedIn
-          ? FutureUpdatesScreen(updates: Updates.root())
+          ? FutureUpdatesScreen(updates: _following!)
           : const LoginToSee(
               what: "your updates",
               icon: Icon(Icons.bookmark_border),
             ),
       MicrocosmClient().loggedIn
-          ? FutureHuddlesScreen(huddles: Huddles.root())
+          ? FutureHuddlesScreen(huddles: _huddles!)
           : const LoginToSee(
               what: "Huddles",
               icon: Icon(Icons.email_outlined),
