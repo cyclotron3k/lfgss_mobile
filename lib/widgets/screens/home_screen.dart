@@ -57,6 +57,10 @@ class _HomeScreenState extends State<HomeScreen> {
     _initProfile();
     _initTabs();
 
+    if (MicrocosmClient().loggedIn) {
+      _currentIndex = 2;
+    }
+
     _runWhileAppIsTerminated();
 
     // For sharing images coming from outside the app while the app is in the memory

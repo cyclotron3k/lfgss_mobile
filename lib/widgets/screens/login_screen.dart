@@ -91,9 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
         //   return NavigationDecision.prevent;
         // },
       ))
-      ..setUserAgent(
-        MicrocosmClient.userAgent,
-      )
+      ..setUserAgent(MicrocosmClient.userAgent)
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..loadRequest(Uri.parse('https://$WEB_HOST/'));
   }
