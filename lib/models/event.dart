@@ -332,4 +332,7 @@ class Event implements CommentableItem {
     if (success) flags.watched = false;
     return success;
   }
+
+  @override
+  bool get canComment => flags.open && permissions.create;
 }

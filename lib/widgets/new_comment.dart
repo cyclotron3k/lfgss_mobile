@@ -135,39 +135,46 @@ class _NewCommentState extends State<NewComment> {
             IconButton(
               icon: const Icon(Icons.attach_file),
               visualDensity: VisualDensity.compact,
-              onPressed: () async {
-                final ImagePicker picker = ImagePicker();
-                final List<XFile> images = await picker.pickMultiImage();
-                if (images.isNotEmpty) {
-                  setState(() => _attachments.addAll(images));
-                }
-              },
+              onPressed: _sending ? null : _pickMultiImage,
             ),
             IconButton(
               icon: const Icon(Icons.camera_alt),
               visualDensity: VisualDensity.compact,
-              onPressed: () async {
-                final ImagePicker picker = ImagePicker();
-                // Capture a photo.
-                final XFile? photo = await picker.pickImage(
-                  source: ImageSource.camera,
-                );
-                if (photo != null) {
-                  setState(() => _attachments.add(photo));
-                }
-              },
+              onPressed: _sending ? null : _pickImage,
             ),
             IconButton(
               visualDensity: VisualDensity.compact,
-              icon: Icon(
-                _sending ? Icons.timer : Icons.send,
-              ),
+              icon: _sending
+                  ? const SizedBox.square(
+                      dimension: 18.0,
+                      child: CircularProgressIndicator(),
+                    )
+                  : const Icon(Icons.send),
               onPressed: _sending ? null : _postComment,
             ),
           ],
         ),
       ],
     );
+  }
+
+  void _pickMultiImage() async {
+    final ImagePicker picker = ImagePicker();
+    final List<XFile> images = await picker.pickMultiImage();
+    if (images.isNotEmpty) {
+      setState(() => _attachments.addAll(images));
+    }
+  }
+
+  void _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    // Capture a photo.
+    final XFile? photo = await picker.pickImage(
+      source: ImageSource.camera,
+    );
+    if (photo != null) {
+      setState(() => _attachments.add(photo));
+    }
   }
 
   Future<Map<String, String>> _uploadAttachments() async {

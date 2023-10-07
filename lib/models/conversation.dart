@@ -234,4 +234,7 @@ class Conversation implements CommentableItem {
     await loadPage(i ~/ PAGE_SIZE);
     return _children[i]!;
   }
+
+  @override
+  bool get canComment => flags.open && permissions.create;
 }

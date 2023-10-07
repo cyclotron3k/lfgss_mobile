@@ -223,7 +223,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
                 ],
               ),
             ),
-            if (widget.item.flags.open && MicrocosmClient().loggedIn)
+            if (widget.item.canComment && MicrocosmClient().loggedIn)
               NewComment(
                 itemId: widget.item.id,
                 itemType: CommentableType.values.byName(
