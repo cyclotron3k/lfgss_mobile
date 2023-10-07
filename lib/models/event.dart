@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
+import 'package:timezone/timezone.dart' show Location, getLocation, TZDateTime;
 
 import '../constants.dart';
 import '../core/commentable.dart';
@@ -8,8 +9,6 @@ import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/event_tile.dart';
 import '../widgets/tiles/future_comment_tile.dart';
 import 'comment.dart';
-// import 'package:timezone/data/latest_10y.dart';
-
 import 'event_attendees.dart';
 import 'flags.dart';
 import 'permissions.dart';
@@ -28,9 +27,12 @@ class Event implements CommentableItem {
   final String title;
   final int microcosmId;
 
-  final DateTime when; // : "2022-10-14T21:00:00Z",
+  // `when` and `whentz` are both presented as ISO 8601 timestamps.
+  // They both appear to be in UTC, but only `whentz` is *actually* in UTC.
+  final DateTime? when; // : "2022-10-14T21:00:00Z",
+  final DateTime? whentz; // : "2022-10-14T20:00:00Z",
   final String tz; // : "Europe/London",
-  // final int whentz; // : "2022-10-14T20:00:00Z",
+
   final int duration; // : 2880,
   final String? where; // : "Lee Valley Velodrome",
   final EventStatus status; // : "upcoming",
@@ -47,6 +49,7 @@ class Event implements CommentableItem {
   // Metadata
   @override
   final Flags flags;
+  final DateTime? lastActivity;
   final Permissions permissions;
   @override
   final Profile createdBy;
@@ -66,8 +69,11 @@ class Event implements CommentableItem {
   })  : id = json["id"],
         title = HtmlUnescape().convert(json["title"]),
         microcosmId = json["microcosmId"],
-        when = DateTime.parse(
-          json["when"],
+        when = DateTime.tryParse(
+          json["when"] ?? "",
+        ),
+        whentz = DateTime.tryParse(
+          json["whentz"] ?? "",
         ), // DateTime: "2022-10-14T21:00:00Z",
         tz = json["tz"], // String: "Europe/London",
         duration = json["duration"], // int: 2880,
@@ -85,6 +91,7 @@ class Event implements CommentableItem {
         west = json["west"],
         createdBy = Profile.fromJson(json: json["meta"]["createdBy"]),
         // editedBy = Profile.fromJson(json: json["meta"]["editedBy"]),
+        lastActivity = DateTime.tryParse(json["lastComment"]?["created"] ?? ""),
         created = DateTime.parse(json["meta"]["created"]),
         flags = Flags.fromJson(json: json["meta"]["flags"]),
         permissions = Permissions.fromJson(
@@ -139,8 +146,48 @@ class Event implements CommentableItem {
     );
   }
 
-  DateTime get whenEnd {
-    return when.add(Duration(minutes: duration));
+  Location? _location;
+  get tzLocation {
+    return _location ??= getLocation(tz);
+  }
+
+  TZDateTime? _tzStart;
+  TZDateTime? get start {
+    return whentz == null
+        ? null
+        : _tzStart ??= TZDateTime.from(
+            whentz!,
+            getLocation(tz),
+          );
+  }
+
+  TZDateTime? _tzEnd;
+  TZDateTime? get end {
+    return _tzEnd ??= start?.add(Duration(minutes: duration));
+  }
+
+  bool? get multiDay {
+    if (when == null) return null;
+
+    return start!.day != end!.day ||
+        start!.month != end!.month ||
+        start!.year != end!.year;
+  }
+
+  bool? equivalentTz(String otherTZ) {
+    if (tz == otherTZ) return true;
+    if (whentz == null) return null;
+
+    final myTZ = TZDateTime.from(
+      start!,
+      getLocation(otherTZ),
+    );
+
+    return start!.hour == myTZ.hour &&
+        start!.day == myTZ.day &&
+        start!.minute == myTZ.minute &&
+        start!.month == myTZ.month &&
+        start!.year == myTZ.year;
   }
 
   EventAttendees? _eventAttendees;

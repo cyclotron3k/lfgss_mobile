@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../models/event.dart';
 import '../screens/future_screen.dart';
+import '../time_ago.dart';
 
 class EventTile extends StatefulWidget {
   final Event event;
@@ -74,7 +75,8 @@ class _EventTileState extends State<EventTile> {
           subtitle: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text(DateFormat.yMMMd().format(widget.event.created)),
+              if (widget.event.lastActivity != null)
+                TimeAgo(widget.event.lastActivity!),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Icon(

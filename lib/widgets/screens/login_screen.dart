@@ -24,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void setState(VoidCallback fn) {
-    if (context.mounted) super.setState(fn);
+    if (mounted) super.setState(fn);
   }
 
   @override

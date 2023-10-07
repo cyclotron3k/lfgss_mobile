@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest_all.dart';
 
 import 'notifications.dart';
 import 'services/microcosm_client.dart';
@@ -10,6 +11,7 @@ import 'widgets/screens/home_screen.dart';
 typedef Json = Map<String, dynamic>;
 
 void main() async {
+  initializeTimeZones();
   WidgetsFlutterBinding.ensureInitialized();
   initTasks();
 
