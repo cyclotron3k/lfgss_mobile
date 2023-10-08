@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.10
+- Navigate to Conversation or Huddle after successful comment
+- Improve New Comment UI
+- Auto-refresh home pages on reactivate
+- Default landing page for logged-in users is now "Following"
+- Add context menu to Events and Huddles
+- Overhaul Event header - include timezone calcs
+- Add Huddle header - show participants
+- Disable comment swiping on screens that don't support replies
+- Overhaul of interface taxonomy
+
 ## v1.0.9
 - Fix refresh behavior on a few pages
 - Conversation context menu:
