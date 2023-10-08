@@ -57,12 +57,12 @@ class Profiles implements Paginated<Profile> {
   }
 
   @override
-  Future<void> loadPage(int i) async {
+  Future<void> loadPage(int pageId, {bool force = false}) async {
     Map<String, String> parameters = {
       "q": query,
       "top": "true",
       "limit": _pageSize.toString(),
-      "offset": (_pageSize * i).toString(),
+      "offset": (_pageSize * pageId).toString(),
     };
 
     Uri uri = Uri.https(
@@ -71,7 +71,8 @@ class Profiles implements Paginated<Profile> {
       parameters,
     );
 
-    Json json = await MicrocosmClient().getJson(uri, ttl: 3600);
+    Json json =
+        await MicrocosmClient().getJson(uri, ttl: 3600, ignoreCache: force);
     parsePage(json);
   }
 
@@ -108,7 +109,7 @@ class Profiles implements Paginated<Profile> {
   }
 
   @override
-  Future<void> resetChildren() async {
+  Future<void> resetChildren({bool force = false}) async {
     await loadPage(0);
     _children.removeWhere((key, _) => key >= _pageSize);
   }

@@ -35,17 +35,18 @@ class Huddles implements Paginated<Huddle> {
   }
 
   @override
-  Future<void> loadPage(int i) async {
+  Future<void> loadPage(int pageId, {bool force = false}) async {
     Uri uri = Uri.https(
       HOST,
       "/api/v1/huddles",
       {
         "limit": PAGE_SIZE.toString(),
-        "offset": (PAGE_SIZE * i).toString(),
+        "offset": (PAGE_SIZE * pageId).toString(),
       },
     );
 
-    Json json = await MicrocosmClient().getJson(uri);
+    Json json =
+        await MicrocosmClient().getJson(uri, ttl: 10, ignoreCache: force);
     parsePage(json);
   }
 
@@ -83,7 +84,7 @@ class Huddles implements Paginated<Huddle> {
   }
 
   @override
-  Future<void> resetChildren() async {
+  Future<void> resetChildren({bool force = false}) async {
     await loadPage(0);
     _children.removeWhere((key, _) => key >= PAGE_SIZE);
   }

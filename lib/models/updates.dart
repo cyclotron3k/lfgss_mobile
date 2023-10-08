@@ -72,7 +72,7 @@ class Updates extends Paginated<Item> {
   }
 
   @override
-  Future<void> loadPage(int pageId) async {
+  Future<void> loadPage(int pageId, {bool force = false}) async {
     Uri uri = Uri.https(
       HOST,
       "/api/v1/updates",
@@ -82,7 +82,8 @@ class Updates extends Paginated<Item> {
       },
     );
 
-    Json json = await MicrocosmClient().getJson(uri, ttl: 5);
+    Json json =
+        await MicrocosmClient().getJson(uri, ttl: 5, ignoreCache: force);
     parsePage(json);
   }
 
@@ -117,7 +118,7 @@ class Updates extends Paginated<Item> {
   }
 
   @override
-  Future<void> resetChildren() async {
+  Future<void> resetChildren({bool force = false}) async {
     await loadPage(0);
     _children.removeWhere((key, _) => key >= PAGE_SIZE);
   }

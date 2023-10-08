@@ -182,7 +182,7 @@ class Conversation implements CommentableItem {
   }
 
   @override
-  Future<void> loadPage(int pageId) async {
+  Future<void> loadPage(int pageId, {bool force = false}) async {
     Uri uri = Uri.https(
       HOST,
       "/api/v1/conversations/$id",
@@ -195,12 +195,13 @@ class Conversation implements CommentableItem {
     final bool lastPage = pageId == totalChildren ~/ PAGE_SIZE;
     final int ttl = lastPage ? 5 : 3600;
 
-    Json json = await MicrocosmClient().getJson(uri, ttl: ttl);
+    Json json =
+        await MicrocosmClient().getJson(uri, ttl: ttl, ignoreCache: force);
     parsePage(json);
   }
 
   @override
-  Future<void> resetChildren() async {
+  Future<void> resetChildren({bool force = false}) async {
     final int lastPage = _totalChildren ~/ PAGE_SIZE;
     await loadPage(lastPage);
     _children.removeWhere((key, _) => key >= lastPage * PAGE_SIZE);

@@ -108,7 +108,7 @@ class EventAttendees implements Paginated<Profile> {
   }
 
   @override
-  Future<void> loadPage(int i) {
+  Future<void> loadPage(int pageId, {bool force = false}) {
     // TODO: implement loadOfChildren
     throw UnimplementedError();
   }
@@ -119,7 +119,7 @@ class EventAttendees implements Paginated<Profile> {
   }
 
   @override
-  Future<void> resetChildren() {
+  Future<void> resetChildren({bool force = false}) async {
     // TODO: implement resetChildren
     throw UnimplementedError();
   }

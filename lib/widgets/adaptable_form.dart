@@ -14,6 +14,7 @@ import '../models/microcosm.dart';
 import '../models/profile.dart';
 import '../services/microcosm_client.dart';
 import 'attachment_thumbnail.dart';
+import 'screens/future_screen.dart';
 import 'selectors/conversation_selector.dart';
 import 'selectors/huddle_selector.dart';
 import 'selectors/microcosm_selector.dart';
@@ -32,7 +33,7 @@ enum ItemType {
   conversation,
   event,
   huddle,
-  poll,
+  // poll,
 }
 
 class AdaptableForm extends StatefulWidget {
@@ -97,7 +98,6 @@ class _AdaptableFormState extends State<AdaptableForm> {
 
     _selectedMicrocosm = widget.initialMicrocosm;
     _attachments = widget.initialAttachments.map((e) => XFile(e.path)).toList();
-    log("_selectedMicrocosm is: ${_selectedMicrocosm?.title}");
   }
 
   void _updateItemTypeSelector() {
@@ -255,32 +255,19 @@ class _AdaptableFormState extends State<AdaptableForm> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.attach_file),
-                      onPressed: () async {
-                        final ImagePicker picker = ImagePicker();
-                        final List<XFile> images =
-                            await picker.pickMultiImage();
-                        if (images.isNotEmpty) {
-                          setState(() => _attachments.addAll(images));
-                        }
-                      },
+                      onPressed: _sending ? null : _pickMultiImage,
                     ),
                     IconButton(
                       icon: const Icon(Icons.camera_alt),
-                      onPressed: () async {
-                        final ImagePicker picker = ImagePicker();
-                        // Capture a photo.
-                        final XFile? photo = await picker.pickImage(
-                          source: ImageSource.camera,
-                        );
-                        if (photo != null) {
-                          setState(() => _attachments.add(photo));
-                        }
-                      },
+                      onPressed: _sending ? null : _pickImage,
                     ),
                     IconButton.filled(
-                      icon: Icon(
-                        _sending ? Icons.timer : Icons.send,
-                      ),
+                      icon: _sending
+                          ? const SizedBox.square(
+                              dimension: 18.0,
+                              child: CircularProgressIndicator(),
+                            )
+                          : const Icon(Icons.send),
                       onPressed: _sending ? null : _postComment,
                     ),
                   ],
@@ -291,6 +278,25 @@ class _AdaptableFormState extends State<AdaptableForm> {
         ),
       ),
     );
+  }
+
+  void _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    // Capture a photo.
+    final XFile? photo = await picker.pickImage(
+      source: ImageSource.camera,
+    );
+    if (photo != null) {
+      setState(() => _attachments.add(photo));
+    }
+  }
+
+  void _pickMultiImage() async {
+    final ImagePicker picker = ImagePicker();
+    final List<XFile> images = await picker.pickMultiImage();
+    if (images.isNotEmpty) {
+      setState(() => _attachments.addAll(images));
+    }
   }
 
   Widget _newConversation() {
@@ -537,14 +543,14 @@ class _AdaptableFormState extends State<AdaptableForm> {
   }
 
   Future<void> _postComment() async {
-    assert(_comment.text != "");
-
     if (_formKey.currentState!.validate()) {
       log("Form is ok");
     } else {
       log("Form not ok");
       return;
     }
+
+    assert(_comment.text != "");
 
     setState(() => _sending = true);
     log("Sending message...");
@@ -578,6 +584,22 @@ class _AdaptableFormState extends State<AdaptableForm> {
       });
 
       if (!context.mounted) return;
+
+      final item =
+          _area.contains(0) ? _selectedConversation! : _selectedHuddle!;
+      item.resetChildren(force: true);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          maintainState: true,
+          builder: (context) => FutureScreen(
+            item: item.resetChildren(force: true).then((_) => item),
+          ),
+        ),
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Message sent successfully!'),

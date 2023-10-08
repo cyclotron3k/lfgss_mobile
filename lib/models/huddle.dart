@@ -73,20 +73,21 @@ class Huddle implements CommentableItem {
       );
 
   @override
-  Future<void> loadPage(int i) async {
+  Future<void> loadPage(int pageId, {bool force = false}) async {
     Uri uri = Uri.https(
       HOST,
       "/api/v1/huddles/$id",
       {
         "limit": PAGE_SIZE.toString(),
-        "offset": (PAGE_SIZE * i).toString(),
+        "offset": (PAGE_SIZE * pageId).toString(),
       },
     );
 
-    final bool lastPage = i == totalChildren ~/ PAGE_SIZE;
+    final bool lastPage = pageId == totalChildren ~/ PAGE_SIZE;
     final int ttl = lastPage ? 5 : 3600;
 
-    Json json = await MicrocosmClient().getJson(uri, ttl: ttl);
+    Json json =
+        await MicrocosmClient().getJson(uri, ttl: ttl, ignoreCache: force);
     parsePage(json);
   }
 
@@ -178,9 +179,9 @@ class Huddle implements CommentableItem {
   }
 
   @override
-  Future<void> resetChildren() async {
+  Future<void> resetChildren({bool force = false}) async {
     final int lastPage = _totalChildren ~/ PAGE_SIZE;
-    await loadPage(lastPage);
+    await loadPage(lastPage, force: force);
     _children.removeWhere((key, _) => key >= lastPage * PAGE_SIZE);
   }
 

@@ -75,10 +75,10 @@ class Search implements Paginated<SearchResult> {
   }
 
   @override
-  Future<void> loadPage(int i) async {
+  Future<void> loadPage(int pageId, {bool force = false}) async {
     var parameters = searchParameters.asQueryParameters;
     parameters["limit"] = PAGE_SIZE.toString();
-    parameters["offset"] = (PAGE_SIZE * i).toString();
+    parameters["offset"] = (PAGE_SIZE * pageId).toString();
 
     Uri uri = Uri.https(
       HOST,
@@ -86,7 +86,8 @@ class Search implements Paginated<SearchResult> {
       parameters,
     );
 
-    Json json = await MicrocosmClient().getJson(uri, ttl: 5);
+    Json json =
+        await MicrocosmClient().getJson(uri, ttl: 5, ignoreCache: force);
     parsePage(json);
   }
 
@@ -121,7 +122,7 @@ class Search implements Paginated<SearchResult> {
   }
 
   @override
-  Future<void> resetChildren() async {
+  Future<void> resetChildren({bool force = false}) async {
     await loadPage(0);
     _children.removeWhere((key, _) => key >= PAGE_SIZE);
   }

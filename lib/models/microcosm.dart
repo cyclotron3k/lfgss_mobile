@@ -143,7 +143,7 @@ class Microcosm implements PaginatedItem<Item>, Authored {
   }
 
   @override
-  Future<void> loadPage(int pageId) async {
+  Future<void> loadPage(int pageId, {bool force = false}) async {
     Uri uri = Uri.https(
       HOST,
       "/api/v1/microcosms/$id",
@@ -153,7 +153,8 @@ class Microcosm implements PaginatedItem<Item>, Authored {
       },
     );
 
-    Json json = await MicrocosmClient().getJson(uri);
+    Json json =
+        await MicrocosmClient().getJson(uri, ttl: 10, ignoreCache: force);
     parsePage(json);
   }
 
@@ -171,7 +172,7 @@ class Microcosm implements PaginatedItem<Item>, Authored {
   }
 
   @override
-  Future<void> resetChildren() async {
+  Future<void> resetChildren({bool force = false}) async {
     await loadPage(0);
     _children.removeWhere((key, _) => key >= PAGE_SIZE);
   }
