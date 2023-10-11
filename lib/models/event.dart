@@ -147,9 +147,7 @@ class Event implements CommentableItem {
   }
 
   Location? _location;
-  get tzLocation {
-    return _location ??= getLocation(tz);
-  }
+  get tzLocation => _location ??= getLocation(tz);
 
   TZDateTime? _tzStart;
   TZDateTime? get start {
@@ -266,8 +264,7 @@ class Event implements CommentableItem {
   @override
   Future<void> resetChildren({bool force = false}) async {
     final int lastPage = _totalChildren ~/ PAGE_SIZE;
-    await loadPage(lastPage);
-    _children.removeWhere((key, _) => key >= lastPage * PAGE_SIZE);
+    await loadPage(lastPage, force: force);
   }
 
   @override

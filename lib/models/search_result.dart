@@ -42,7 +42,7 @@ class SearchResult implements Item {
   }
 
   @override
-  int get id => throw UnimplementedError();
+  int get id => child.id;
 
   @override
   Uri get selfUrl => throw UnimplementedError();

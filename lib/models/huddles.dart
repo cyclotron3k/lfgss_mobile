@@ -85,7 +85,7 @@ class Huddles implements Paginated<Huddle> {
 
   @override
   Future<void> resetChildren({bool force = false}) async {
-    await loadPage(0);
+    await loadPage(0, force: force);
     _children.removeWhere((key, _) => key >= PAGE_SIZE);
   }
 

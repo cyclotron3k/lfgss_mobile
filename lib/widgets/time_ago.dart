@@ -20,6 +20,7 @@ class TimeAgo extends StatefulWidget {
 
 class _TimeAgoState extends State<TimeAgo> {
   late Timer timer;
+  final String localTimeZone = Intl.getCurrentLocale();
 
   @override
   void initState() {
@@ -40,7 +41,9 @@ class _TimeAgoState extends State<TimeAgo> {
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-      message: DateFormat.yMMMEd().add_Hms().format(widget.dateTime),
+      message: DateFormat.yMMMEd().add_Hms().format(
+            widget.dateTime.toLocal(),
+          ),
       child: Text(format(widget.dateTime),
           maxLines: 1,
           style: TextStyle(

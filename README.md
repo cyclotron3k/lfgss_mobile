@@ -4,34 +4,35 @@
 
 - Refactor event_attendees.dart
 - Evict expired pages from cache
-- Auto-refresh updates page - https://pub.dev/packages/visibility_detector
+- Auto-refresh updates page
+- Pop-up profile selector
 - Useless notification group
 - Better caching/cache invalidation
-- Remember last page
-- Creating a new comment or post -> thread/post
 - Edit comment
 - Search
 - Better selector UX
 - Convert API client to ChangeNotifier?
-- Manage caching across multiple accounts better
+- Cache image sizes
 - Caching (json, images, thumbnails, metrics)
 - Page navigation (lozenge or indexed scroller?)
 - Thread view
 - Attachment gallery
 - Download dots
-- Maps
+- Show upload progress
+- Event maps
 - Persistent connections & HTTP3 (See: https://pub.dev/packages/dio)
 - DRY (future_x widgets, mixins, codegen?)
-- Social sharing
 - Widget keys
 - Instrumentation
-- https://docs.flutter.dev/cookbook/effects/expandable-fab
 - Skeleton/Shimmer placeholders - https://docs.flutter.dev/cookbook/effects/shimmer-loading
 - Better swipe to reply - https://docs.flutter.dev/cookbook/animation/physics-simulation
-- Better RefreshIndicator UX
+- Abstract participant/attendee widget
+- Comment/incontext -> event/huddle
+- https://docs.flutter.dev/cookbook/effects/expandable-fab
+- Floating app bars on bi-directional infinite lists - https://www.youtube.com/watch?v=Mz3kHQxBjGg
 - Use FlutterSecureStorage?
 - Blurha.sh shader?
-- Abstract participant/attendee widget
+- Better notifications (inc. replies) - https://pub.dev/packages/awesome_notifications
 
 ## TBD
 
@@ -53,4 +54,3 @@
 - Settings & default settings
 - Attachments
 - Notification handling
-- comment/incontext -> event/huddle

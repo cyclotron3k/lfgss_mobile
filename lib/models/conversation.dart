@@ -204,7 +204,6 @@ class Conversation implements CommentableItem {
   Future<void> resetChildren({bool force = false}) async {
     final int lastPage = _totalChildren ~/ PAGE_SIZE;
     await loadPage(lastPage);
-    _children.removeWhere((key, _) => key >= lastPage * PAGE_SIZE);
   }
 
   @override
