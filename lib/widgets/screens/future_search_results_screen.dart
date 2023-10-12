@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 import '../../models/search.dart';
 import 'search_results_screen.dart';
 
-class FutureSearchScreen extends StatefulWidget {
+class FutureSearchResultsScreen extends StatefulWidget {
   final Future<Search> search;
   final String? title;
-  const FutureSearchScreen({super.key, required this.search, this.title});
+  const FutureSearchResultsScreen(
+      {super.key, required this.search, this.title});
 
   @override
-  State<FutureSearchScreen> createState() => _FutureSearchScreenState();
+  State<FutureSearchResultsScreen> createState() =>
+      _FutureSearchResultsScreenState();
 }
 
-class _FutureSearchScreenState extends State<FutureSearchScreen> {
+class _FutureSearchResultsScreenState extends State<FutureSearchResultsScreen> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Search>(

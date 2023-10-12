@@ -23,7 +23,7 @@ import '../login_to_see.dart';
 import 'future_huddles_screen.dart';
 import 'future_microcosm_screen.dart';
 import 'future_screen.dart';
-import 'future_search_screen.dart';
+import 'future_search_results_screen.dart';
 import 'future_updates_screen.dart';
 import 'login_screen.dart';
 import 'settings_screen.dart';
@@ -133,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     _tabs = <Widget>[
       FutureMicrocosmScreen(microcosm: Microcosm.root()),
-      FutureSearchScreen(search: _today, title: "Today"),
+      FutureSearchResultsScreen(search: _today, title: "Today"),
       MicrocosmClient().loggedIn
           ? FutureUpdatesScreen(updates: _following!)
           : const LoginToSee(

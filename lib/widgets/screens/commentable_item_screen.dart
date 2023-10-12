@@ -16,7 +16,7 @@ import '../event_header.dart';
 import '../huddle_header.dart';
 import '../new_comment.dart';
 import 'future_screen.dart';
-import 'future_search_screen.dart';
+import 'future_search_results_screen.dart';
 
 class CommentableItemScreen extends StatefulWidget {
   final CommentableItem item;
@@ -136,7 +136,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
                       MaterialPageRoute(
                         fullscreenDialog: true,
                         maintainState: true,
-                        builder: (context) => FutureSearchScreen(
+                        builder: (context) => FutureSearchResultsScreen(
                           search: Search.search(
                             searchParameters: SearchParameters(
                               query: "$query id:${widget.item.id}",

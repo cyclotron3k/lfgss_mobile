@@ -9,7 +9,7 @@ import '../models/full_profile.dart';
 import '../models/search.dart';
 import '../widgets/link_preview.dart';
 import '../widgets/screens/future_screen.dart';
-import '../widgets/screens/future_search_screen.dart';
+import '../widgets/screens/future_search_results_screen.dart';
 import '../widgets/screens/profile_screen.dart';
 
 class LinkParser {
@@ -57,7 +57,7 @@ class LinkParser {
         MaterialPageRoute(
           fullscreenDialog: true,
           maintainState: true,
-          builder: (context) => FutureSearchScreen(
+          builder: (context) => FutureSearchResultsScreen(
             search: Search.searchWithUri(
               uri,
             ),
