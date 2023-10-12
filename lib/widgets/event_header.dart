@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:intl/intl.dart';
 
 import '../models/event.dart';
@@ -12,7 +11,7 @@ class EventHeader extends StatelessWidget {
 
   final Event event;
 
-  List<Widget> _timeBlock() {
+  List<Widget> _timeBlock(BuildContext context) {
     if (event.when == null) {
       return [
         const ListTile(
@@ -28,7 +27,7 @@ class EventHeader extends StatelessWidget {
           title: Text(
             DateFormat('EEE d MMM, y h:mm a').format(event.start!),
           ),
-          subtitle: _tzWarning(),
+          subtitle: _tzWarning(context),
         ),
         ListTile(
           leading: const Icon(Icons.stop_outlined),
@@ -46,13 +45,13 @@ class EventHeader extends StatelessWidget {
           title: Text(
             DateFormat('EEE d MMM, y').format(event.start!),
           ),
-          subtitle: _tzWarning(),
         ),
         ListTile(
           leading: const Icon(Icons.watch_later_outlined),
           title: Text(
             "From ${DateFormat.jm().format(event.start!)} to ${DateFormat.jm().format(event.end!)}",
           ),
+          subtitle: _tzWarning(context),
         ),
       ];
     }
@@ -60,30 +59,24 @@ class EventHeader extends StatelessWidget {
     return [];
   }
 
-  Widget? _tzWarning() {
-    return FutureBuilder<String>(
-      future: FlutterTimezone.getLocalTimezone(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          if (event.equivalentTz(snapshot.data!) == false) {
-            return Text(
-              "This event is in a different timezone",
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-              ),
-            );
-          }
-        }
-        return const SizedBox.shrink();
-      },
-    );
+  Widget? _tzWarning(BuildContext context) {
+    if (event.equivalentTz() == false) {
+      return Text(
+        "⚠️ This event is in a different timezone",
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.error,
+        ),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ..._timeBlock(),
+        ..._timeBlock(context),
         ListTile(
           leading: const Icon(Icons.location_on),
           title: event.where != null

@@ -172,14 +172,10 @@ class Event implements CommentableItem {
         start!.year != end!.year;
   }
 
-  bool? equivalentTz(String otherTZ) {
-    if (tz == otherTZ) return true;
+  bool? equivalentTz() {
     if (whentz == null) return null;
 
-    final myTZ = TZDateTime.from(
-      start!,
-      getLocation(otherTZ),
-    );
+    final myTZ = start!.toLocal();
 
     return start!.hour == myTZ.hour &&
         start!.day == myTZ.day &&
