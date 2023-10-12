@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../constants.dart';
 import '../models/conversation.dart';
+import '../models/event.dart';
 import '../models/full_profile.dart';
 import '../models/search.dart';
 import '../widgets/link_preview.dart';
@@ -20,6 +21,9 @@ class LinkParser {
   );
   static final RegExp conversationMatcher = RegExp(
     r'^(?:/api/v1)?/conversations/(\d+)(?:(?:/newest)?/)?$',
+  );
+  static final RegExp eventMatcher = RegExp(
+    r'^(?:/api/v1)?/events/(\d+)(?:(?:/newest)?/)?$',
   );
 
   static Future<void> parseLink(BuildContext context, String link) async {
@@ -92,6 +96,24 @@ class LinkParser {
           builder: (context) => FutureScreen(
             item: Conversation.getById(
               conversationId,
+            ),
+          ),
+        ),
+      );
+      return;
+    } else if (eventMatcher.hasMatch(link)) {
+      int eventId = int.parse(
+        eventMatcher.firstMatch(link)![1]!,
+      );
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          maintainState: true,
+          builder: (context) => FutureScreen(
+            item: Event.getById(
+              eventId,
             ),
           ),
         ),

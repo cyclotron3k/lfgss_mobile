@@ -44,11 +44,12 @@ class _TimeAgoState extends State<TimeAgo> {
       message: DateFormat.yMMMEd().add_Hms().format(
             widget.dateTime.toLocal(),
           ),
-      child: Text(format(widget.dateTime),
-          maxLines: 1,
-          style: TextStyle(
-            color: widget.color,
-          )),
+      child: Text(
+        format(widget.dateTime),
+        style: TextStyle(
+          color: widget.color,
+        ),
+      ),
     );
   }
 }
