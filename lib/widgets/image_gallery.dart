@@ -1,16 +1,28 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:photo_view/photo_view.dart';
 
-import '../models/attachment.dart';
+import '../constants.dart';
 
 class ImageGallery extends ModalRoute {
   // variables passed from the parent widget
-  final Attachment attachment;
+
+  final String _url;
+  final String? fileName;
+  final String heroTag;
 
   // constructor
-  ImageGallery({required this.attachment});
+  ImageGallery({
+    required url,
+    required this.heroTag,
+    this.fileName,
+  }) : _url = url;
+
+  String get url {
+    return _url.startsWith('/') ? "https://$HOST$_url" : _url;
+  }
 
   @override
   Duration get transitionDuration => const Duration(milliseconds: 250);
@@ -32,9 +44,9 @@ class ImageGallery extends ModalRoute {
 
   Future<void> _shareImage() async {
     var file = await DefaultCacheManager().getSingleFile(
-      attachment.getUrl(),
+      url,
     );
-    var xfile = XFile(file.path, name: attachment.fileName);
+    var xfile = XFile(file.path, name: fileName);
     Share.shareXFiles(
       [xfile],
       //text: attachment.fileName,
@@ -58,11 +70,11 @@ class ImageGallery extends ModalRoute {
                   color: Colors.transparent,
                 ),
                 heroAttributes: PhotoViewHeroAttributes(
-                  tag: attachment.fileHash,
+                  tag: heroTag,
                   //transitionOnUserGestures: true,
                 ),
                 minScale: PhotoViewComputedScale.contained * 0.8,
-                imageProvider: attachment.asImageProvider(),
+                imageProvider: CachedNetworkImageProvider(url),
               ),
             ),
             Padding(

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
@@ -25,10 +24,6 @@ class Attachment {
     return url.startsWith('/') ? "https://$HOST$url" : url;
   }
 
-  ImageProvider asImageProvider() {
-    return CachedNetworkImageProvider(getUrl());
-  }
-
   Widget asHero({double? height}) {
     return Hero(
       tag: fileHash,
@@ -52,7 +47,11 @@ class Attachment {
       child: GestureDetector(
         onTap: () async {
           await Navigator.of(context).push(
-            ImageGallery(attachment: this),
+            ImageGallery(
+              url: url,
+              heroTag: fileHash,
+              fileName: fileName,
+            ),
           );
         },
         child: asHero(),

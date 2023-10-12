@@ -13,6 +13,7 @@ import '../../models/comment.dart';
 import '../../models/reply_notifier.dart';
 import '../../services/link_parser.dart';
 import '../../services/settings.dart';
+import '../image_gallery.dart';
 import '../maybe_image.dart';
 import '../missing_image.dart';
 import '../swipeable.dart';
@@ -160,15 +161,26 @@ class _CommentTileState extends State<CommentTile> {
                       handleAssetImages: false,
                       handleDataImages: false,
                       builder: (ExtensionContext ec) {
-                        return MaybeImage(
-                          imageUrl: ec.attributes["src"]!,
-                          imageBuilder: (context, imageProvider) => ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child: Image(image: imageProvider),
-                          ),
-                          errorWidget: (context, url, error) => const SizedBox(
-                            width: 64,
-                            child: MissingImage(),
+                        return GestureDetector(
+                          onTap: () async {
+                            await Navigator.of(context).push(
+                              ImageGallery(
+                                url: ec.attributes["src"]!,
+                                heroTag: ec.attributes["src"]!,
+                              ),
+                            );
+                          },
+                          child: MaybeImage(
+                            imageUrl: ec.attributes["src"]!,
+                            imageBuilder: (context, imageProvider) => ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: Image(image: imageProvider),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const SizedBox(
+                              width: 64,
+                              child: MissingImage(),
+                            ),
                           ),
                         );
                       },

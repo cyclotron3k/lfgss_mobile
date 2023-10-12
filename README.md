@@ -2,14 +2,16 @@
 
 ## TODO
 
+- Embedded image -> gallery view
+- Search
+- Pop-up profile selector
+- Floating app bars on bi-directional infinite lists - https://www.youtube.com/watch?v=Mz3kHQxBjGg
 - Refactor event_attendees.dart
 - Evict expired pages from cache
 - Auto-refresh updates page
-- Pop-up profile selector
 - Useless notification group
 - Better caching/cache invalidation
 - Edit comment
-- Search
 - Better selector UX
 - Convert API client to ChangeNotifier?
 - Cache image sizes
@@ -29,7 +31,6 @@
 - Abstract participant/attendee widget
 - Comment/incontext -> event/huddle
 - https://docs.flutter.dev/cookbook/effects/expandable-fab
-- Floating app bars on bi-directional infinite lists - https://www.youtube.com/watch?v=Mz3kHQxBjGg
 - Use FlutterSecureStorage?
 - Blurha.sh shader?
 - Better notifications (inc. replies) - https://pub.dev/packages/awesome_notifications
@@ -41,7 +42,7 @@
 - Firebase & push notifications
 - Separate conversation download and read pointer updates
 - Mobile notification preferences into API
-- Convert Polls from Item to Attachment
+- Convert Polls (& Lists, and Events?) from Item to Attachment?
 - https://blurha.sh/ for images
 - TZ calcs on event timestamps
 
