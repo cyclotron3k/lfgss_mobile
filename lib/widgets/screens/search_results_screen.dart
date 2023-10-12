@@ -4,7 +4,12 @@ import '../../models/search.dart';
 
 class SearchResultsScreen extends StatefulWidget {
   final Search search;
-  const SearchResultsScreen({super.key, required this.search});
+  final String? title;
+  const SearchResultsScreen({
+    super.key,
+    required this.search,
+    this.title,
+  });
 
   @override
   State<SearchResultsScreen> createState() => _SearchResultsScreenState();
@@ -21,7 +26,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       child: CustomScrollView(
         // cacheExtent: 400.0,
         slivers: <Widget>[
-          const SliverAppBar(floating: true, title: Text("Search")),
+          SliverAppBar(
+            floating: true,
+            title: Text(widget.title ?? "Search"),
+          ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {

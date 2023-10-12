@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Embedded image -> gallery view
 - Search
 - Pop-up profile selector
 - Floating app bars on bi-directional infinite lists - https://www.youtube.com/watch?v=Mz3kHQxBjGg

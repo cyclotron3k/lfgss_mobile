@@ -5,7 +5,8 @@ import 'search_results_screen.dart';
 
 class FutureSearchScreen extends StatefulWidget {
   final Future<Search> search;
-  const FutureSearchScreen({super.key, required this.search});
+  final String? title;
+  const FutureSearchScreen({super.key, required this.search, this.title});
 
   @override
   State<FutureSearchScreen> createState() => _FutureSearchScreenState();
@@ -18,7 +19,10 @@ class _FutureSearchScreenState extends State<FutureSearchScreen> {
       future: widget.search,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return SearchResultsScreen(search: snapshot.data!);
+          return SearchResultsScreen(
+            search: snapshot.data!,
+            title: widget.title,
+          );
         } else if (snapshot.hasError) {
           return Center(
             child: Icon(
