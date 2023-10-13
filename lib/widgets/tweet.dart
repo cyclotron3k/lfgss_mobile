@@ -24,6 +24,13 @@ class _TweetState extends State<Tweet> {
   bool error = false;
   double height = 256.0;
 
+  String get normalizedUrl {
+    if (widget.url.startsWith("https://x.com/")) {
+      return widget.url.replaceRange(0, 14, "https://twitter.com/");
+    }
+    return widget.url;
+  }
+
   @override
   void initState() {
     super.initState;
@@ -62,7 +69,7 @@ class _TweetState extends State<Tweet> {
     bool isDarkMode = brightness == Brightness.dark;
 
     Uri oembed = Uri.https("publish.twitter.com", "/oembed", {
-      "url": widget.url,
+      "url": normalizedUrl,
       "dnt": "true",
       "theme": isDarkMode ? "dark" : "light",
     });

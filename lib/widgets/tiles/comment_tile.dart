@@ -45,7 +45,7 @@ class _CommentTileState extends State<CommentTile> {
     showReplied = widget.comment.links.containsKey("inReplyToAuthor");
 
     final RegExp tweetMatcher = RegExp(
-      r'^https://twitter\.com/\w+/status/\d+',
+      r'^https://(twitter|x)\.com/\w+/status/\d+',
     );
     doc = parse(widget.comment.html);
     orig = doc.clone(true); // TODO: don't be lazy
