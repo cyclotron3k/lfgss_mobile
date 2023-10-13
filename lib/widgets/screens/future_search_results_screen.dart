@@ -11,7 +11,7 @@ class FutureSearchResultsScreen extends StatefulWidget {
     super.key,
     required this.search,
     this.title,
-    this.showSummary = false,
+    this.showSummary = true,
   });
 
   @override

@@ -47,7 +47,6 @@ class _SearchScreenState extends State<SearchScreen> {
             fullscreenDialog: true,
             maintainState: true,
             builder: (context) => FutureSearchResultsScreen(
-              showSummary: true,
               search: Search.search(
                 searchParameters: _searchParameters,
               ),

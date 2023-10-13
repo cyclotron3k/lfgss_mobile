@@ -133,7 +133,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     _tabs = <Widget>[
       FutureMicrocosmScreen(microcosm: Microcosm.root()),
-      FutureSearchResultsScreen(search: _today, title: "Today"),
+      FutureSearchResultsScreen(
+        search: _today,
+        title: "Today",
+        showSummary: false,
+      ),
       MicrocosmClient().loggedIn
           ? FutureUpdatesScreen(updates: _following!)
           : const LoginToSee(
