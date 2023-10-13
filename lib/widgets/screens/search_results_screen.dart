@@ -68,7 +68,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const TextSpan(text: " results:"),
+                    const TextSpan(text: " results"),
                   ])),
                 ),
               ),

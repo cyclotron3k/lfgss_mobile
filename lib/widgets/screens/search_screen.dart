@@ -104,7 +104,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   },
                 ),
             ]),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 22.0),
             const SectionTitle(title: "Filters"),
             CheckboxListTile(
               title: const Text("Following"),
@@ -187,16 +187,11 @@ class SectionTitle extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 8.0),
-      child: Text(
+  Widget build(BuildContext context) => Text(
         title,
         style: TextStyle(
           fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
           color: Theme.of(context).colorScheme.primary,
         ),
-      ),
-    );
-  }
+      );
 }
