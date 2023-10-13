@@ -29,7 +29,12 @@ class Search implements Paginated<SearchResult> {
       searchParameters: SearchParameters(
         query: "",
         since: -1,
-        type: {'conversation', 'event', 'profile', 'huddle'},
+        type: {
+          SearchType.conversation,
+          SearchType.event,
+          SearchType.profile,
+          SearchType.huddle,
+        },
       ),
     );
   }

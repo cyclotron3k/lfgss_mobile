@@ -141,10 +141,12 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
                             searchParameters: SearchParameters(
                               query: "$query id:${widget.item.id}",
                               type: {
-                                widget.item.runtimeType
-                                    .toString()
-                                    .toLowerCase(),
-                                'comment',
+                                SearchType.values.byName(
+                                  widget.item.runtimeType
+                                      .toString()
+                                      .toLowerCase(),
+                                ),
+                                SearchType.comment,
                               },
                               sort: 'date',
                             ),

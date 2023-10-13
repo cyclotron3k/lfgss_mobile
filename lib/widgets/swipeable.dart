@@ -526,7 +526,7 @@ class _SwipeableState extends State<Swipeable>
     if (status == AnimationStatus.completed && !_dragUnderway) {
       await _handleMoveCompleted();
     }
-    if (mounted) {
+    if (context.mounted) {
       updateKeepAlive();
     }
   }

@@ -1,6 +1,15 @@
+enum SearchType {
+  microcosm,
+  conversation,
+  event,
+  profile,
+  huddle,
+  comment,
+}
+
 class SearchParameters {
   final String query;
-  final Set<String>? type;
+  final Set<SearchType>? type;
   final bool? inTitle;
   final bool? following;
   final bool? hasAttachment;
@@ -44,7 +53,11 @@ class SearchParameters {
   SearchParameters.fromUri(Uri uri)
       : query = uri.queryParameters['q'] ?? '',
         type = uri.queryParameters.containsKey('type')
-            ? uri.queryParametersAll['type']!.toSet()
+            ? uri.queryParametersAll['type']!
+                .map(
+                  (e) => SearchType.values.byName(e),
+                )
+                .toSet()
             : null,
         inTitle = uri.queryParameters.containsKey('inTitle')
             ? bool.parse(uri.queryParameters['inTitle']!)
@@ -72,7 +85,7 @@ class SearchParameters {
     Map<String, dynamic> parameters = {"q": query};
 
     if (type != null) {
-      parameters["type"] = type;
+      parameters["type"] = type?.map<String>((e) => e.name).toList();
     }
 
     if (inTitle ?? false) {

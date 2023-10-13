@@ -57,7 +57,7 @@ class _TweetState extends State<Tweet> {
         onMessageReceived: (JavaScriptMessage message) {
           final double newHeight = int.parse(message.message).toDouble();
           if (height != newHeight) {
-            if (mounted) setState(() => height = newHeight);
+            if (context.mounted) setState(() => height = newHeight);
           }
         },
       )
@@ -90,9 +90,9 @@ class _TweetState extends State<Tweet> {
         </body>
         </html>
       """);
-      if (mounted) setState(() => loading = false);
+      if (context.mounted) setState(() => loading = false);
     }, onError: (_) {
-      if (mounted) {
+      if (context.mounted) {
         setState(() {
           loading = false;
           error = true;

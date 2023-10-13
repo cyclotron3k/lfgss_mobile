@@ -91,7 +91,7 @@ class _MicrocosmSelectorState extends State<MicrocosmSelector> {
       searchParameters: SearchParameters(
         query: "",
         inTitle: true,
-        type: {'microcosm'},
+        type: {SearchType.microcosm},
       ),
     );
 

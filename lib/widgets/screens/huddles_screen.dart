@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../models/huddles.dart';
+import '../../models/search_parameters.dart';
 import '../../services/microcosm_client.dart';
 import '../adaptable_form.dart';
+import 'search_screen.dart';
 
 class HuddlesScreen extends StatefulWidget {
   final Huddles huddles;
@@ -48,9 +50,28 @@ class _HuddlesScreenState extends State<HuddlesScreen> {
         child: CustomScrollView(
           // cacheExtent: 400.0,
           slivers: <Widget>[
-            const SliverAppBar(
+            SliverAppBar(
               floating: true,
-              title: Text("Huddles"),
+              title: const Text("Huddles"),
+              actions: [
+                IconButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      fullscreenDialog: true,
+                      maintainState: true,
+                      builder: (context) => SearchScreen(
+                        initialQuery: SearchParameters(
+                          query: "",
+                          type: {SearchType.huddle, SearchType.comment},
+                          inTitle: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                  icon: const Icon(Icons.search),
+                )
+              ],
             ),
             SliverList(
               delegate: SliverChildBuilderDelegate(

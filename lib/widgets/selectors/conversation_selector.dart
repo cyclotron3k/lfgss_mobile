@@ -90,7 +90,7 @@ class _ConversationSelectorState extends State<ConversationSelector> {
       searchParameters: SearchParameters(
         query: query,
         inTitle: true,
-        type: {'conversation'},
+        type: {SearchType.conversation},
         sort: 'date',
       ),
     );

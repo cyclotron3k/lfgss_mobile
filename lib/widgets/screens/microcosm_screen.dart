@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/microcosm.dart';
 import '../../services/microcosm_client.dart';
 import '../adaptable_form.dart';
+import 'search_screen.dart';
 
 class MicrocosmScreen extends StatefulWidget {
   final Microcosm microcosm;
@@ -52,7 +53,25 @@ class _MicrocosmScreenState extends State<MicrocosmScreen> {
         child: CustomScrollView(
           // cacheExtent: 400.0,
           slivers: <Widget>[
-            SliverAppBar(floating: true, title: Text(widget.microcosm.title)),
+            SliverAppBar(
+              floating: true,
+              title: Text(
+                widget.microcosm.title,
+              ),
+              actions: [
+                IconButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      fullscreenDialog: true,
+                      maintainState: true,
+                      builder: (context) => const SearchScreen(),
+                    ),
+                  ),
+                  icon: const Icon(Icons.search),
+                )
+              ],
+            ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {

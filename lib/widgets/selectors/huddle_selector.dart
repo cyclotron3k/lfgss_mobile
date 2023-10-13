@@ -90,7 +90,7 @@ class _HuddleSelectorState extends State<HuddleSelector> {
       searchParameters: SearchParameters(
         query: query,
         inTitle: true,
-        type: {'huddle'},
+        type: {SearchType.huddle},
         sort: 'date',
       ),
     );

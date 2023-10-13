@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../models/search_parameters.dart';
 import '../../models/updates.dart';
+import 'search_screen.dart';
 
 class UpdatesScreen extends StatefulWidget {
   final Updates updates;
@@ -24,9 +26,27 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
       child: CustomScrollView(
         // cacheExtent: 400.0,
         slivers: <Widget>[
-          const SliverAppBar(
+          SliverAppBar(
             floating: true,
-            title: Text("Updates"),
+            title: const Text("Updates"),
+            actions: [
+              IconButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    fullscreenDialog: true,
+                    maintainState: true,
+                    builder: (context) => SearchScreen(
+                      initialQuery: SearchParameters(
+                        query: "",
+                        following: true,
+                      ),
+                    ),
+                  ),
+                ),
+                icon: const Icon(Icons.search),
+              )
+            ],
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
