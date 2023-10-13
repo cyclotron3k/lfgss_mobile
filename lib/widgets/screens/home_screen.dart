@@ -328,17 +328,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       'assets/launcher_icon/foreground.png',
                     ),
                   ),
-                  applicationVersion: '1.0.10',
+                  applicationVersion: '1.0.11',
                   children: [
                     const Text("Built by me, Aidan Samuel"),
                     const Text("aka @cyclotron3k"),
                     const SizedBox(height: 10.0),
-                    RichText(
-                      text: TextSpan(
+                    Text.rich(
+                      TextSpan(
+                        text: "This is an open-source project. ",
                         children: [
-                          const TextSpan(
-                            text: "This is an open-source project. ",
-                          ),
                           const TextSpan(
                             text:
                                 "Build it yourself, contribute code or report issues on ",

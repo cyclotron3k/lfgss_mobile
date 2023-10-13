@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.11
+- Search
+- Identify and render "x.com" tweets
+- Show inline images in Gallery
+- Fix: process Event URLs correctly
+- Fix: "X time ago" render issue
+- Fix: Show tooltip timestamps in local time
+
+
 ## v1.0.10
 - Navigate to Conversation or Huddle after successful comment
 - Improve New Comment UI
