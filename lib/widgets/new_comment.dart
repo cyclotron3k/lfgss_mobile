@@ -1,4 +1,4 @@
-import 'dart:developer' as developer;
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -21,7 +21,6 @@ class NewComment extends StatefulWidget {
   final int itemId;
   final CommentableType itemType;
   final String initialState;
-  // final int? inReplyTo;
   final Function onPostSuccess;
 
   const NewComment({
@@ -30,7 +29,6 @@ class NewComment extends StatefulWidget {
     required this.itemType,
     required this.onPostSuccess,
     this.initialState = "",
-    // this.inReplyTo,
   });
 
   @override
@@ -42,17 +40,32 @@ class _NewCommentState extends State<NewComment> {
   final List<XFile> _attachments = [];
   Comment? _inReplyTo;
   bool _sending = false;
+  ReplyNotifier? _replyNotifier;
 
   @override
   void initState() {
     super.initState();
     _controller.text = widget.initialState;
+    _replyNotifier = context.read<ReplyNotifier?>();
+    if (_replyNotifier == null) {
+      log("There is no _replyNotifier");
+    } else {
+      log("Found a _replyNotifier!");
+    }
+    _replyNotifier?.addListener(_handleReplyUpdate);
   }
 
   @override
   void dispose() {
+    _replyNotifier?.removeListener(_handleReplyUpdate);
     _controller.dispose();
     super.dispose();
+  }
+
+  void _handleReplyUpdate() {
+    if (_replyNotifier!.replyText != null && _replyNotifier!.replyText != "") {
+      _controller.text += "> ${_replyNotifier!.replyText}\n\n";
+    }
   }
 
   @override
@@ -206,7 +219,7 @@ class _NewCommentState extends State<NewComment> {
     int commentId,
     Map<String, String> fileHashes,
   ) async {
-    developer.log("Linking ${fileHashes.length} attachments to $commentId");
+    log("Linking ${fileHashes.length} attachments to $commentId");
 
     for (var entry in fileHashes.entries) {
       var uri = Uri.https(
@@ -228,7 +241,7 @@ class _NewCommentState extends State<NewComment> {
     }
 
     setState(() => _sending = true);
-    developer.log("Sending message...");
+    log("Sending message...");
 
     try {
       Map<String, String> fileHashes = await _uploadAttachments();
@@ -244,9 +257,9 @@ class _NewCommentState extends State<NewComment> {
         "markdown": _controller.text,
         if (_inReplyTo != null) "inReplyTo": _inReplyTo!.id,
       };
-      developer.log("Posting new comment...");
+      log("Posting new comment...");
       Json comment = await MicrocosmClient().postJson(url, payload);
-      developer.log("Posting new comment: success");
+      log("Posting new comment: success");
       if (_attachments.isNotEmpty) {
         await _linkAttachments(comment["id"], fileHashes);
       }
@@ -286,7 +299,5 @@ class _NewCommentState extends State<NewComment> {
         ),
       );
     }
-
-    // Navigator.of(context).pop();
   }
 }

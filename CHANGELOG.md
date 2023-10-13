@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Select text & reply
+
 ## v1.0.11
 - Search
 - Identify and render "x.com" tweets

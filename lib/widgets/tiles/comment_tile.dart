@@ -30,26 +30,30 @@ class CommentTile extends StatefulWidget {
 }
 
 class _CommentTileState extends State<CommentTile> {
-  late final Document doc;
-  late final Document orig;
+  late final Document _doc;
+  late final Document _orig;
 
-  late final bool showEdited;
-  late final bool showReplied;
-  bool replyActivated = false;
+  late final bool _showEdited;
+  late final bool _showReplied;
+  bool _replyActivated = false;
+  bool _swipingEnabled = false;
+  String _selectedText = "";
 
   @override
   void initState() {
     super.initState();
 
-    showEdited = widget.comment.revisions > 1;
-    showReplied = widget.comment.links.containsKey("inReplyToAuthor");
+    _swipingEnabled = context.read<ReplyNotifier?>() != null;
+
+    _showEdited = widget.comment.revisions > 1;
+    _showReplied = widget.comment.links.containsKey("inReplyToAuthor");
 
     final RegExp tweetMatcher = RegExp(
       r'^https://(twitter|x)\.com/\w+/status/\d+',
     );
-    doc = parse(widget.comment.html);
-    orig = doc.clone(true); // TODO: don't be lazy
-    final anchors = doc.querySelectorAll('a');
+    _doc = parse(widget.comment.html);
+    _orig = _doc.clone(true); // TODO: don't be lazy
+    final anchors = _doc.querySelectorAll('a');
     for (final anchor in anchors) {
       // There are soft hyphens in the text, to help layout, but it doesn't help us
       final cleaned = anchor.text.replaceAll('\xad', '');
@@ -62,14 +66,12 @@ class _CommentTileState extends State<CommentTile> {
 
   @override
   Widget build(BuildContext context) {
-    bool swipingEnabled = context.read<ReplyNotifier?>() != null;
-
     return Column(
       children: [
         const Divider(),
         Swipeable(
           direction:
-              swipingEnabled ? SwipeDirection.startToEnd : SwipeDirection.none,
+              _swipingEnabled ? SwipeDirection.startToEnd : SwipeDirection.none,
           swipeThresholds: const {SwipeDirection.startToEnd: 0.18},
           background: Container(
             alignment: Alignment.centerLeft,
@@ -81,14 +83,14 @@ class _CommentTileState extends State<CommentTile> {
                 curve: Curves.elasticOut,
                 child: Icon(
                   Icons.reply,
-                  size: replyActivated ? 32.0 : 22,
-                  color: replyActivated ? Colors.green.shade300 : Colors.grey,
+                  size: _replyActivated ? 32.0 : 22,
+                  color: _replyActivated ? Colors.green.shade300 : Colors.grey,
                 ),
               ),
             ),
           ),
           onUpdate: (details) => setState(
-            () => replyActivated = details.reached,
+            () => _replyActivated = details.reached,
           ),
           onRelease: (details) {
             setState(() {
@@ -98,6 +100,7 @@ class _CommentTileState extends State<CommentTile> {
                   listen: false,
                 )?.setReplyTarget(
                   widget.comment,
+                  text: _selectedText,
                 );
               }
             });
@@ -138,88 +141,114 @@ class _CommentTileState extends State<CommentTile> {
             children: [
               _titleBar(context),
               Consumer<Settings>(
-                builder: (context, settings, _) => Html.fromDom(
-                  document: (settings.getBool(
-                            'embedTweets',
-                          ) ??
-                          true)
-                      ? doc
-                      : orig,
-                  // data: widget.comment.html,
-                  onLinkTap: (
-                    String? url,
-                    Map<String, String> attributes,
-                    element, // From 'package:html/dom.dart', not material
-                  ) async {
-                    await LinkParser.parseLink(context, url ?? "");
-                  },
-                  extensions: [
-                    if (settings.getBool('embedYouTube') ?? true)
-                      const IframeHtmlExtension(),
-                    ImageExtension(
-                      handleNetworkImages: true,
-                      handleAssetImages: false,
-                      handleDataImages: false,
-                      builder: (ExtensionContext ec) {
-                        return GestureDetector(
-                          onTap: () async {
-                            await Navigator.of(context).push(
-                              ImageGallery(
-                                url: ec.attributes["src"]!,
-                                heroTag: ec.attributes["src"]!,
+                builder: (context, settings, _) => SelectionArea(
+                  onSelectionChanged: (value) =>
+                      _selectedText = value?.plainText ?? "",
+                  contextMenuBuilder: (innerContext, selectableRegionState) =>
+                      AdaptiveTextSelectionToolbar(
+                    anchors: selectableRegionState.contextMenuAnchors,
+                    children: AdaptiveTextSelectionToolbar.getAdaptiveButtons(
+                      innerContext,
+                      [
+                        ...selectableRegionState.contextMenuButtonItems,
+                        if (_swipingEnabled)
+                          ContextMenuButtonItem(
+                              label: "Reply",
+                              onPressed: () {
+                                context.read<ReplyNotifier?>()?.setReplyTarget(
+                                      widget.comment,
+                                      text: _selectedText,
+                                    );
+
+                                ContextMenuController.removeAny();
+                              }),
+                      ],
+                    ).toList(),
+                  ),
+                  child: Html.fromDom(
+                    document: (settings.getBool(
+                              "embedTweets",
+                            ) ??
+                            true)
+                        ? _doc
+                        : _orig,
+                    // data: widget.comment.html,
+                    onLinkTap: (
+                      String? url,
+                      Map<String, String> attributes,
+                      element, // From 'package:html/dom.dart', not material
+                    ) async {
+                      await LinkParser.parseLink(context, url ?? "");
+                    },
+                    extensions: [
+                      if (settings.getBool('embedYouTube') ?? true)
+                        const IframeHtmlExtension(),
+                      ImageExtension(
+                        handleNetworkImages: true,
+                        handleAssetImages: false,
+                        handleDataImages: false,
+                        builder: (ExtensionContext ec) {
+                          return GestureDetector(
+                            onTap: () async {
+                              await Navigator.of(context).push(
+                                ImageGallery(
+                                  url: ec.attributes["src"]!,
+                                  heroTag: ec.attributes["src"]!,
+                                ),
+                              );
+                            },
+                            child: MaybeImage(
+                              imageUrl: ec.attributes["src"]!,
+                              imageBuilder: (context, imageProvider) =>
+                                  ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Image(image: imageProvider),
                               ),
-                            );
-                          },
-                          child: MaybeImage(
-                            imageUrl: ec.attributes["src"]!,
-                            imageBuilder: (context, imageProvider) => ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: Image(image: imageProvider),
+                              errorWidget: (context, url, error) =>
+                                  const SizedBox(
+                                width: 64,
+                                child: MissingImage(),
+                              ),
                             ),
-                            errorWidget: (context, url, error) =>
-                                const SizedBox(
-                              width: 64,
-                              child: MissingImage(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    TagExtension(
-                      tagsToExtend: {"tweet"},
-                      builder: (context) => Tweet(url: context.innerHtml),
-                    ),
-                  ],
-                  style: {
-                    "img": Style(
-                      padding: HtmlPaddings.only(
-                        top: 10.0,
-                        bottom: 10.0,
+                          );
+                        },
                       ),
-                    ),
-                    "blockquote": Style(
-                      padding: HtmlPaddings.only(
-                        left: 10.0,
+                      TagExtension(
+                        tagsToExtend: {"tweet"},
+                        builder: (context) => Tweet(url: context.innerHtml),
                       ),
-                      margin: Margins(left: Margin(0.0)),
-                      // backgroundColor: Colors.grey[100],
-                      border: const Border(
-                        left: BorderSide(color: Colors.grey, width: 4.0),
+                    ],
+                    style: {
+                      "img": Style(
+                        padding: HtmlPaddings.only(
+                          top: 10.0,
+                          bottom: 10.0,
+                        ),
                       ),
-                      fontStyle: FontStyle.italic,
-                      color: Theme.of(context).primaryColorLight,
-                    ),
-                    "a": Style.fromTextStyle(
-                      const TextStyle(
-                        // See: https://github.com/Sub6Resources/flutter_html/issues/1361
-                        decorationColor: Colors.blue,
+                      "blockquote": Style(
+                        padding: HtmlPaddings.only(
+                          left: 10.0,
+                        ),
+                        margin: Margins(left: Margin(0.0)),
+                        // backgroundColor: Colors.grey[100],
+                        border: const Border(
+                          left: BorderSide(color: Colors.grey, width: 4.0),
+                        ),
+                        fontStyle: FontStyle.italic,
+                        color: Theme.of(context).primaryColorLight,
                       ),
-                    ),
-                    "body": Style(
-                      // TODO: Workaround for the above issue. Remove when resolved
-                      textDecorationColor: Colors.blue,
-                    ),
-                  },
+                      "a": Style.fromTextStyle(
+                        const TextStyle(
+                          // See: https://github.com/Sub6Resources/flutter_html/issues/1361
+                          decorationColor: Colors.blue,
+                        ),
+                      ),
+                      "body": Style(
+                        // TODO: Workaround for the above issue. Remove when resolved
+                        textDecorationColor: Colors.blue,
+                      ),
+                    },
+                  ),
                 ),
               ),
               if (widget.comment.hasAttachments())
@@ -245,7 +274,7 @@ class _CommentTileState extends State<CommentTile> {
           ),
         ),
         Expanded(
-          flex: showReplied ? 2 : 1,
+          flex: _showReplied ? 2 : 1,
           child: Wrap(
             spacing: 4.0,
             children: [
@@ -255,7 +284,7 @@ class _CommentTileState extends State<CommentTile> {
                   widget.comment.createdBy.profileName,
                 ),
               ),
-              if (showReplied)
+              if (_showReplied)
                 InkWell(
                   onTap: () async {
                     LinkParser.parseUri(
@@ -272,13 +301,13 @@ class _CommentTileState extends State<CommentTile> {
           ),
         ),
         Expanded(
-          flex: showEdited ? 2 : 1,
+          flex: _showEdited ? 2 : 1,
           child: Wrap(
             runAlignment: WrapAlignment.end,
             alignment: WrapAlignment.end,
             spacing: 4.0,
             children: [
-              if (showEdited)
+              if (_showEdited)
                 const Text(
                   "Edited •",
                   style: TextStyle(
