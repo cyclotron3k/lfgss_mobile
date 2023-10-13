@@ -107,7 +107,7 @@ class _NewCommentState extends State<NewComment> {
           children: [
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(8.0, 16.0, 0.0, 4.0),
+                padding: const EdgeInsets.fromLTRB(8.0, 6.0, 0.0, 6.0),
                 child: TextField(
                   controller: _controller,
                   autofocus: false,
@@ -126,6 +126,10 @@ class _NewCommentState extends State<NewComment> {
                         width: 0,
                         style: BorderStyle.none,
                       ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 12.0,
                     ),
                     labelText: 'New comment...',
                   ),
