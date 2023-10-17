@@ -25,7 +25,7 @@ class Updates extends Paginated<Item> {
 
   static Future<Updates> root({int pageSize = PAGE_SIZE}) async {
     var uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/updates",
       {"limit": pageSize.toString(), "offset": "0"},
     );
@@ -74,7 +74,7 @@ class Updates extends Paginated<Item> {
   @override
   Future<void> loadPage(int pageId, {bool force = false}) async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/updates",
       {
         "limit": PAGE_SIZE.toString(),

@@ -5,9 +5,8 @@
 - Pop-up profile selector
 - "More attachments" indicator
 - Floating app bars on bi-directional infinite lists - https://www.youtube.com/watch?v=Mz3kHQxBjGg
-- Refactor event_attendees.dart
 - Edit comment
-- Evict expired pages from cache
+- Refactor event_attendees.dart
 - Auto-refresh updates page
 - Useless notification group
 - Better caching/cache invalidation

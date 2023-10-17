@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:quiver/collection.dart' show LruMap;
 import '../constants.dart';
 import 'relaxed_jpeg_decoder.dart';
 
@@ -40,7 +40,7 @@ class MicrocosmClient {
 
   MicrocosmClient._internal();
 
-  final Map<Uri, _ExpiringResponse> _inFlight = {};
+  final _inFlight = LruMap<Uri, _ExpiringResponse>(maximumSize: 4096);
 
   void clearCache() {
     _inFlight.removeWhere((key, value) => true);
@@ -143,7 +143,7 @@ class MicrocosmClient {
         if (!redirect.isAbsolute) {
           redirect = redirect.replace(
             scheme: "https",
-            host: HOST,
+            host: API_HOST,
           );
         }
         log("Completed post. Redirecting to: $redirect");
@@ -204,7 +204,7 @@ class MicrocosmClient {
         if (!redirect.isAbsolute) {
           redirect = redirect.replace(
             scheme: "https",
-            host: HOST,
+            host: API_HOST,
           );
         }
         log("Completed post. Redirecting to: $redirect");

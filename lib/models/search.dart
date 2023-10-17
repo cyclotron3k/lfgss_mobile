@@ -55,7 +55,7 @@ class Search implements Paginated<SearchResult> {
     parameters["offset"] = "0";
 
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/search",
       parameters,
     );
@@ -86,7 +86,7 @@ class Search implements Paginated<SearchResult> {
     parameters["offset"] = (PAGE_SIZE * pageId).toString();
 
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/search",
       parameters,
     );

@@ -22,7 +22,7 @@ class EventAttendees implements Paginated<Profile> {
 
   Future<List<Profile>> getPageOfChildren(int pageId) async {
     Uri uri = Uri.parse(
-      "https://$HOST/api/v1/events/$eventId/attendees?limit=$pageSize&offset=${pageSize * pageId}",
+      "https://$API_HOST/api/v1/events/$eventId/attendees?limit=$pageSize&offset=${pageSize * pageId}",
     );
 
     Json json = await MicrocosmClient().getJson(uri);

@@ -65,7 +65,7 @@ class Conversation implements CommentableItem {
   @override
   Future<bool> subscribe() async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/watchers",
     );
 
@@ -82,7 +82,7 @@ class Conversation implements CommentableItem {
   @override
   Future<bool> unsubscribe() async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/watchers/delete",
       {
         "updateTypeId": "1",
@@ -123,7 +123,7 @@ class Conversation implements CommentableItem {
 
   static Future<Conversation> getById(int id) async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/conversations/$id/newcomment",
       {
         "limit": PAGE_SIZE.toString(),
@@ -140,7 +140,7 @@ class Conversation implements CommentableItem {
 
   static Future<Conversation> getByCommentId(int commentId) async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/comments/$commentId/incontext",
       {
         "limit": PAGE_SIZE.toString(),
@@ -165,7 +165,7 @@ class Conversation implements CommentableItem {
     offset -= offset % PAGE_SIZE;
 
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/conversations/$id",
       {
         "limit": PAGE_SIZE.toString(),
@@ -184,7 +184,7 @@ class Conversation implements CommentableItem {
   @override
   Future<void> loadPage(int pageId, {bool force = false}) async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/conversations/$id",
       {
         "limit": PAGE_SIZE.toString(),

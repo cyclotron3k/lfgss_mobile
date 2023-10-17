@@ -21,7 +21,7 @@ class ImageGallery extends ModalRoute {
   }) : _url = url;
 
   String get url {
-    return _url.startsWith('/') ? "https://$HOST$_url" : _url;
+    return _url.startsWith('/') ? "https://$API_HOST$_url" : _url;
   }
 
   @override

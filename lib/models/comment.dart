@@ -45,7 +45,7 @@ class Comment implements Item, Authored {
 
     if (inReplyTo != null) {
       Uri uri = Uri.https(
-        HOST,
+        API_HOST,
         "/api/v1/comments/$id",
       );
 

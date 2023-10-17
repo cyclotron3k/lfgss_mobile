@@ -24,7 +24,7 @@ class CommentAttachments {
 
   Future<List<Attachment>> getPageOfChildren(int pageId) async {
     Uri uri = Uri.parse(
-      "https://$HOST/api/v1/comments/$commentId/attachments?limit=$pageSize&offset=${pageSize * pageId}",
+      "https://$API_HOST/api/v1/comments/$commentId/attachments?limit=$pageSize&offset=${pageSize * pageId}",
     );
 
     Json json = await MicrocosmClient().getJson(uri);

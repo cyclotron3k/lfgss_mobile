@@ -38,7 +38,7 @@ class Profiles implements Paginated<Profile> {
     };
 
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/profiles",
       parameters,
     );
@@ -66,7 +66,7 @@ class Profiles implements Paginated<Profile> {
     };
 
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/profiles",
       parameters,
     );

@@ -22,7 +22,7 @@ class Huddles implements Paginated<Huddle> {
 
   static Future<Huddles> root() async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/huddles",
       {
         "limit": PAGE_SIZE.toString(),
@@ -37,7 +37,7 @@ class Huddles implements Paginated<Huddle> {
   @override
   Future<void> loadPage(int pageId, {bool force = false}) async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/huddles",
       {
         "limit": PAGE_SIZE.toString(),

@@ -16,6 +16,12 @@ class UpdateTile extends StatefulWidget {
 
 class _UpdateTileState extends State<UpdateTile> {
   @override
+  void initState() {
+    super.initState();
+    widget.update.markRead();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [

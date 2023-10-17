@@ -25,13 +25,13 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => settings,
-      child: const MyApp(),
+      child: const LfgssMobile(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class LfgssMobile extends StatelessWidget {
+  const LfgssMobile({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -124,7 +124,7 @@ class Microcosm implements PaginatedItem<Item>, Authored {
 
   static Future<Microcosm> root() async {
     Uri uri = Uri.parse(
-      "https://$HOST/api/v1/microcosms",
+      "https://$API_HOST/api/v1/microcosms",
     );
 
     Json json = await MicrocosmClient().getJson(uri);
@@ -134,7 +134,7 @@ class Microcosm implements PaginatedItem<Item>, Authored {
 
   static Future<Microcosm> getById(int id) async {
     Uri uri = Uri.parse(
-      "https://$HOST/api/v1/microcosms/$id",
+      "https://$API_HOST/api/v1/microcosms/$id",
     );
 
     Json json = await MicrocosmClient().getJson(uri);
@@ -145,7 +145,7 @@ class Microcosm implements PaginatedItem<Item>, Authored {
   @override
   Future<void> loadPage(int pageId, {bool force = false}) async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/microcosms/$id",
       {
         "limit": PAGE_SIZE.toString(),

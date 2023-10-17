@@ -21,7 +21,7 @@ class Attachment {
         url = json["meta"]["links"][0]["href"]; // TODO: be more robust
 
   String getUrl() {
-    return url.startsWith('/') ? "https://$HOST$url" : url;
+    return url.startsWith('/') ? "https://$API_HOST$url" : url;
   }
 
   Widget asHero({double? height}) {

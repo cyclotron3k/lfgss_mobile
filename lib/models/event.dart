@@ -105,7 +105,7 @@ class Event implements CommentableItem {
 
   static Future<Event> getByCommentId(int commentId) async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/comments/$commentId/incontext",
       {
         "limit": PAGE_SIZE.toString(),
@@ -130,7 +130,7 @@ class Event implements CommentableItem {
     offset -= offset % PAGE_SIZE;
 
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/events/$id",
       {
         "limit": PAGE_SIZE.toString(),
@@ -224,7 +224,7 @@ class Event implements CommentableItem {
 
   static Future<Event> getById(int id) async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/events/$id/newcomment",
       {
         "limit": PAGE_SIZE.toString(),
@@ -242,7 +242,7 @@ class Event implements CommentableItem {
   @override
   Future<void> loadPage(int pageId, {bool force = false}) async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/events/$id",
       {
         "limit": PAGE_SIZE.toString(),
@@ -295,7 +295,7 @@ class Event implements CommentableItem {
   @override
   Future<bool> subscribe() async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/watchers",
     );
 
@@ -312,7 +312,7 @@ class Event implements CommentableItem {
   @override
   Future<bool> unsubscribe() async {
     Uri uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/watchers/delete",
       {
         "updateTypeId": "1",

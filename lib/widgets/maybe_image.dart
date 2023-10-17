@@ -110,7 +110,7 @@ class _MaybeImageState extends State<MaybeImage> {
 
   bool get _isFirstParty {
     var uri = Uri.parse(widget.cni.imageUrl);
-    return HOST == uri.host;
+    return API_HOST == uri.host;
   }
 
   Future<bool> get _precached async {

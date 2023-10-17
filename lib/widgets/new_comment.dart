@@ -204,7 +204,7 @@ class _NewCommentState extends State<NewComment> {
         .toList();
 
     var uri = Uri.https(
-      HOST,
+      API_HOST,
       "/api/v1/files",
     );
 
@@ -223,7 +223,7 @@ class _NewCommentState extends State<NewComment> {
 
     for (var entry in fileHashes.entries) {
       var uri = Uri.https(
-        HOST,
+        API_HOST,
         "/api/v1/comments/$commentId/attachments",
       );
 
@@ -247,7 +247,7 @@ class _NewCommentState extends State<NewComment> {
       Map<String, String> fileHashes = await _uploadAttachments();
 
       Uri url = Uri.https(
-        HOST,
+        API_HOST,
         "/api/v1/comments",
       );
 

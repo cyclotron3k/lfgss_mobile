@@ -100,6 +100,10 @@ class Update implements Item {
     }
   }
 
+  void markRead() {
+    flags.unread = false;
+  }
+
   String get conversationId {
     if (parent is Conversation) {
       return (parent as Conversation).id.toString();
@@ -121,7 +125,7 @@ class Update implements Item {
       case UpdateType.new_attendee:
         return "New attendee";
       case UpdateType.new_item:
-        return "New item";
+        return "New ${child.runtimeType}";
       case UpdateType.new_vote:
         return "Received a vote";
       case UpdateType.new_user:
