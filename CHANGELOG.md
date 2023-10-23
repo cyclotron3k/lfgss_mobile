@@ -1,7 +1,9 @@
 # Changelog
 
-## Next
+## v1.0.12
 - Select text & reply
+- Profile selector
+- LRU page cache
 
 ## v1.0.11
 - Search
