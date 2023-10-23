@@ -159,7 +159,6 @@ class _CommentTileState extends State<CommentTile> {
                                       widget.comment,
                                       text: _selectedText,
                                     );
-
                                 ContextMenuController.removeAny();
                               }),
                       ],

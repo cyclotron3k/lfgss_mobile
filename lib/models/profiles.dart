@@ -24,7 +24,7 @@ class Profiles implements Paginated<Profile> {
   }
 
   int get _pageSize {
-    return 25; // Watch out for line 31
+    return 25; // Watch out for line 36
   }
 
   static Future<Profiles> search({

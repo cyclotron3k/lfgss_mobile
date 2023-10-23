@@ -2,12 +2,12 @@
 
 ## TODO
 
-- Pop-up profile selector
-- "More attachments" indicator
-- Floating app bars on bi-directional infinite lists - https://www.youtube.com/watch?v=Mz3kHQxBjGg
 - Edit comment
-- Refactor event_attendees.dart
+- Floating app bars on bi-directional infinite lists - https://www.youtube.com/watch?v=Mz3kHQxBjGg
+- Remove obsolete notifications
 - Auto-refresh updates page
+- "More attachments" indicator
+- Refactor event_attendees.dart
 - Useless notification group
 - Better caching/cache invalidation
 - Better selector UX
@@ -32,6 +32,7 @@
 - Use FlutterSecureStorage?
 - Blurha.sh shader?
 - Better notifications (inc. replies) - https://pub.dev/packages/awesome_notifications
+- Pre-populate Profile Popup with thread-participants
 
 ## TBD
 
@@ -53,3 +54,6 @@
 - Settings & default settings
 - Attachments
 - Notification handling
+- popup profile selector code
+  - roll into custom controller?
+  - abstract word boundary code

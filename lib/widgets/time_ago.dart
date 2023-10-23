@@ -41,7 +41,7 @@ class _TimeAgoState extends State<TimeAgo> {
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-      message: DateFormat.yMMMEd().add_Hms().format(
+      message: DateFormat.yMMMEd().add_jmz().format(
             widget.dateTime.toLocal(),
           ),
       child: Text(

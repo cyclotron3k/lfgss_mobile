@@ -101,6 +101,15 @@ class MissingImagePainter extends CustomPainter {
     canvas.drawRect(const Rect.fromLTWH(11, 1, 1, 1), darkGrey);
     canvas.drawRect(const Rect.fromLTWH(12, 2, 1, 1), darkGrey);
     canvas.drawRect(const Rect.fromLTWH(13, 3, 1, 1), darkGrey);
+
+    // final paint = Paint()..style = PaintingStyle.fill;
+    // final path = Path()
+    //   ..moveTo(0, 0)
+    //   ..lineTo(12, 10)
+    //   ..lineTo(13, 13)
+    //   ..lineTo(10, 12)
+    //   ..close();
+    // canvas.drawPath(path, paint);
   }
 
   @override

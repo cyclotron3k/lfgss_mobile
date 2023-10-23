@@ -45,7 +45,7 @@ class ProfileTile extends StatelessWidget {
                       width: 28,
                       height: 28,
                       errorWidget: (context, url, error) => const Icon(
-                        Icons.error,
+                        Icons.error_outline,
                       ),
                     ))),
           title: Text(

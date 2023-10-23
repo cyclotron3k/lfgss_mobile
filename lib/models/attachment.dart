@@ -35,7 +35,7 @@ class Attachment {
           child: Image(image: imageProvider),
         ),
         errorWidget: (context, url, error) => const Icon(
-          Icons.error,
+          Icons.error_outline,
         ),
       ),
     );

@@ -42,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       height: 256,
                       fit: BoxFit.contain,
                       errorWidget: (context, url, error) => const Icon(
-                        Icons.error,
+                        Icons.error_outline,
                       ),
                     ),
                   ),

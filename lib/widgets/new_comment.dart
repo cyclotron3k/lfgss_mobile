@@ -9,7 +9,9 @@ import '../constants.dart';
 import '../models/comment.dart';
 import '../models/reply_notifier.dart';
 import '../services/microcosm_client.dart';
+import '../services/profile_aware_input_controller.dart';
 import 'attachment_thumbnail.dart';
+import 'profile_picker_popup.dart';
 
 enum CommentableType {
   conversation,
@@ -36,35 +38,159 @@ class NewComment extends StatefulWidget {
 }
 
 class _NewCommentState extends State<NewComment> {
-  final _controller = TextEditingController();
+  final _controller = ProfileAwareInputController();
   final List<XFile> _attachments = [];
   Comment? _inReplyTo;
   bool _sending = false;
   ReplyNotifier? _replyNotifier;
+  final _commentInputKey = GlobalKey();
+
+  final FocusNode _focusNode = FocusNode();
+  OverlayEntry? _overlayEntry;
+  final LayerLink _layerLink = LayerLink();
 
   @override
   void initState() {
     super.initState();
     _controller.text = widget.initialState;
     _replyNotifier = context.read<ReplyNotifier?>();
-    if (_replyNotifier == null) {
-      log("There is no _replyNotifier");
-    } else {
-      log("Found a _replyNotifier!");
-    }
     _replyNotifier?.addListener(_handleReplyUpdate);
+    _controller.addListener(_handleTypingEvent);
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        // _showOverlay();
+      } else {
+        _hideOverlay();
+      }
+    });
   }
 
   @override
   void dispose() {
     _replyNotifier?.removeListener(_handleReplyUpdate);
+    _controller.removeListener(_handleTypingEvent);
     _controller.dispose();
+    _hideOverlay();
     super.dispose();
+  }
+
+  OverlayEntry _createOverlay() {
+    // RenderBox renderBox = context.findRenderObject() as RenderBox;
+
+    RenderBox renderBox =
+        _commentInputKey.currentContext!.findRenderObject() as RenderBox;
+
+    return OverlayEntry(
+      builder: (context) => CompositedTransformFollower(
+        link: _layerLink,
+        showWhenUnlinked: false,
+        targetAnchor: Alignment.topLeft,
+        followerAnchor: Alignment.bottomLeft,
+        offset: const Offset(0.0, -8.0),
+        child: Material(
+          type: MaterialType.transparency,
+          elevation: 5.0,
+          child: Align(
+            alignment: Alignment.bottomLeft,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32.0),
+                color: Theme.of(context).colorScheme.onSecondary.withAlpha(220),
+              ),
+              width: renderBox.size.width,
+              height: renderBox.localToGlobal(Offset.zero).dy - 100,
+              child: ProfilePickerPopup(
+                controller: _controller,
+                onSelected: (selectedProfile) => _replaceWord(
+                  selectedProfile.profileName,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _replaceWord(String profileName) {
+    TextSelection ts = _controller.selection;
+    int startIndex = ts.baseOffset;
+    int endIndex = ts.baseOffset;
+    final String text = _controller.text;
+    final nonSpace = RegExp(r'[^\s]');
+
+    if (text.isEmpty) return;
+    while (startIndex > 0 && nonSpace.hasMatch(text[startIndex - 1])) {
+      startIndex--;
+    }
+    if (startIndex >= text.length || text[startIndex] != "@") return;
+    while (endIndex < text.length && nonSpace.hasMatch(text[endIndex])) {
+      endIndex++;
+    }
+    if (startIndex == endIndex) return;
+    _controller.text = text.replaceRange(
+      startIndex + 1,
+      endIndex,
+      profileName,
+    );
+  }
+
+  void _handleTypingEvent() {
+    TextSelection ts = _controller.selection;
+
+    int startIndex = ts.baseOffset;
+    int endIndex = ts.baseOffset;
+    final text = _controller.text;
+    final nonSpace = RegExp(r'[^\s]');
+
+    if (startIndex < 0 || startIndex != ts.extentOffset || text.isEmpty) {
+      _hideOverlay();
+      return;
+    }
+
+    while (startIndex > 0 && nonSpace.hasMatch(text[startIndex - 1])) {
+      startIndex--;
+    }
+
+    if (startIndex >= text.length || text[startIndex] != "@") {
+      _hideOverlay();
+      return;
+    }
+
+    while (endIndex < text.length && nonSpace.hasMatch(text[endIndex])) {
+      endIndex++;
+    }
+
+    if (startIndex == endIndex) {
+      _hideOverlay();
+      return;
+    }
+
+    _showOverlay();
+  }
+
+  void _showOverlay() {
+    if (_overlayEntry == null) {
+      OverlayState overlayState = Overlay.of(context);
+      // log("showing overlay");
+      _overlayEntry = _createOverlay();
+      overlayState.insert(_overlayEntry!);
+    } else {
+      // log("overlay already showing");
+    }
+  }
+
+  void _hideOverlay() {
+    if (_overlayEntry != null) {
+      // log("hiding overlay");
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+    }
   }
 
   void _handleReplyUpdate() {
     if (_replyNotifier!.replyText != null && _replyNotifier!.replyText != "") {
-      _controller.text += "> ${_replyNotifier!.replyText}\n\n";
+      _controller.text += "> ${_replyNotifier!.replyText}";
     }
   }
 
@@ -72,106 +198,114 @@ class _NewCommentState extends State<NewComment> {
   Widget build(BuildContext context) {
     _inReplyTo = context.watch<ReplyNotifier>().replyTarget;
 
-    return Column(
-      children: [
-        if (_inReplyTo != null) ...[
-          const Divider(thickness: 1.0, height: 0.0),
+    return Material(
+      elevation: 2.0,
+      child: Column(
+        children: [
+          if (_inReplyTo != null) ...[
+            const Divider(thickness: 1.0, height: 0.0),
+            Row(
+              children: [
+                const SizedBox(width: 8.0),
+                const Icon(Icons.reply),
+                const SizedBox(width: 8.0),
+                Expanded(
+                  child: Text(
+                    "${_inReplyTo!.createdBy.profileName}: ${_inReplyTo!.markdown}",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8.0),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  visualDensity: VisualDensity.compact,
+                  onPressed: () => context.read<ReplyNotifier>().clear(),
+                ),
+              ],
+            ),
+          ],
+          if (_attachments.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Wrap(
+                runSpacing: 8.0,
+                spacing: 8.0,
+                children: [
+                  for (final attachment in _attachments)
+                    AttachmentThumbnail(
+                      key: ObjectKey(attachment),
+                      image: attachment,
+                      onRemoveItem: (XFile image) {
+                        setState(() => _attachments.remove(image));
+                      },
+                    ),
+                ],
+              ),
+            ),
           Row(
             children: [
-              const SizedBox(width: 8.0),
-              const Icon(Icons.reply),
-              const SizedBox(width: 8.0),
               Expanded(
-                child: Text(
-                  "${_inReplyTo!.createdBy.profileName}: ${_inReplyTo!.markdown}",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8.0, 6.0, 0.0, 6.0),
+                  child: CompositedTransformTarget(
+                    link: _layerLink,
+                    child: TextField(
+                      key: _commentInputKey,
+                      focusNode: _focusNode,
+                      controller: _controller,
+                      autofocus: false,
+                      maxLines: 5,
+                      minLines: 1,
+                      keyboardType: TextInputType.multiline,
+                      textCapitalization: TextCapitalization.sentences,
+                      enabled: !_sending,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        filled: true,
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(32.0),
+                          borderSide: const BorderSide(
+                            width: 0,
+                            style: BorderStyle.none,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12.0,
+                          vertical: 12.0,
+                        ),
+                        labelText: 'New comment...',
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(width: 8.0),
               IconButton(
-                icon: const Icon(Icons.close),
+                icon: const Icon(Icons.attach_file),
                 visualDensity: VisualDensity.compact,
-                onPressed: () => context.read<ReplyNotifier>().clear(),
+                onPressed: _sending ? null : _pickMultiImage,
+              ),
+              IconButton(
+                icon: const Icon(Icons.camera_alt),
+                visualDensity: VisualDensity.compact,
+                onPressed: _sending ? null : _pickImage,
+              ),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                icon: _sending
+                    ? const SizedBox.square(
+                        dimension: 18.0,
+                        child: CircularProgressIndicator(),
+                      )
+                    : const Icon(Icons.send),
+                onPressed: _sending ? null : _postComment,
               ),
             ],
           ),
         ],
-        if (_attachments.isNotEmpty)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Wrap(
-              runSpacing: 8.0,
-              spacing: 8.0,
-              children: [
-                for (final attachment in _attachments)
-                  AttachmentThumbnail(
-                    key: ObjectKey(attachment),
-                    image: attachment,
-                    onRemoveItem: (XFile image) {
-                      setState(() => _attachments.remove(image));
-                    },
-                  ),
-              ],
-            ),
-          ),
-        Row(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8.0, 6.0, 0.0, 6.0),
-                child: TextField(
-                  controller: _controller,
-                  autofocus: false,
-                  maxLines: 5,
-                  minLines: 1,
-                  keyboardType: TextInputType.multiline,
-                  textCapitalization: TextCapitalization.sentences,
-                  enabled: !_sending,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    filled: true,
-                    floatingLabelBehavior: FloatingLabelBehavior.never,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(32.0),
-                      borderSide: const BorderSide(
-                        width: 0,
-                        style: BorderStyle.none,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12.0,
-                      vertical: 12.0,
-                    ),
-                    labelText: 'New comment...',
-                  ),
-                ),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.attach_file),
-              visualDensity: VisualDensity.compact,
-              onPressed: _sending ? null : _pickMultiImage,
-            ),
-            IconButton(
-              icon: const Icon(Icons.camera_alt),
-              visualDensity: VisualDensity.compact,
-              onPressed: _sending ? null : _pickImage,
-            ),
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              icon: _sending
-                  ? const SizedBox.square(
-                      dimension: 18.0,
-                      child: CircularProgressIndicator(),
-                    )
-                  : const Icon(Icons.send),
-              onPressed: _sending ? null : _postComment,
-            ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 

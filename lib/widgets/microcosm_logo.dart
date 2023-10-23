@@ -51,7 +51,7 @@ class _MicrocosmLogoState extends State<MicrocosmLogo> {
                     width: 28,
                     height: 28,
                     errorWidget: (context, url, error) => const Icon(
-                      Icons.error,
+                      Icons.error_outline,
                     ),
                   ),
                 ),
