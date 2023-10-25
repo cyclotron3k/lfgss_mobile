@@ -21,7 +21,7 @@ void callbackDispatcher() {
       if (!client.loggedIn) {
         log("Not logged in");
         // TODO: actually delete the scheduled task, and only rebuild it on log-in
-        return Future.value(true);
+        return true;
       }
 
       Updates updates = await Updates.root(pageSize: 25);
@@ -34,6 +34,29 @@ void callbackDispatcher() {
       final bool notifyReplies = sp.getBool("notifyReplies") ?? true;
       final bool notifyMentions = sp.getBool("notifyMentions") ?? true;
       final bool notifyHuddles = sp.getBool("notifyHuddles") ?? true;
+
+      const generalNotificationDetails = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'lfgss_updates',
+          'Updates',
+          channelDescription: 'Updates from LFGSS',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+      );
+
+      const importantNotificationDetails = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'lfgss_replies',
+          'Replies & Mentions',
+          channelDescription: 'Replies and Mentions',
+          icon: 'ic_stat_lfgss_notification_hed3',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+      );
+
+      final flutterLocalNotificationsPlugin = await initNotifications(null);
 
       for (final update in notifications) {
         final bool send = switch (update.updateType) {
@@ -50,28 +73,15 @@ void callbackDispatcher() {
 
         if (!send) continue;
 
-        const AndroidNotificationDetails androidNotificationDetails =
-            AndroidNotificationDetails(
-          'lfgss_updates',
-          'LFGSS Updates',
-          channelDescription: 'Updates from LFGSS',
-          importance: Importance.max,
-          priority: Priority.high,
-          ticker: 'ticker',
-        );
-
-        const NotificationDetails notificationDetails = NotificationDetails(
-          android: androidNotificationDetails,
-        );
-
-        FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-            await initNotifications(null);
+        final important = update.updateType == UpdateType.reply_to_comment ||
+            update.updateType == UpdateType.mentioned ||
+            update.updateType == UpdateType.new_comment_in_huddle;
 
         await flutterLocalNotificationsPlugin.show(
           update.topicId,
           update.title,
           update.body,
-          notificationDetails,
+          important ? importantNotificationDetails : generalNotificationDetails,
           payload: update.payload,
         );
       }
@@ -88,7 +98,7 @@ void callbackDispatcher() {
       throw Exception(err);
     }
 
-    return Future.value(true);
+    return true;
   });
 }
 
@@ -139,7 +149,7 @@ Future<void> initTasks() async {
   flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>()
-      ?.requestPermission();
+      ?.requestNotificationsPermission();
 }
 
   // // DELETE START

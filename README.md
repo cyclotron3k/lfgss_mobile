@@ -6,7 +6,6 @@
 - Native login
 - Tidy Following page
 - Auto-refresh Following page
-- Add participants to huddles_screen tiles
 - Page navigation (lozenge or indexed scroller?)
 - Floating app bars on bi-directional infinite lists - https://www.youtube.com/watch?v=Mz3kHQxBjGg
 - Remove obsolete notifications

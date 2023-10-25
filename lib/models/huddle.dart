@@ -28,6 +28,8 @@ class Huddle implements CommentableItem {
   @override
   final int startPage;
 
+  final DateTime? lastActivity;
+
   int _totalChildren;
   final Map<int, Comment> _children = {};
 
@@ -42,6 +44,7 @@ class Huddle implements CommentableItem {
         flags = Flags.fromJson(json: json["meta"]["flags"]),
         createdBy = Profile.fromJson(json: json["meta"]["createdBy"]),
         created = DateTime.parse(json['meta']['created']),
+        lastActivity = DateTime.tryParse(json["lastCommentCreated"] ?? ""),
         _totalChildren = json["totalComments"] ?? json["comments"]["total"],
         permissions = Permissions.fromJson(json: json['meta']['permissions']),
         participants = json["participants"]

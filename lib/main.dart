@@ -48,7 +48,9 @@ class LfgssMobile extends StatelessWidget {
         var darkTheme = ThemeData(
           colorScheme: ColorScheme.fromSeed(
             brightness: Brightness.dark,
-            seedColor: const Color.fromARGB(255, 60, 41, 230),
+            seedColor: const Color.fromARGB(255, 0x1e, 0x72, 0xc4),
+          ).copyWith(
+            primary: Color.fromARGB(255, 62, 166, 240),
           ),
           useMaterial3: true,
         );

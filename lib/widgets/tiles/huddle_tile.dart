@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:intl/intl.dart';
+import 'package:lfgss_mobile/widgets/time_ago.dart';
 
 import '../../models/huddle.dart';
 import '../screens/future_screen.dart';
@@ -49,8 +51,11 @@ class _HuddleTileState extends State<HuddleTile> {
               if (widget.huddle.flags.unread)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
-                  child: Icon(Icons.circle,
-                      size: 10.0, color: Theme.of(context).colorScheme.primary),
+                  child: Icon(
+                    Icons.circle,
+                    size: 10.0,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               Expanded(
                 child: Text(
@@ -64,7 +69,33 @@ class _HuddleTileState extends State<HuddleTile> {
           subtitle: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text(DateFormat.yMMMd().format(widget.huddle.created)),
+              Expanded(
+                child: Wrap(
+                  spacing: 4.0,
+                  runSpacing: 4.0,
+                  children: [
+                    for (final profile in widget.huddle.participants)
+                      Tooltip(
+                        message: profile.profileName,
+                        child: CachedNetworkImage(
+                          width: 22.0,
+                          height: 22.0,
+                          imageUrl: profile.avatar,
+                          imageBuilder: (context, imageProvider) {
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(4.0),
+                              child: Image(image: imageProvider),
+                            );
+                          },
+                          errorWidget: (context, url, error) => const Icon(
+                            Icons.person_outline,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              TimeAgo(widget.huddle.lastActivity ?? widget.huddle.created),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Icon(
