@@ -3,8 +3,8 @@ import 'package:image_size_getter/image_size_getter.dart';
 
 // This replaces the default JPEG validator/analyser
 // It was failing because some Google Pixels append debugging information to
-// JPEG files, and the validation was failing becuse the final byes we not the
-// expected FF D9
+// JPEG files, and the validation was failing becuse the final byes were not
+// the expected FF D9
 
 class RelaxedJpegDecoder extends BaseDecoder {
   const RelaxedJpegDecoder();

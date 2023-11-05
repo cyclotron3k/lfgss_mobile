@@ -17,7 +17,7 @@ class LinkParser {
   static final RegExp profileMatcher = RegExp(r'^/profiles/(\d+)$');
   static final RegExp searchMatcher = RegExp(r'^/search/');
   static final RegExp commentMatcher = RegExp(
-    r'^(?:/api/v1)?/comments/(\d+)/?$',
+    r'^(?:/api/v1)?/comments/(\d+)/(?:incontext)?$',
   );
   static final RegExp conversationMatcher = RegExp(
     r'^(?:/api/v1)?/conversations/(\d+)(?:(?:/newest)?/)?$',
