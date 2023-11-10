@@ -18,7 +18,6 @@ class _UpdateTileState extends State<UpdateTile> {
   @override
   void initState() {
     super.initState();
-    widget.update.markRead();
   }
 
   @override
