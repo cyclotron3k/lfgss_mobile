@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.13
+- Fix issue with Following page initial load
+- Tweak primary colour in dark mode
+- Tri-spoke for Huddle notifications
+- Show avatars on Huddle tiles
+- Slightly better internal link parsing
+- Show last update timestamp on Huddle tiles, instead of created date
+- Bump dependencies
+
 ## v1.0.12
 - Select text & reply
 - Profile selector
