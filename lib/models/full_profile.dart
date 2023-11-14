@@ -3,6 +3,7 @@ import 'package:html_unescape/html_unescape_small.dart';
 import '../constants.dart';
 import '../services/microcosm_client.dart';
 import 'comment.dart';
+import 'flags.dart';
 import 'profile.dart';
 
 class FullProfile extends Profile {
@@ -10,6 +11,8 @@ class FullProfile extends Profile {
   final String? email; // only visible for self
   final int itemCount;
   final int commentCount;
+  @override
+  Flags flags;
 
   final DateTime lastActive;
   final Comment? profileComment;
@@ -26,6 +29,7 @@ class FullProfile extends Profile {
         created = DateTime.parse(json['created']),
         lastActive = DateTime.parse(json['lastActive']),
         member = json["member"],
+        flags = Flags.fromJson(json: json["meta"]["flags"]),
         profileComment = json["comment"] == null
             ? null
             : Comment.fromJson(json: json["comment"]),
@@ -36,13 +40,25 @@ class FullProfile extends Profile {
           visible: true,
         );
 
-  static Future<FullProfile> getProfile([int id = 0]) async {
+  static Future<FullProfile> getProfile([
+    int id = 0,
+    bool ignoreCache = false,
+  ]) async {
+    bool ignoreCache = false;
     Uri uri = Uri.parse(
       "https://$API_HOST/api/v1/${id == 0 ? 'whoami' : "profiles/$id"}",
     );
 
-    Map<String, dynamic> json = await MicrocosmClient().getJson(uri);
+    Map<String, dynamic> json = await MicrocosmClient().getJson(
+      uri,
+      ignoreCache: ignoreCache,
+    );
 
     return FullProfile.fromJson(json: json);
+  }
+
+  @override
+  Future<FullProfile> getFullProfile({bool ignoreCache = false}) async {
+    return this;
   }
 }

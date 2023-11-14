@@ -2,10 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:intl/intl.dart';
-import 'package:lfgss_mobile/widgets/time_ago.dart';
 
 import '../../models/huddle.dart';
 import '../screens/future_screen.dart';
+import '../time_ago.dart';
 
 class HuddleTile extends StatefulWidget {
   final Huddle huddle;

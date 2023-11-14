@@ -5,14 +5,16 @@ import '../../models/profile.dart';
 import 'profile_selector.dart';
 
 class ParticipantSelector extends StatefulWidget {
-  final String? Function(Set<Profile>?) validator;
-  final Function(Set<Profile>) onChanged;
-
   const ParticipantSelector({
     super.key,
     required this.validator,
     required this.onChanged,
+    this.initialParticipants = const {},
   });
+
+  final String? Function(Set<Profile>?) validator;
+  final Function(Set<Profile>) onChanged;
+  final Set<Profile> initialParticipants;
 
   @override
   State<ParticipantSelector> createState() => _ParticipantSelectorState();
@@ -20,6 +22,12 @@ class ParticipantSelector extends StatefulWidget {
 
 class _ParticipantSelectorState extends State<ParticipantSelector> {
   final Set<Profile> _selectedParticipants = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedParticipants.addAll(widget.initialParticipants);
+  }
 
   @override
   Widget build(BuildContext context) {

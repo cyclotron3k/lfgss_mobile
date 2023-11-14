@@ -3,6 +3,7 @@ import 'package:html_unescape/html_unescape_small.dart';
 
 import '../constants.dart';
 import '../core/item.dart';
+import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/profile_tile.dart';
 import 'flags.dart';
 import 'full_profile.dart';
@@ -33,8 +34,40 @@ class Profile implements Item {
         : _avatar;
   }
 
-  Future<FullProfile> getFullProfile() async {
-    return FullProfile.getProfile(id);
+  Future<bool> get isBlocked async {
+    return false;
+  }
+
+  Future<void> ignore() async {
+    var uri = Uri.https(
+      API_HOST,
+      "/api/v1/ignored",
+    );
+
+    await MicrocosmClient().put(uri, {
+      "itemType": "profile",
+      "itemId": id,
+    });
+
+    return;
+  }
+
+  Future<void> unignore() async {
+    var uri = Uri.https(
+      API_HOST,
+      "/api/v1/ignored",
+    );
+
+    await MicrocosmClient().delete(uri, {
+      "itemType": "profile",
+      "itemId": id,
+    });
+
+    return;
+  }
+
+  Future<FullProfile> getFullProfile({bool ignoreCache = false}) async {
+    return FullProfile.getProfile(id, ignoreCache);
   }
 
   @override

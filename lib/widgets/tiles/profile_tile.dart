@@ -2,8 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/profile.dart';
-import '../../models/full_profile.dart';
-import '../screens/profile_screen.dart';
+import '../profile_sheet.dart';
 
 class ProfileTile extends StatelessWidget {
   const ProfileTile({
@@ -13,22 +12,21 @@ class ProfileTile extends StatelessWidget {
 
   final Profile profile;
 
+  Future<void> _showProfileModal(BuildContext context) =>
+      showModalBottomSheet<void>(
+        enableDrag: true,
+        showDragHandle: true,
+        context: context,
+        builder: (BuildContext context) => ProfileSheet(
+          profile: profile,
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              fullscreenDialog: true,
-              maintainState: true,
-              builder: (context) => ProfileScreen(
-                profile: FullProfile.getProfile(profile.id),
-              ),
-            ),
-          );
-        },
+        onTap: () => _showProfileModal(context),
         child: ListTile(
           leading: (profile.avatar.isEmpty
               ? const Icon(

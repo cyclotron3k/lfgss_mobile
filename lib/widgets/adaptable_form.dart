@@ -39,6 +39,7 @@ enum ItemType {
 class AdaptableForm extends StatefulWidget {
   final OperationType defaultOperationType;
   final List<SharedMediaFile> initialAttachments;
+  final Set<Profile> initialParticipants;
   final Microcosm? initialMicrocosm;
   final bool lock;
 
@@ -48,6 +49,7 @@ class AdaptableForm extends StatefulWidget {
   const AdaptableForm({
     super.key,
     this.initialAttachments = const [],
+    this.initialParticipants = const {},
     this.initialMicrocosm,
     this.lock = false,
     this.defaultOperationType = OperationType.conversationComment,
@@ -98,6 +100,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
 
     _selectedMicrocosm = widget.initialMicrocosm;
     _attachments = widget.initialAttachments.map((e) => XFile(e.path)).toList();
+    _selectedParticipants = widget.initialParticipants;
   }
 
   void _updateItemTypeSelector() {
@@ -379,6 +382,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
             }
           },
           onChanged: (val) => _selectedParticipants = val,
+          initialParticipants: _selectedParticipants,
         ),
         const SizedBox(height: 8.0),
         TextFormField(

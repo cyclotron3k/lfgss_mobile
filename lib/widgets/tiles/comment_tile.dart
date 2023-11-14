@@ -16,6 +16,7 @@ import '../../services/settings.dart';
 import '../image_gallery.dart';
 import '../maybe_image.dart';
 import '../missing_image.dart';
+import '../profile_sheet.dart';
 import '../swipeable.dart';
 import '../time_ago.dart';
 import '../tweet.dart';
@@ -326,37 +327,8 @@ class _CommentTileState extends State<CommentTile> {
         enableDrag: true,
         showDragHandle: true,
         context: context,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(20.0),
-          ),
+        builder: (BuildContext context) => ProfileSheet(
+          profile: widget.comment.createdBy,
         ),
-        builder: (BuildContext context) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                CachedNetworkImage(
-                  imageUrl: widget.comment.createdBy.avatar,
-                  width: 256.0,
-                  height: 256.0,
-                  errorWidget: (context, url, error) => const Icon(
-                    Icons.person_outline,
-                  ),
-                ),
-                Text(
-                  widget.comment.createdBy.profileName,
-                ),
-                ElevatedButton(
-                  child: const Text(
-                    'Close',
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          );
-        },
       );
 }

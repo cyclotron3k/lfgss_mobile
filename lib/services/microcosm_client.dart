@@ -166,7 +166,7 @@ class MicrocosmClient {
     return data["data"];
   }
 
-  Future<http.Response> delete(Uri url) async {
+  Future<http.Response> delete(Uri url, [Object? body]) async {
     return http.delete(
       url,
       headers: <String, String>{
@@ -174,6 +174,7 @@ class MicrocosmClient {
         'Content-Type': 'application/json',
         'Authorization': "Bearer $accessToken",
       },
+      body: jsonEncode(body),
     );
   }
 
@@ -207,7 +208,7 @@ class MicrocosmClient {
             host: API_HOST,
           );
         }
-        log("Completed post. Redirecting to: $redirect");
+        log("Completed PUT. Redirecting to: $redirect");
         return getJson(redirect, ignoreCache: true);
       } else {
         return {};
@@ -229,6 +230,7 @@ class MicrocosmClient {
 
   Future<http.Response> put(Uri url, Object body) async {
     String jsonBody = jsonEncode(body);
+    log("PUTting $jsonBody");
     return http.put(
       url,
       headers: <String, String>{

@@ -8,9 +8,9 @@ import '../models/event.dart';
 import '../models/full_profile.dart';
 import '../models/search.dart';
 import '../widgets/link_preview.dart';
+import '../widgets/profile_sheet.dart';
 import '../widgets/screens/future_screen.dart';
 import '../widgets/screens/future_search_results_screen.dart';
-import '../widgets/screens/profile_screen.dart';
 
 class LinkParser {
   static final List<String> validSchemes = ['https', 'http', 'mailto', 'tel'];
@@ -36,21 +36,22 @@ class LinkParser {
 
   static Future<void> _parse(BuildContext context, String link, Uri uri) async {
     if (profileMatcher.hasMatch(link)) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          fullscreenDialog: true,
-          maintainState: true,
-          builder: (context) => ProfileScreen(
-            profile: FullProfile.getProfile(
-              int.parse(
-                profileMatcher.firstMatch(link)![1]!,
-              ),
-            ),
-          ),
+      var fp = await FullProfile.getProfile(
+        int.parse(
+          profileMatcher.firstMatch(link)![1]!,
+        ),
+        true,
+      );
+      if (!context.mounted) return;
+
+      return showModalBottomSheet<void>(
+        enableDrag: true,
+        showDragHandle: true,
+        context: context,
+        builder: (BuildContext context) => ProfileSheet(
+          profile: fp,
         ),
       );
-      return;
     } else if (searchMatcher.hasMatch(link)) {
       await Navigator.push(
         context,

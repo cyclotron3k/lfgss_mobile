@@ -4,6 +4,7 @@ class Flags {
   final bool deleted;
   final bool moderated;
   final bool visible;
+  bool ignored;
   bool unread;
   bool watched;
   bool sendEmail;
@@ -17,6 +18,7 @@ class Flags {
     this.visible = false,
     this.unread = false,
     this.watched = false,
+    this.ignored = false,
     this.sendEmail = false,
     this.sendSMS = false,
   });
@@ -29,6 +31,7 @@ class Flags {
         visible = json['visible'] ?? false,
         unread = json['unread'] ?? false,
         watched = json['watched'] ?? false,
+        ignored = json['ignored'] ?? false,
         sendEmail = json['sendEmail'] ?? false,
         sendSMS = json['sendSMS'] ?? false;
 }
