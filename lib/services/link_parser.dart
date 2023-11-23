@@ -17,13 +17,13 @@ class LinkParser {
   static final RegExp profileMatcher = RegExp(r'^/profiles/(\d+)$');
   static final RegExp searchMatcher = RegExp(r'^/search/');
   static final RegExp commentMatcher = RegExp(
-    r'^(?:/api/v1)?/comments/(\d+)/(?:incontext)?$',
+    r'^(?:/api/v1)?/comments/(\d+)(?:/incontext)?/?$',
   );
   static final RegExp conversationMatcher = RegExp(
-    r'^(?:/api/v1)?/conversations/(\d+)(?:(?:/newest)?/)?$',
+    r'^(?:/api/v1)?/conversations/(\d+)(?:/newest)?/?$',
   );
   static final RegExp eventMatcher = RegExp(
-    r'^(?:/api/v1)?/events/(\d+)(?:(?:/newest)?/)?$',
+    r'^(?:/api/v1)?/events/(\d+)(?:/newest)?/?$',
   );
 
   static Future<void> parseLink(BuildContext context, String link) async {

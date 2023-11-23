@@ -268,37 +268,37 @@ class _ProfileSheetState extends State<ProfileSheet> {
             ),
           ],
         ),
-        fp.flags.ignored
-            ? OutlinedButton.icon(
-                style: const ButtonStyle(
-                  foregroundColor: MaterialStatePropertyAll(
-                    Colors.red,
-                  ),
-                ),
-                onPressed: _active ? null : () => _unignore(context, fp),
-                icon: _active
-                    ? const SizedBox.square(
-                        dimension: 24.0,
-                        child: CircularProgressIndicator(),
-                      )
-                    : const Icon(Icons.block),
-                label: const Text("Unignore"),
-              )
-            : FilledButton.icon(
-                style: const ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(
-                    Colors.red,
-                  ),
-                ),
-                onPressed: _active ? null : () => _ignore(context, fp),
-                icon: _active
-                    ? const SizedBox.square(
-                        dimension: 24.0,
-                        child: CircularProgressIndicator(),
-                      )
-                    : const Icon(Icons.block),
-                label: const Text("Ignore"),
-              ),
+        // fp.flags.ignored
+        //     ? OutlinedButton.icon(
+        //         style: const ButtonStyle(
+        //           foregroundColor: MaterialStatePropertyAll(
+        //             Colors.red,
+        //           ),
+        //         ),
+        //         onPressed: _active ? null : () => _unignore(context, fp),
+        //         icon: _active
+        //             ? const SizedBox.square(
+        //                 dimension: 24.0,
+        //                 child: CircularProgressIndicator(),
+        //               )
+        //             : const Icon(Icons.block),
+        //         label: const Text("Unignore"),
+        //       )
+        //     : FilledButton.icon(
+        //         style: const ButtonStyle(
+        //           backgroundColor: MaterialStatePropertyAll(
+        //             Colors.red,
+        //           ),
+        //         ),
+        //         onPressed: _active ? null : () => _ignore(context, fp),
+        //         icon: _active
+        //             ? const SizedBox.square(
+        //                 dimension: 24.0,
+        //                 child: CircularProgressIndicator(),
+        //               )
+        //             : const Icon(Icons.block),
+        //         label: const Text("Ignore"),
+        //       ),
         FilledButton.icon(
           onPressed: () => _sendMessage(context),
           icon: const Icon(Icons.mail_outline),
