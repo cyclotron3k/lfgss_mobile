@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.14
+- Fix link parsers
+- Refresh profile bottom sheet
+
 ## v1.0.13
 - Fix issue with Following page initial load
 - Tweak primary colour in dark mode
