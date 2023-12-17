@@ -42,7 +42,7 @@ class _HuddleTileState extends State<HuddleTile> {
                   size: 28,
                 )
               : const Icon(
-                  Icons.chat_outlined,
+                  Icons.mail_outline,
                   size: 28,
                 )),
           title: Row(
