@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+- Better icon on Huddle tiles
+- KeepAlive comments containing tweets
+
 ## v1.0.14
 - Fix link parsers
 - Refresh profile bottom sheet

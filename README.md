@@ -3,6 +3,7 @@
 ## TODO
 
 - Edit comment
+- Edit Conversation/Event title
 - Native login
 - Tidy Following page
 - Auto-refresh Following page

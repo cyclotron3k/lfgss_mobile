@@ -30,7 +30,8 @@ class CommentTile extends StatefulWidget {
   State<CommentTile> createState() => _CommentTileState();
 }
 
-class _CommentTileState extends State<CommentTile> {
+class _CommentTileState extends State<CommentTile>
+    with AutomaticKeepAliveClientMixin {
   late final Document _doc;
   late final Document _orig;
 
@@ -39,6 +40,11 @@ class _CommentTileState extends State<CommentTile> {
   bool _replyActivated = false;
   bool _swipingEnabled = false;
   String _selectedText = "";
+
+  bool _tweetsPresent = false;
+
+  @override
+  bool get wantKeepAlive => _tweetsPresent;
 
   @override
   void initState() {
@@ -59,6 +65,7 @@ class _CommentTileState extends State<CommentTile> {
       // There are soft hyphens in the text, to help layout, but it doesn't help us
       final cleaned = anchor.text.replaceAll('\xad', '');
       if (!tweetMatcher.hasMatch(cleaned)) continue;
+      _tweetsPresent = true;
       anchor.replaceWith(
         Element.html('<tweet>$cleaned</tweet>'),
       );
@@ -67,6 +74,7 @@ class _CommentTileState extends State<CommentTile> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(
       children: [
         const Divider(),
