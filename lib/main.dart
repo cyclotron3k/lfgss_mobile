@@ -5,6 +5,7 @@ import 'package:timezone/data/latest_all.dart';
 
 import 'notifications.dart';
 import 'services/microcosm_client.dart';
+import 'services/observer_utils.dart';
 import 'services/settings.dart';
 import 'widgets/screens/home_screen.dart';
 
@@ -68,6 +69,7 @@ class LfgssMobile extends StatelessWidget {
           theme: lightTheme,
           darkTheme: darkTheme,
           home: const HomeScreen(title: 'LFGSS'),
+          navigatorObservers: [ObserverUtils.routeObserver],
         );
       },
     );

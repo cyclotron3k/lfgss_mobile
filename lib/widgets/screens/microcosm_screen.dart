@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/microcosm.dart';
 import '../../services/microcosm_client.dart';
+import '../../services/observer_utils.dart';
 import '../adaptable_form.dart';
 import 'search_screen.dart';
 
@@ -16,7 +17,29 @@ class MicrocosmScreen extends StatefulWidget {
   State<MicrocosmScreen> createState() => _MicrocosmScreenState();
 }
 
-class _MicrocosmScreenState extends State<MicrocosmScreen> {
+class _MicrocosmScreenState extends State<MicrocosmScreen> with RouteAware {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ObserverUtils.routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    ObserverUtils.routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() async {
+    await _refreshScreen();
+  }
+
+  Future<void> _refreshScreen() async {
+    await widget.microcosm.resetChildren();
+    if (context.mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final Widget? fab =
@@ -46,10 +69,7 @@ class _MicrocosmScreenState extends State<MicrocosmScreen> {
     return Scaffold(
       floatingActionButton: fab,
       body: RefreshIndicator(
-        onRefresh: () async {
-          await widget.microcosm.resetChildren();
-          if (context.mounted) setState(() {});
-        },
+        onRefresh: _refreshScreen,
         child: CustomScrollView(
           // cacheExtent: 400.0,
           slivers: <Widget>[

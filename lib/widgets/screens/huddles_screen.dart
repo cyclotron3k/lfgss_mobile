@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/huddles.dart';
 import '../../models/search_parameters.dart';
 import '../../services/microcosm_client.dart';
+import '../../services/observer_utils.dart';
 import '../adaptable_form.dart';
 import 'search_screen.dart';
 
@@ -17,7 +18,29 @@ class HuddlesScreen extends StatefulWidget {
   State<HuddlesScreen> createState() => _HuddlesScreenState();
 }
 
-class _HuddlesScreenState extends State<HuddlesScreen> {
+class _HuddlesScreenState extends State<HuddlesScreen> with RouteAware {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ObserverUtils.routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    ObserverUtils.routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() async {
+    await _refreshScreen();
+  }
+
+  Future<void> _refreshScreen() async {
+    await widget.huddles.resetChildren();
+    if (context.mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final Widget? fab = MicrocosmClient().loggedIn
@@ -43,10 +66,7 @@ class _HuddlesScreenState extends State<HuddlesScreen> {
     return Scaffold(
       floatingActionButton: fab,
       body: RefreshIndicator(
-        onRefresh: () async {
-          await widget.huddles.resetChildren();
-          if (context.mounted) setState(() {});
-        },
+        onRefresh: _refreshScreen,
         child: CustomScrollView(
           // cacheExtent: 400.0,
           slivers: <Widget>[

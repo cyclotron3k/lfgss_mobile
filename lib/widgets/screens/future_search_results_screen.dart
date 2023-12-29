@@ -7,11 +7,14 @@ class FutureSearchResultsScreen extends StatefulWidget {
   final Future<Search> search;
   final String? title;
   final bool showSummary;
+  final bool autoUpdate;
+
   const FutureSearchResultsScreen({
     super.key,
     required this.search,
     this.title,
     this.showSummary = true,
+    this.autoUpdate = false,
   });
 
   @override
@@ -30,6 +33,7 @@ class _FutureSearchResultsScreenState extends State<FutureSearchResultsScreen> {
             search: snapshot.data!,
             title: widget.title,
             showSummary: widget.showSummary,
+            autoUpdate: widget.autoUpdate,
           );
         } else if (snapshot.hasError) {
           return Center(

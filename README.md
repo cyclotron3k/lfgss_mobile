@@ -36,6 +36,7 @@
 - Use FlutterSecureStorage?
 - Blurha.sh shader?
 - Pre-populate Profile Popup with thread-participants
+- Extra-wide attachments layout
 
 ## TBD
 

@@ -3,6 +3,7 @@
 ## Next
 - Better icon on Huddle tiles
 - KeepAlive comments containing tweets
+- Refresh main screens on navigation events
 
 ## v1.0.14
 - Fix link parsers
