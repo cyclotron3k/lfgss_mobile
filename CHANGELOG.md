@@ -1,9 +1,11 @@
 # Changelog
 
-## Next
-- Better icon on Huddle tiles
+## v1.0.15
 - KeepAlive comments containing tweets
 - Refresh main screens on navigation events
+- Better rendering of Comments in search results
+- Page dividers
+- Better icon on Huddle tiles
 
 ## v1.0.14
 - Fix link parsers
