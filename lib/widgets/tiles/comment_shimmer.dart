@@ -14,7 +14,6 @@ class CommmentShimmer extends StatelessWidget {
         child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Divider(),
         Row(
           children: [
             Padding(

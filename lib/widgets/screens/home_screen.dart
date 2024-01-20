@@ -137,6 +137,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         search: _today,
         title: "Today",
         showSummary: false,
+        autoUpdate: true,
       ),
       MicrocosmClient().loggedIn
           ? FutureUpdatesScreen(updates: _following!)

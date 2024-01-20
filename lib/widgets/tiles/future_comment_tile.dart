@@ -28,7 +28,7 @@ class _FutureCommentTileState extends State<FutureCommentTile> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             Comment comment = snapshot.data! as Comment;
-            return comment.renderAsTile(
+            return comment.renderAsSingleComment(
               highlight: comment.id == widget.highlight,
             );
           } else if (snapshot.hasError) {

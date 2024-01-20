@@ -218,7 +218,7 @@ class Conversation implements CommentableItem {
   Widget childTile(int i) {
     if (_children.containsKey(i)) {
       var comment = _children[i]!;
-      return comment.renderAsTile(highlight: highlight == comment.id);
+      return comment.renderAsSingleComment(highlight: highlight == comment.id);
     }
     return FutureCommentTile(
       comment: getChild(i),

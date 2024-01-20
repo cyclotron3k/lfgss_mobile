@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../models/comment.dart';
+import '../core/commentable.dart';
 import '../core/item.dart';
+import '../widgets/tiles/comment_tile.dart';
 import 'flags.dart';
 import 'item_parser.dart' hide Json;
 
@@ -38,7 +41,18 @@ class SearchResult implements Item {
 
   @override
   Widget renderAsTile({bool? overrideUnreadFlag}) {
-    return child.renderAsTile(overrideUnreadFlag: overrideUnreadFlag ?? unread);
+    if (parent != null && child.runtimeType == Comment) {
+      return CommentTile(
+        comment: child as Comment,
+        context: parent as CommentableItem,
+        highlight: highlight,
+        overrideUnreadFlag: overrideUnreadFlag ?? unread,
+      );
+    } else {
+      return child.renderAsTile(
+        overrideUnreadFlag: overrideUnreadFlag ?? unread,
+      );
+    }
   }
 
   @override

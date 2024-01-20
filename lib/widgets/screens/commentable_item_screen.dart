@@ -62,6 +62,29 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
         "Tried to create a header element for a ${widget.item.runtimeType} which doesn't have a handler defined.");
   }
 
+  Widget _pageDivider(int index) {
+    if (index % 25 == 0) {
+      return Row(
+        children: [
+          const Expanded(child: Divider(endIndent: 8.0)),
+          Text(
+            "Page ${index ~/ 25 + 1} of ${widget.item.totalChildren ~/ 25 + 1}",
+            style: TextStyle(
+              fontStyle: FontStyle.italic,
+              color: Theme.of(context).dividerColor,
+            ),
+          ),
+          const Expanded(
+              child: Divider(
+            indent: 8.0,
+          )),
+        ],
+      );
+    } else {
+      return const Divider();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     int forwardItemCount =
@@ -73,7 +96,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
         if (forwardItemCount == index) {
           return Column(
             children: [
-              const Divider(),
+              _pageDivider(index),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 28.0),
                 child: Center(
@@ -87,16 +110,26 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
             ],
           );
         }
-        return widget.item.childTile(
-          widget.item.startPage * PAGE_SIZE + index,
+        return Column(
+          children: [
+            _pageDivider(widget.item.startPage * PAGE_SIZE + index),
+            widget.item.childTile(
+              widget.item.startPage * PAGE_SIZE + index,
+            ),
+          ],
         );
       },
       itemCount: forwardItemCount + 1,
     );
 
     Widget reverseList = SliverList.builder(
-      itemBuilder: (BuildContext context, int index) => widget.item.childTile(
-        widget.item.startPage * PAGE_SIZE - index - 1,
+      itemBuilder: (BuildContext context, int index) => Column(
+        children: [
+          _pageDivider(widget.item.startPage * PAGE_SIZE - index - 1),
+          widget.item.childTile(
+            widget.item.startPage * PAGE_SIZE - index - 1,
+          ),
+        ],
       ),
       itemCount: widget.item.startPage * PAGE_SIZE,
     );

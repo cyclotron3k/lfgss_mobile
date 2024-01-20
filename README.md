@@ -59,3 +59,4 @@
 - popup profile selector code
   - roll into custom controller?
   - abstract word boundary code
+- move "getByCommentId" into CommentableItem?
