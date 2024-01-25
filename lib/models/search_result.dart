@@ -41,7 +41,7 @@ class SearchResult implements Item {
 
   @override
   Widget renderAsTile({bool? overrideUnreadFlag}) {
-    if (parent != null && child.runtimeType == Comment) {
+    if (parent != null && child is Comment) {
       return CommentTile(
         comment: child as Comment,
         context: parent as CommentableItem,

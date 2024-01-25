@@ -36,8 +36,11 @@ class _SingleCommentState extends State<SingleComment>
   late final Document _doc;
   late final Document _orig;
 
-  late final bool _showEdited;
-  late final bool _showReplied;
+  late final bool _edited;
+  late final bool _reply;
+  late final bool _empty;
+  late final bool _deleted;
+
   bool _replyActivated = false;
   bool _swipingEnabled = false;
   String _selectedText = "";
@@ -53,8 +56,10 @@ class _SingleCommentState extends State<SingleComment>
 
     _swipingEnabled = context.read<ReplyNotifier?>() != null;
 
-    _showEdited = widget.comment.revisions > 1;
-    _showReplied = widget.comment.links.containsKey("inReplyToAuthor");
+    _edited = widget.comment.revisions > 1;
+    _reply = widget.comment.links.containsKey("inReplyToAuthor");
+    _empty = widget.comment.markdown == ".";
+    _deleted = _empty && !widget.comment.hasAttachments();
 
     final RegExp tweetMatcher = RegExp(
       r'^https://(twitter|x)\.com/\w+/status/\d+',
@@ -144,120 +149,126 @@ class _SingleCommentState extends State<SingleComment>
           // key: ValueKey(widget.comment.id),
           children: [
             _titleBar(context),
-            Consumer<Settings>(
-              builder: (context, settings, _) => SelectionArea(
-                onSelectionChanged: (value) =>
-                    _selectedText = value?.plainText ?? "",
-                contextMenuBuilder: (innerContext, selectableRegionState) =>
-                    AdaptiveTextSelectionToolbar(
-                  anchors: selectableRegionState.contextMenuAnchors,
-                  children: AdaptiveTextSelectionToolbar.getAdaptiveButtons(
-                    innerContext,
-                    [
-                      ...selectableRegionState.contextMenuButtonItems,
-                      if (_swipingEnabled)
-                        ContextMenuButtonItem(
-                            label: "Reply",
-                            onPressed: () {
-                              context.read<ReplyNotifier?>()?.setReplyTarget(
-                                    widget.comment,
-                                    text: _selectedText,
-                                  );
-                              ContextMenuController.removeAny();
-                            }),
-                    ],
-                  ).toList(),
-                ),
-                child: Html.fromDom(
-                  document: (settings.getBool(
-                            "embedTweets",
-                          ) ??
-                          true)
-                      ? _doc
-                      : _orig,
-                  // data: widget.comment.html,
-                  onLinkTap: (
-                    String? url,
-                    Map<String, String> attributes,
-                    element, // From 'package:html/dom.dart', not material
-                  ) async {
-                    await LinkParser.parseLink(context, url ?? "");
-                  },
-                  extensions: [
-                    if (settings.getBool('embedYouTube') ?? true)
-                      const IframeHtmlExtension(),
-                    ImageExtension(
-                      handleNetworkImages: true,
-                      handleAssetImages: false,
-                      handleDataImages: false,
-                      builder: (ExtensionContext ec) {
-                        return GestureDetector(
-                          onTap: () async {
-                            await Navigator.of(context).push(
-                              ImageGallery(
-                                url: ec.attributes["src"]!,
-                                heroTag: ec.attributes["src"]!,
-                              ),
-                            );
-                          },
-                          child: MaybeImage(
-                            imageUrl: ec.attributes["src"]!,
-                            imageBuilder: (context, imageProvider) => ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: Image(image: imageProvider),
-                            ),
-                            errorWidget: (context, url, error) =>
-                                const SizedBox(
-                              width: 64,
-                              child: MissingImage(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    TagExtension(
-                      tagsToExtend: {"tweet"},
-                      builder: (context) => Tweet(url: context.innerHtml),
-                    ),
-                  ],
-                  style: {
-                    "img": Style(
-                      padding: HtmlPaddings.only(
-                        top: 10.0,
-                        bottom: 10.0,
-                      ),
-                    ),
-                    "blockquote": Style(
-                      padding: HtmlPaddings.only(
-                        left: 10.0,
-                      ),
-                      margin: Margins(left: Margin(0.0)),
-                      // backgroundColor: Colors.grey[100],
-                      border: const Border(
-                        left: BorderSide(color: Colors.grey, width: 4.0),
-                      ),
-                      fontStyle: FontStyle.italic,
-                      color: Theme.of(context).primaryColorLight,
-                    ),
-                    "a": Style.fromTextStyle(
-                      const TextStyle(
-                        // See: https://github.com/Sub6Resources/flutter_html/issues/1361
-                        decorationColor: Colors.blue,
-                      ),
-                    ),
-                    "body": Style(
-                      // TODO: Workaround for the above issue. Remove when resolved
-                      textDecorationColor: Colors.blue,
-                    ),
-                  },
-                ),
-              ),
-            ),
+            _commentBody(),
             if (widget.comment.hasAttachments())
               widget.comment.getAttachments(context: context),
           ],
         ),
       ],
+    );
+  }
+
+  Widget _commentBody() {
+    if (_empty) {
+      return const SizedBox();
+    }
+
+    return Consumer<Settings>(
+      builder: (context, settings, _) => SelectionArea(
+        onSelectionChanged: (value) => _selectedText = value?.plainText ?? "",
+        contextMenuBuilder: (innerContext, selectableRegionState) =>
+            AdaptiveTextSelectionToolbar(
+          anchors: selectableRegionState.contextMenuAnchors,
+          children: AdaptiveTextSelectionToolbar.getAdaptiveButtons(
+            innerContext,
+            [
+              ...selectableRegionState.contextMenuButtonItems,
+              if (_swipingEnabled)
+                ContextMenuButtonItem(
+                    label: "Reply",
+                    onPressed: () {
+                      context.read<ReplyNotifier?>()?.setReplyTarget(
+                            widget.comment,
+                            text: _selectedText,
+                          );
+                      ContextMenuController.removeAny();
+                    }),
+            ],
+          ).toList(),
+        ),
+        child: Html.fromDom(
+          document: (settings.getBool(
+                    "embedTweets",
+                  ) ??
+                  true)
+              ? _doc
+              : _orig,
+          // data: widget.comment.html,
+          onLinkTap: (
+            String? url,
+            Map<String, String> attributes,
+            element, // From 'package:html/dom.dart', not material
+          ) async {
+            await LinkParser.parseLink(context, url ?? "");
+          },
+          extensions: [
+            if (settings.getBool('embedYouTube') ?? true)
+              const IframeHtmlExtension(),
+            ImageExtension(
+              handleNetworkImages: true,
+              handleAssetImages: false,
+              handleDataImages: false,
+              builder: (ExtensionContext ec) {
+                return GestureDetector(
+                  onTap: () async {
+                    await Navigator.of(context).push(
+                      ImageGallery(
+                        url: ec.attributes["src"]!,
+                        heroTag: ec.attributes["src"]!,
+                      ),
+                    );
+                  },
+                  child: MaybeImage(
+                    imageUrl: ec.attributes["src"]!,
+                    imageBuilder: (context, imageProvider) => ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image(image: imageProvider),
+                    ),
+                    errorWidget: (context, url, error) => const SizedBox(
+                      width: 64,
+                      child: MissingImage(),
+                    ),
+                  ),
+                );
+              },
+            ),
+            TagExtension(
+              tagsToExtend: {"tweet"},
+              builder: (context) => Tweet(url: context.innerHtml),
+            ),
+          ],
+          style: {
+            "img": Style(
+              padding: HtmlPaddings.only(
+                top: 10.0,
+                bottom: 10.0,
+              ),
+            ),
+            "blockquote": Style(
+              padding: HtmlPaddings.only(
+                left: 10.0,
+              ),
+              margin: Margins(left: Margin(0.0)),
+              // backgroundColor: Colors.grey[100],
+              border: const Border(
+                left: BorderSide(color: Colors.grey, width: 4.0),
+              ),
+              fontStyle: FontStyle.italic,
+              color: Theme.of(context).primaryColorLight,
+            ),
+            "a": Style.fromTextStyle(
+              const TextStyle(
+                // See: https://github.com/Sub6Resources/flutter_html/issues/1361
+                decorationColor: Colors.blue,
+              ),
+            ),
+            "body": Style(
+              // TODO: Workaround for the above issue. Remove when resolved
+              textDecorationColor: Colors.blue,
+            ),
+          },
+        ),
+      ),
     );
   }
 
@@ -275,7 +286,7 @@ class _SingleCommentState extends State<SingleComment>
           ),
         ),
         Expanded(
-          flex: _showReplied ? 2 : 1,
+          flex: _reply ? 2 : 1,
           child: Wrap(
             spacing: 4.0,
             children: [
@@ -283,9 +294,14 @@ class _SingleCommentState extends State<SingleComment>
                 onTap: () => _showProfileModal(context),
                 child: Text(
                   widget.comment.createdBy.profileName,
+                  style: TextStyle(
+                    color: (_deleted
+                        ? Colors.grey
+                        : Theme.of(context).textTheme.bodyMedium!.color),
+                  ),
                 ),
               ),
-              if (_showReplied)
+              if (_reply)
                 InkWell(
                   onTap: () async {
                     LinkParser.parseUri(
@@ -302,16 +318,17 @@ class _SingleCommentState extends State<SingleComment>
           ),
         ),
         Expanded(
-          flex: _showEdited ? 2 : 1,
+          flex: _edited ? 2 : 1,
           child: Wrap(
             runAlignment: WrapAlignment.end,
             alignment: WrapAlignment.end,
             spacing: 4.0,
             children: [
-              if (_showEdited)
-                const Text(
-                  "Edited •",
-                  style: TextStyle(
+              if (_edited)
+                Text(
+                  (_deleted ? "Deleted •" : "Edited •"),
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
                     color: Colors.grey,
                     fontStyle: FontStyle.italic,
                   ),

@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Handle "empty" comments better
+
 ## v1.0.15
 - KeepAlive comments containing tweets
 - Refresh main screens on navigation events
@@ -32,7 +35,6 @@
 - Fix: process Event URLs correctly
 - Fix: "X time ago" render issue
 - Fix: Show tooltip timestamps in local time
-
 
 ## v1.0.10
 - Navigate to Conversation or Huddle after successful comment
