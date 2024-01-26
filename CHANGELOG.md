@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## v1.0.16
+- Fix page number issue
 - Handle "empty" comments better
 
 ## v1.0.15
