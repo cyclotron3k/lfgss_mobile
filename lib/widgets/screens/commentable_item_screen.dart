@@ -96,7 +96,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
         if (forwardItemCount == index) {
           return Column(
             children: [
-              _pageDivider(index),
+              _pageDivider(-1),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 28.0),
                 child: Center(
