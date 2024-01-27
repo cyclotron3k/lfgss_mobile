@@ -68,7 +68,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
         children: [
           const Expanded(child: Divider(endIndent: 8.0)),
           Text(
-            "Page ${index ~/ 25 + 1} of ${widget.item.totalChildren ~/ 25 + 1}",
+            "Page ${index ~/ 25 + 1} of ${(widget.item.totalChildren - 1) ~/ 25 + 1}", // TODO fix
             style: TextStyle(
               fontStyle: FontStyle.italic,
               color: Theme.of(context).dividerColor,
