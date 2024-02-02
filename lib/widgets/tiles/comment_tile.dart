@@ -1,14 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:html_unescape/html_unescape_small.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/commentable.dart';
 import '../../models/comment.dart';
 import '../../services/link_parser.dart';
+import '../../services/settings.dart';
 import '../profile_sheet.dart';
 import '../screens/future_screen.dart';
 import '../time_ago.dart';
+import 'comment_html.dart';
 
 class CommentTile extends StatefulWidget {
   final Comment comment;
@@ -73,12 +75,14 @@ class _CommentTileState extends State<CommentTile> {
                     color: Colors.grey,
                   ),
                   const SizedBox(width: 4.0),
-                  Text(
-                    widget.context.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.start,
-                    style: const TextStyle(color: Colors.grey),
+                  Expanded(
+                    child: Text(
+                      widget.context.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.start,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
                   ),
                 ],
               ),
@@ -136,10 +140,30 @@ class _CommentTileState extends State<CommentTile> {
               ),
               const SizedBox(width: 8.0),
             ]),
-            Html(data: widget.highlight),
-            // SingleComment(comment: widget.comment),
+            _commentBody(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _commentBody() {
+    if (widget.highlight == "") {
+      return Consumer<Settings>(
+        builder: (context, settings, _) => CommentHtml(
+          html: widget.comment.html,
+          embedTweets: settings.getBool("embedTweets") ?? true,
+          embedYouTube: settings.getBool("embedYouTube") ?? true,
+          replyTarget: widget.comment,
+        ),
+      );
+    }
+
+    return Consumer<Settings>(
+      builder: (context, settings, _) => CommentHtml(
+        html: widget.highlight,
+        embedTweets: false,
+        embedYouTube: false,
       ),
     );
   }
