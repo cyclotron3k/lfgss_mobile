@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.17
+- Refactor Comment HTML rendering
+- Fix Comments in search results with no highlighting
+- Fix page numbering edge-case
+
 ## v1.0.16
 - Fix page number issue
 - Handle "empty" comments better

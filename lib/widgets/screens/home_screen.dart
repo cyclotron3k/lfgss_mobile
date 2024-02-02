@@ -333,7 +333,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       'assets/launcher_icon/foreground.png',
                     ),
                   ),
-                  applicationVersion: '1.0.16',
+                  applicationVersion: '1.0.17',
                   children: [
                     const Text("Built by me, Aidan Samuel"),
                     const Text("aka @cyclotron3k"),
