@@ -9,7 +9,13 @@ import '../time_ago.dart';
 
 class HuddleTile extends StatefulWidget {
   final Huddle huddle;
-  const HuddleTile({super.key, required this.huddle});
+  final bool? overrideUnreadFlag;
+
+  const HuddleTile({
+    super.key,
+    required this.huddle,
+    this.overrideUnreadFlag,
+  });
 
   @override
   State<HuddleTile> createState() => _HuddleTileState();
@@ -48,7 +54,7 @@ class _HuddleTileState extends State<HuddleTile> {
           title: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.huddle.flags.unread)
+              if (widget.overrideUnreadFlag ?? widget.huddle.flags.unread)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
                   child: Icon(

@@ -89,8 +89,11 @@ class Huddle implements CommentableItem {
     final bool lastPage = pageId == totalChildren ~/ PAGE_SIZE;
     final int ttl = lastPage ? 5 : 3600;
 
-    Json json =
-        await MicrocosmClient().getJson(uri, ttl: ttl, ignoreCache: force);
+    Json json = await MicrocosmClient().getJson(
+      uri,
+      ttl: ttl,
+      ignoreCache: force,
+    );
     parsePage(json);
   }
 
@@ -178,7 +181,10 @@ class Huddle implements CommentableItem {
 
   @override
   Widget renderAsTile({bool? overrideUnreadFlag}) {
-    return HuddleTile(huddle: this);
+    return HuddleTile(
+      huddle: this,
+      overrideUnreadFlag: overrideUnreadFlag,
+    );
   }
 
   @override

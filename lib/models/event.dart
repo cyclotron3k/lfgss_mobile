@@ -252,8 +252,11 @@ class Event implements CommentableItem {
 
     final bool lastPage = pageId == totalChildren ~/ PAGE_SIZE;
     final int ttl = pageId == 0 || lastPage ? 5 : 3600;
-    Json json =
-        await MicrocosmClient().getJson(uri, ttl: ttl, ignoreCache: force);
+    Json json = await MicrocosmClient().getJson(
+      uri,
+      ttl: ttl,
+      ignoreCache: force,
+    );
     parsePage(json);
   }
 

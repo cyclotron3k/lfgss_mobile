@@ -195,8 +195,11 @@ class Conversation implements CommentableItem {
     final bool lastPage = pageId == totalChildren ~/ PAGE_SIZE;
     final int ttl = lastPage ? 5 : 3600;
 
-    Json json =
-        await MicrocosmClient().getJson(uri, ttl: ttl, ignoreCache: force);
+    Json json = await MicrocosmClient().getJson(
+      uri,
+      ttl: ttl,
+      ignoreCache: force,
+    );
     parsePage(json);
   }
 
