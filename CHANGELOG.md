@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Update tray background images
+
 ## v1.0.17
 - Refactor Comment HTML rendering
 - Fix Comments in search results with no highlighting

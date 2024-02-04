@@ -47,9 +47,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   String? profileAvatar;
   String? profileEmail;
 
-  // late StreamSubscription _intentDataStreamSubscription;
-  // late List<SharedMediaFile> _sharedFiles;
-
   @override
   void initState() {
     super.initState();
@@ -257,6 +254,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkMode =
+        MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: Drawer(
@@ -264,16 +264,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: Text(profileName ?? "LFGSS"),
-              accountEmail: Text(profileEmail ?? ""),
+              accountName: Text(
+                profileName ?? "LFGSS",
+                style: const TextStyle(shadows: [Shadow(blurRadius: 48.0)]),
+              ),
+              accountEmail: Text(
+                profileEmail ?? "",
+                style: const TextStyle(shadows: [Shadow(blurRadius: 48.0)]),
+              ),
               currentAccountPicture: CachedNetworkImage(
                 imageUrl: profileAvatar ??
                     "https://lfgss.microcosm.app/api/v1/files/3967bb6b279adca3d4b8a174c1021f3d642c32fc.png",
               ),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/background.jpg'),
-                  fit: BoxFit.fill,
+                  image: AssetImage(
+                    isDarkMode
+                        ? "assets/images/background_dark.jpg"
+                        : "assets/images/background_light.jpg",
+                  ),
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
@@ -360,6 +370,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             style: const TextStyle(
                               color: Colors.blue,
                               decoration: TextDecoration.underline,
+                              decorationColor: Colors.blue,
                             ),
                           ),
                         ],
