@@ -42,7 +42,6 @@ class LfgssMobile extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(
             seedColor: const Color.fromARGB(255, 77, 134, 219),
           ),
-          useMaterial3: true,
           // textTheme: TextTheme(),
         );
 
@@ -53,7 +52,6 @@ class LfgssMobile extends StatelessWidget {
           ).copyWith(
             primary: const Color.fromARGB(255, 62, 166, 240),
           ),
-          useMaterial3: true,
         );
 
         String darkMode = settings.getString("darkMode") ?? "system";
