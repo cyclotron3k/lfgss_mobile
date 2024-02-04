@@ -24,8 +24,7 @@ class SingleComment extends StatefulWidget {
   State<SingleComment> createState() => _SingleCommentState();
 }
 
-class _SingleCommentState extends State<SingleComment>
-    with AutomaticKeepAliveClientMixin {
+class _SingleCommentState extends State<SingleComment> {
   late final bool _edited;
   late final bool _reply;
   late final bool _empty;
@@ -33,11 +32,6 @@ class _SingleCommentState extends State<SingleComment>
 
   bool _replyActivated = false;
   bool _swipingEnabled = false;
-
-  bool _tweetsPresent = false; // TODO: this is non-functional
-
-  @override
-  bool get wantKeepAlive => _tweetsPresent;
 
   @override
   void initState() {
@@ -52,47 +46,44 @@ class _SingleCommentState extends State<SingleComment>
   }
 
   @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return Swipeable(
-      direction:
-          _swipingEnabled ? SwipeDirection.startToEnd : SwipeDirection.none,
-      swipeThresholds: const {SwipeDirection.startToEnd: 0.18},
-      background: Container(
-        alignment: Alignment.centerLeft,
-        // color: Colors.green,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: AnimatedSize(
-            duration: const Duration(seconds: 1),
-            curve: Curves.elasticOut,
-            child: Icon(
-              Icons.reply,
-              size: _replyActivated ? 32.0 : 22,
-              color: _replyActivated ? Colors.green.shade300 : Colors.grey,
+  Widget build(BuildContext context) => Swipeable(
+        direction:
+            _swipingEnabled ? SwipeDirection.startToEnd : SwipeDirection.none,
+        swipeThresholds: const {SwipeDirection.startToEnd: 0.18},
+        background: Container(
+          alignment: Alignment.centerLeft,
+          // color: Colors.green,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: AnimatedSize(
+              duration: const Duration(seconds: 1),
+              curve: Curves.elasticOut,
+              child: Icon(
+                Icons.reply,
+                size: _replyActivated ? 32.0 : 22,
+                color: _replyActivated ? Colors.green.shade300 : Colors.grey,
+              ),
             ),
           ),
         ),
-      ),
-      onUpdate: (details) => setState(
-        () => _replyActivated = details.reached,
-      ),
-      onRelease: (details) {
-        setState(() {
-          if (details.reached) {
-            Provider.of<ReplyNotifier?>(
-              context,
-              listen: false,
-            )?.setReplyTarget(
-              widget.comment,
-            );
-          }
-        });
-      },
-      key: ObjectKey(widget.comment),
-      child: _body(context),
-    );
-  }
+        onUpdate: (details) => setState(
+          () => _replyActivated = details.reached,
+        ),
+        onRelease: (details) {
+          setState(() {
+            if (details.reached) {
+              Provider.of<ReplyNotifier?>(
+                context,
+                listen: false,
+              )?.setReplyTarget(
+                widget.comment,
+              );
+            }
+          });
+        },
+        key: ObjectKey(widget.comment),
+        child: _body(context),
+      );
 
   Widget _body(BuildContext context) {
     return Stack(

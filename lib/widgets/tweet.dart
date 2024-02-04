@@ -17,7 +17,8 @@ class Tweet extends StatefulWidget {
   State<Tweet> createState() => _TweetState();
 }
 
-class _TweetState extends State<Tweet> {
+class _TweetState extends State<Tweet>
+    with AutomaticKeepAliveClientMixin<Tweet> {
   late Future<Map<String, dynamic>> payload;
   late WebViewController controller;
   bool loading = true;
@@ -30,6 +31,9 @@ class _TweetState extends State<Tweet> {
     }
     return widget.url;
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -103,6 +107,8 @@ class _TweetState extends State<Tweet> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     if (loading) {
       return const Center(
         child: SizedBox(
