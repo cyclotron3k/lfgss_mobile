@@ -4,6 +4,7 @@
 - Refactor Comment HTML rendering
 - Fix Comments in search results with no highlighting
 - Fix page numbering edge-case
+- Fix "unread" dot for Huddles on Following screen
 
 ## v1.0.16
 - Fix page number issue
