@@ -94,8 +94,26 @@ class CommentAttachments {
             size: 64.0,
           );
         } else {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Container(
+                color: Colors.grey.shade800,
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxHeight: 32.0,
+                        maxWidth: 32.0,
+                      ),
+                      child: const CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           );
         }
       },

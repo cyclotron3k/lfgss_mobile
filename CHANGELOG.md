@@ -2,6 +2,7 @@
 
 ## Next
 - Update tray background images
+- Fix UI jank with vertical attachment layout
 
 ## v1.0.17
 - Refactor Comment HTML rendering
