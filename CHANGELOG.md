@@ -1,6 +1,6 @@
 # Changelog
 
-## Next
+## v1.0.18
 - Update tray background images
 - Fix UI jank with vertical attachment layout
 
