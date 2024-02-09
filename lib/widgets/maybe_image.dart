@@ -85,7 +85,7 @@ class MaybeImage extends StatefulWidget {
         child: Container(
           color: Colors.grey.shade800,
           child: AspectRatio(
-            aspectRatio: 4 / 3,
+            aspectRatio: 1,
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
@@ -150,7 +150,7 @@ class _MaybeImageState extends State<MaybeImage> {
                   child: Container(
                     color: Colors.grey.shade800,
                     child: AspectRatio(
-                      aspectRatio: 4 / 3,
+                      aspectRatio: 1,
                       child: InkWell(
                         child: const Center(
                           child: Icon(Icons.download),
@@ -165,7 +165,7 @@ class _MaybeImageState extends State<MaybeImage> {
               }
             } else {
               return const AspectRatio(
-                aspectRatio: 4 / 3,
+                aspectRatio: 1,
               );
             }
           },
