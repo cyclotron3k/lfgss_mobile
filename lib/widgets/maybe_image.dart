@@ -114,8 +114,9 @@ class _MaybeImageState extends State<MaybeImage> {
   }
 
   Future<bool> get _precached async {
-    final file =
-        await DefaultCacheManager().getFileFromCache(widget.cni.imageUrl);
+    final file = await DefaultCacheManager().getFileFromCache(
+      widget.cni.imageUrl,
+    );
     return file != null;
   }
 
