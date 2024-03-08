@@ -141,7 +141,11 @@ class Update implements Item {
   }
 
   @override
-  Widget renderAsTile({bool? overrideUnreadFlag}) {
+  Widget renderAsTile({
+    bool? overrideUnreadFlag,
+    bool? isReply,
+    bool? mentioned,
+  }) {
     return UpdateTile(update: this);
   }
 

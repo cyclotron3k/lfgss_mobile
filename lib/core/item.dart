@@ -8,5 +8,9 @@ abstract class Item {
   int get id;
   Flags get flags;
   Uri get selfUrl;
-  Widget renderAsTile({bool? overrideUnreadFlag});
+  Widget renderAsTile({
+    bool? overrideUnreadFlag,
+    bool? isReply,
+    bool? mentioned,
+  });
 }

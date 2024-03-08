@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lfgss_mobile/models/update_type.dart';
 
 import '../../models/update.dart';
 
@@ -36,6 +37,8 @@ class _UpdateTileState extends State<UpdateTile> {
         ),
         widget.update.parent.renderAsTile(
           overrideUnreadFlag: widget.update.flags.unread,
+          isReply: widget.update.updateType == UpdateType.reply_to_comment,
+          mentioned: widget.update.updateType == UpdateType.mentioned,
         ),
       ],
     );

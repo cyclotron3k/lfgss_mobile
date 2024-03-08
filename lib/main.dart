@@ -51,6 +51,7 @@ class LfgssMobile extends StatelessWidget {
             seedColor: const Color.fromARGB(255, 0x1e, 0x72, 0xc4),
           ).copyWith(
             primary: const Color.fromARGB(255, 62, 166, 240),
+            inversePrimary: Color.fromARGB(255, 236, 161, 20),
           ),
         );
 

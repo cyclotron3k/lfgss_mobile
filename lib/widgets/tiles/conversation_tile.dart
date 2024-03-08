@@ -9,11 +9,15 @@ import '../time_ago.dart';
 class ConversationTile extends StatefulWidget {
   final Conversation conversation;
   final bool? overrideUnreadFlag;
+  final bool? isReply;
+  final bool? mentioned;
 
   const ConversationTile({
     super.key,
     required this.conversation,
     this.overrideUnreadFlag,
+    this.isReply,
+    this.mentioned,
   });
 
   @override
@@ -41,16 +45,7 @@ class _ConversationTileState extends State<ConversationTile> {
           );
         },
         child: ListTile(
-          leading: (widget.conversation.flags.sticky
-              ? Icon(
-                  Icons.push_pin_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 28,
-                )
-              : const Icon(
-                  Icons.chat_outlined,
-                  size: 28,
-                )),
+          leading: leadingIcon(context),
           title: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -95,5 +90,32 @@ class _ConversationTileState extends State<ConversationTile> {
         ),
       ),
     );
+  }
+
+  Icon leadingIcon(BuildContext context) {
+    if (widget.isReply == true) {
+      return Icon(
+        color: Theme.of(context).colorScheme.inversePrimary,
+        Icons.reply_outlined,
+        size: 28,
+      );
+    } else if (widget.mentioned == true) {
+      return Icon(
+        color: Theme.of(context).colorScheme.inversePrimary,
+        Icons.alternate_email,
+        size: 28,
+      );
+    } else if (widget.conversation.flags.sticky) {
+      return Icon(
+        Icons.push_pin_outlined,
+        color: Theme.of(context).colorScheme.primary,
+        size: 28,
+      );
+    } else {
+      return const Icon(
+        Icons.chat_outlined,
+        size: 28,
+      );
+    }
   }
 }

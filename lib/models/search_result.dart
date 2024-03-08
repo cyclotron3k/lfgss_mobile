@@ -40,7 +40,11 @@ class SearchResult implements Item {
         highlight = json["highlight"];
 
   @override
-  Widget renderAsTile({bool? overrideUnreadFlag}) {
+  Widget renderAsTile({
+    bool? overrideUnreadFlag,
+    bool? isReply,
+    bool? mentioned,
+  }) {
     if (parent != null && child is Comment) {
       return CommentTile(
         comment: child as Comment,

@@ -71,7 +71,11 @@ class Profile implements Item {
   }
 
   @override
-  Widget renderAsTile({bool? overrideUnreadFlag}) {
+  Widget renderAsTile({
+    bool? overrideUnreadFlag,
+    bool? isReply,
+    bool? mentioned,
+  }) {
     return ProfileTile(profile: this);
   }
 

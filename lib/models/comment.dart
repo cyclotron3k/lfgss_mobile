@@ -78,7 +78,12 @@ class Comment implements Item, Authored {
   }
 
   @override
-  Widget renderAsTile({bool? overrideUnreadFlag, bool highlight = false}) {
+  Widget renderAsTile({
+    bool? overrideUnreadFlag,
+    bool? isReply,
+    bool? mentioned,
+    bool highlight = false,
+  }) {
     return const Placeholder(); // CommentTile(comment: this);
   }
 

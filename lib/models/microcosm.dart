@@ -159,7 +159,11 @@ class Microcosm implements PaginatedItem<Item>, Authored {
   }
 
   @override
-  Widget renderAsTile({bool? overrideUnreadFlag}) {
+  Widget renderAsTile({
+    bool? overrideUnreadFlag,
+    bool? isReply,
+    bool? mentioned,
+  }) {
     return MicrocosmTile(microcosm: this);
   }
 

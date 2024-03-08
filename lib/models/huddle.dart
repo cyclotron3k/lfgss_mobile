@@ -180,7 +180,11 @@ class Huddle implements CommentableItem {
   }
 
   @override
-  Widget renderAsTile({bool? overrideUnreadFlag}) {
+  Widget renderAsTile({
+    bool? overrideUnreadFlag,
+    bool? isReply,
+    bool? mentioned,
+  }) {
     return HuddleTile(
       huddle: this,
       overrideUnreadFlag: overrideUnreadFlag,

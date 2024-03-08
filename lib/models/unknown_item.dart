@@ -11,7 +11,11 @@ class UnknownItem implements Item {
   UnknownItem({required this.id, required this.type});
 
   @override
-  Widget renderAsTile({bool? overrideUnreadFlag}) {
+  Widget renderAsTile({
+    bool? overrideUnreadFlag,
+    bool? isReply,
+    bool? mentioned,
+  }) {
     return Card(
       surfaceTintColor: Colors.black,
       child: ListTile(

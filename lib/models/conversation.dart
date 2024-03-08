@@ -210,10 +210,16 @@ class Conversation implements CommentableItem {
   }
 
   @override
-  Widget renderAsTile({bool? overrideUnreadFlag}) {
+  Widget renderAsTile({
+    bool? overrideUnreadFlag,
+    bool? isReply,
+    bool? mentioned,
+  }) {
     return ConversationTile(
       conversation: this,
       overrideUnreadFlag: overrideUnreadFlag,
+      isReply: isReply,
+      mentioned: mentioned,
     );
   }
 
