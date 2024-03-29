@@ -7,7 +7,7 @@ import '../../models/huddle.dart';
 import '../screens/future_screen.dart';
 import '../time_ago.dart';
 
-class HuddleTile extends StatefulWidget {
+class HuddleTile extends StatelessWidget {
   final Huddle huddle;
   final bool? overrideUnreadFlag;
 
@@ -18,15 +18,10 @@ class HuddleTile extends StatefulWidget {
   });
 
   @override
-  State<HuddleTile> createState() => _HuddleTileState();
-}
-
-class _HuddleTileState extends State<HuddleTile> {
-  @override
   Widget build(BuildContext context) {
     final unescape = HtmlUnescape();
     return Card(
-      key: ValueKey(widget.huddle.id),
+      key: ValueKey(huddle.id),
       child: InkWell(
         onTap: () async {
           Navigator.push(
@@ -35,13 +30,13 @@ class _HuddleTileState extends State<HuddleTile> {
               fullscreenDialog: true,
               maintainState: true,
               builder: (context) => FutureScreen(
-                item: Huddle.getById(widget.huddle.id),
+                item: Huddle.getById(huddle.id),
               ),
             ),
           );
         },
         child: ListTile(
-          leading: (widget.huddle.flags.sticky
+          leading: (huddle.flags.sticky
               ? Icon(
                   Icons.push_pin_outlined,
                   color: Theme.of(context).colorScheme.primary,
@@ -54,7 +49,7 @@ class _HuddleTileState extends State<HuddleTile> {
           title: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.overrideUnreadFlag ?? widget.huddle.flags.unread)
+              if (overrideUnreadFlag ?? huddle.flags.unread)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
                   child: Icon(
@@ -65,7 +60,7 @@ class _HuddleTileState extends State<HuddleTile> {
                 ),
               Expanded(
                 child: Text(
-                  unescape.convert(widget.huddle.title),
+                  unescape.convert(huddle.title),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                 ),
@@ -80,7 +75,7 @@ class _HuddleTileState extends State<HuddleTile> {
                   spacing: 4.0,
                   runSpacing: 4.0,
                   children: [
-                    for (final profile in widget.huddle.participants)
+                    for (final profile in huddle.participants)
                       Tooltip(
                         message: profile.profileName,
                         child: CachedNetworkImage(
@@ -101,7 +96,7 @@ class _HuddleTileState extends State<HuddleTile> {
                   ],
                 ),
               ),
-              TimeAgo(widget.huddle.lastActivity ?? widget.huddle.created),
+              TimeAgo(huddle.lastActivity ?? huddle.created),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Icon(
@@ -112,7 +107,7 @@ class _HuddleTileState extends State<HuddleTile> {
               ),
               Text(
                 NumberFormat.compact().format(
-                  widget.huddle.totalChildren,
+                  huddle.totalChildren,
                 ),
               ),
             ],

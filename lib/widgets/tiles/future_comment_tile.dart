@@ -4,7 +4,7 @@ import '../../core/item.dart';
 import '../../models/comment.dart';
 import 'comment_shimmer.dart';
 
-class FutureCommentTile extends StatefulWidget {
+class FutureCommentTile extends StatelessWidget {
   final Future<Comment> comment;
   final int highlight;
   const FutureCommentTile({
@@ -14,22 +14,17 @@ class FutureCommentTile extends StatefulWidget {
   });
 
   @override
-  State<FutureCommentTile> createState() => _FutureCommentTileState();
-}
-
-class _FutureCommentTileState extends State<FutureCommentTile> {
-  @override
   Widget build(BuildContext context) {
     return AnimatedSize(
       duration: const Duration(milliseconds: 150),
       curve: Curves.easeInOut,
       child: FutureBuilder<Item>(
-        future: widget.comment,
+        future: comment,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             Comment comment = snapshot.data! as Comment;
             return comment.renderAsSingleComment(
-              highlight: comment.id == widget.highlight,
+              highlight: comment.id == highlight,
             );
           } else if (snapshot.hasError) {
             return Center(

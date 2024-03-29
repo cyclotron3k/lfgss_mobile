@@ -3,23 +3,13 @@ import 'package:lfgss_mobile/models/update_type.dart';
 
 import '../../models/update.dart';
 
-class UpdateTile extends StatefulWidget {
+class UpdateTile extends StatelessWidget {
   final Update update;
 
   const UpdateTile({
     super.key,
     required this.update,
   });
-
-  @override
-  State<UpdateTile> createState() => _UpdateTileState();
-}
-
-class _UpdateTileState extends State<UpdateTile> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +20,15 @@ class _UpdateTileState extends State<UpdateTile> {
           height: 28.0,
           padding: const EdgeInsets.only(left: 64.0),
           child: Text(
-            widget.update.description,
+            update.description,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: Colors.grey),
           ),
         ),
-        widget.update.parent.renderAsTile(
-          overrideUnreadFlag: widget.update.flags.unread,
-          isReply: widget.update.updateType == UpdateType.reply_to_comment,
-          mentioned: widget.update.updateType == UpdateType.mentioned,
+        update.parent.renderAsTile(
+          overrideUnreadFlag: update.flags.unread,
+          isReply: update.updateType == UpdateType.reply_to_comment,
+          mentioned: update.updateType == UpdateType.mentioned,
         ),
       ],
     );

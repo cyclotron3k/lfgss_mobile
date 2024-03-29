@@ -5,21 +5,15 @@ import '../../models/microcosm.dart';
 import '../screens/future_microcosm_screen.dart';
 import '../microcosm_logo.dart';
 
-class MicrocosmTile extends StatefulWidget {
+class MicrocosmTile extends StatelessWidget {
   final Microcosm microcosm;
   const MicrocosmTile({super.key, required this.microcosm});
 
   @override
-  State<MicrocosmTile> createState() => _MicrocosmTileState();
-}
-
-class _MicrocosmTileState extends State<MicrocosmTile> {
-  final unescape = HtmlUnescape();
-
-  @override
   Widget build(BuildContext context) {
+    final unescape = HtmlUnescape();
     return Card(
-      key: ValueKey(widget.microcosm.id),
+      key: ValueKey(microcosm.id),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -28,13 +22,13 @@ class _MicrocosmTileState extends State<MicrocosmTile> {
               fullscreenDialog: true,
               maintainState: true,
               builder: (context) => FutureMicrocosmScreen(
-                microcosm: Microcosm.getById(widget.microcosm.id),
+                microcosm: Microcosm.getById(microcosm.id),
               ),
             ),
           );
         },
         child: ListTile(
-          leading: MicrocosmLogo(microcosm: widget.microcosm),
+          leading: MicrocosmLogo(microcosm: microcosm),
           title: Row(
             children: [
               // if (unread)
@@ -46,7 +40,7 @@ class _MicrocosmTileState extends State<MicrocosmTile> {
               //   ),
               Expanded(
                 child: Text(
-                  unescape.convert(widget.microcosm.title),
+                  unescape.convert(microcosm.title),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                 ),
@@ -54,7 +48,7 @@ class _MicrocosmTileState extends State<MicrocosmTile> {
             ],
           ),
           subtitle: Text(
-            unescape.convert(widget.microcosm.description),
+            unescape.convert(microcosm.description),
           ),
         ),
       ),

@@ -48,7 +48,8 @@ class _CommentHtmlState extends State<CommentHtml> {
     if (widget.embedTweets) {
       final anchors = _doc.querySelectorAll('a');
       for (final anchor in anchors) {
-        // There are soft hyphens in the text, to help layout, but it doesn't help us
+        // There are soft hyphens in the text, to help web
+        // layout, but it doesn't help us
         final cleaned = anchor.text.replaceAll('\xad', '');
         if (!tweetMatcher.hasMatch(cleaned)) continue;
         // _tweetsPresent = true;

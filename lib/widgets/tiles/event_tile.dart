@@ -6,7 +6,7 @@ import '../../models/event.dart';
 import '../screens/future_screen.dart';
 import '../time_ago.dart';
 
-class EventTile extends StatefulWidget {
+class EventTile extends StatelessWidget {
   final Event event;
   final bool? overrideUnreadFlag;
 
@@ -17,16 +17,11 @@ class EventTile extends StatefulWidget {
   });
 
   @override
-  State<EventTile> createState() => _EventTileState();
-}
-
-class _EventTileState extends State<EventTile> {
-  @override
   Widget build(BuildContext context) {
     final unescape = HtmlUnescape();
 
     return Card(
-      key: ValueKey(widget.event.id),
+      key: ValueKey(event.id),
       child: InkWell(
         onTap: () async {
           Navigator.push(
@@ -35,13 +30,13 @@ class _EventTileState extends State<EventTile> {
               fullscreenDialog: true,
               maintainState: true,
               builder: (context) => FutureScreen(
-                item: Event.getById(widget.event.id),
+                item: Event.getById(event.id),
               ),
             ),
           );
         },
         child: ListTile(
-          leading: (widget.event.flags.sticky
+          leading: (event.flags.sticky
               ? Icon(
                   Icons.push_pin_outlined,
                   color: Theme.of(context).colorScheme.primary,
@@ -54,7 +49,7 @@ class _EventTileState extends State<EventTile> {
           title: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.overrideUnreadFlag ?? widget.event.flags.unread)
+              if (overrideUnreadFlag ?? event.flags.unread)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
                   child: Icon(
@@ -65,7 +60,7 @@ class _EventTileState extends State<EventTile> {
                 ),
               Expanded(
                 child: Text(
-                  unescape.convert(widget.event.title),
+                  unescape.convert(event.title),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                 ),
@@ -75,8 +70,7 @@ class _EventTileState extends State<EventTile> {
           subtitle: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              if (widget.event.lastActivity != null)
-                TimeAgo(widget.event.lastActivity!),
+              if (event.lastActivity != null) TimeAgo(event.lastActivity!),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Icon(
@@ -87,7 +81,7 @@ class _EventTileState extends State<EventTile> {
               ),
               Text(
                 NumberFormat.compact().format(
-                  widget.event.totalChildren,
+                  event.totalChildren,
                 ),
               ),
             ],

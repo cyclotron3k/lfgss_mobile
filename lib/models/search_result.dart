@@ -48,7 +48,7 @@ class SearchResult implements Item {
     if (parent != null && child is Comment) {
       return CommentTile(
         comment: child as Comment,
-        context: parent as CommentableItem,
+        contextItem: parent as CommentableItem,
         highlight: highlight,
         overrideUnreadFlag: overrideUnreadFlag ?? unread,
       );

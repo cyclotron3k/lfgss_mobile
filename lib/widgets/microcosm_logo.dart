@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../models/microcosm.dart';
 
-class MicrocosmLogo extends StatefulWidget {
+class MicrocosmLogo extends StatelessWidget {
   final Microcosm microcosm;
   const MicrocosmLogo({
     super.key,
@@ -11,21 +11,16 @@ class MicrocosmLogo extends StatefulWidget {
   });
 
   @override
-  State<MicrocosmLogo> createState() => _MicrocosmLogoState();
-}
-
-class _MicrocosmLogoState extends State<MicrocosmLogo> {
-  @override
   Widget build(BuildContext context) {
     final bool isDarkMode =
         MediaQuery.platformBrightnessOf(context) == Brightness.dark;
 
-    return (widget.microcosm.logoUrl.isEmpty
+    return (microcosm.logoUrl.isEmpty
         ? const Icon(
             Icons.forum,
             color: Colors.grey,
           )
-        : (widget.microcosm.logoUrl.endsWith('.svg')
+        : (microcosm.logoUrl.endsWith('.svg')
             ? Icon(
                 Icons.error_outline,
                 color: Theme.of(context).colorScheme.error,
@@ -47,7 +42,7 @@ class _MicrocosmLogoState extends State<MicrocosmLogo> {
                           0.0, 0.0, 0.0, 1.0, 0.0, //
                         ]),
                   child: CachedNetworkImage(
-                    imageUrl: widget.microcosm.logoUrl,
+                    imageUrl: microcosm.logoUrl,
                     width: 28,
                     height: 28,
                     errorWidget: (context, url, error) => const Icon(

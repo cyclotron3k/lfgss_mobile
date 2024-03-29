@@ -12,41 +12,36 @@ import '../screens/future_screen.dart';
 import '../time_ago.dart';
 import 'comment_html.dart';
 
-class CommentTile extends StatefulWidget {
+class CommentTile extends StatelessWidget {
   final Comment comment;
-  final CommentableItem context;
+  final CommentableItem contextItem;
   final String highlight;
   final bool? overrideUnreadFlag;
 
   const CommentTile({
     super.key,
     required this.comment,
-    required this.context,
+    required this.contextItem,
     required this.highlight,
     this.overrideUnreadFlag,
   });
 
-  @override
-  State<CommentTile> createState() => _CommentTileState();
-}
-
-class _CommentTileState extends State<CommentTile> {
   Future<void> _showProfileModal(BuildContext context) =>
       showModalBottomSheet<void>(
         enableDrag: true,
         showDragHandle: true,
         context: context,
         builder: (BuildContext context) => ProfileSheet(
-          profile: widget.comment.createdBy,
+          profile: comment.createdBy,
         ),
       );
 
   @override
   Widget build(BuildContext context) {
-    bool showReplied = widget.comment.links.containsKey("inReplyToAuthor");
+    bool showReplied = comment.links.containsKey("inReplyToAuthor");
 
     return Card(
-      key: ValueKey(widget.comment.id),
+      key: ValueKey(comment.id),
       child: InkWell(
         onTap: () async {
           Navigator.push(
@@ -55,7 +50,7 @@ class _CommentTileState extends State<CommentTile> {
               fullscreenDialog: true,
               maintainState: true,
               builder: (context) => FutureScreen(
-                item: widget.comment.container,
+                item: comment.container,
               ),
             ),
           );
@@ -68,7 +63,7 @@ class _CommentTileState extends State<CommentTile> {
               child: Row(
                 children: [
                   Icon(
-                    widget.comment.itemType == 'huddle'
+                    comment.itemType == 'huddle'
                         ? Icons.mail_outline
                         : Icons.chat,
                     size: 14.0,
@@ -77,7 +72,7 @@ class _CommentTileState extends State<CommentTile> {
                   const SizedBox(width: 4.0),
                   Expanded(
                     child: Text(
-                      widget.context.title,
+                      contextItem.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.start,
@@ -92,7 +87,7 @@ class _CommentTileState extends State<CommentTile> {
                 width: 38.0,
                 padding: const EdgeInsets.all(8.0),
                 child: CachedNetworkImage(
-                  imageUrl: widget.comment.createdBy.avatar,
+                  imageUrl: comment.createdBy.avatar,
                   width: 22,
                   height: 22,
                   errorWidget: (context, url, error) => const Icon(
@@ -108,7 +103,7 @@ class _CommentTileState extends State<CommentTile> {
                     InkWell(
                       onTap: () => _showProfileModal(context),
                       child: Text(
-                        widget.comment.createdBy.profileName,
+                        comment.createdBy.profileName,
                       ),
                     ),
                     if (showReplied)
@@ -116,11 +111,11 @@ class _CommentTileState extends State<CommentTile> {
                         onTap: () async {
                           LinkParser.parseUri(
                             context,
-                            widget.comment.links["inReplyTo"]!.href,
+                            comment.links["inReplyTo"]!.href,
                           );
                         },
                         child: Text(
-                          "replied to ${HtmlUnescape().convert(widget.comment.links["inReplyToAuthor"]!.title ?? "")}",
+                          "replied to ${HtmlUnescape().convert(comment.links["inReplyToAuthor"]!.title ?? "")}",
                           style: const TextStyle(color: Colors.grey),
                         ),
                       ),
@@ -134,7 +129,7 @@ class _CommentTileState extends State<CommentTile> {
                   alignment: WrapAlignment.end,
                   spacing: 4.0,
                   children: [
-                    TimeAgo(widget.comment.created, color: Colors.grey),
+                    TimeAgo(comment.created, color: Colors.grey),
                   ],
                 ),
               ),
@@ -148,23 +143,21 @@ class _CommentTileState extends State<CommentTile> {
   }
 
   Widget _commentBody() {
-    if (widget.highlight == "") {
+    if (highlight == "") {
       return Consumer<Settings>(
         builder: (context, settings, _) => CommentHtml(
-          html: widget.comment.html,
+          html: comment.html,
           embedTweets: settings.getBool("embedTweets") ?? true,
           embedYouTube: settings.getBool("embedYouTube") ?? true,
-          replyTarget: widget.comment,
+          replyTarget: comment,
         ),
       );
     }
 
-    return Consumer<Settings>(
-      builder: (context, settings, _) => CommentHtml(
-        html: widget.highlight,
-        embedTweets: false,
-        embedYouTube: false,
-      ),
+    return CommentHtml(
+      html: highlight,
+      embedTweets: false,
+      embedYouTube: false,
     );
   }
 }

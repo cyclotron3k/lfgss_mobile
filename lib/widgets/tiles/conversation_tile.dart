@@ -6,7 +6,7 @@ import '../../models/conversation.dart';
 import '../screens/future_screen.dart';
 import '../time_ago.dart';
 
-class ConversationTile extends StatefulWidget {
+class ConversationTile extends StatelessWidget {
   final Conversation conversation;
   final bool? overrideUnreadFlag;
   final bool? isReply;
@@ -21,16 +21,11 @@ class ConversationTile extends StatefulWidget {
   });
 
   @override
-  State<ConversationTile> createState() => _ConversationTileState();
-}
-
-class _ConversationTileState extends State<ConversationTile> {
-  @override
   Widget build(BuildContext context) {
     final unescape = HtmlUnescape();
 
     return Card(
-      key: ValueKey(widget.conversation.id),
+      key: ValueKey(conversation.id),
       child: InkWell(
         onTap: () async {
           Navigator.push(
@@ -39,7 +34,7 @@ class _ConversationTileState extends State<ConversationTile> {
               fullscreenDialog: true,
               maintainState: true,
               builder: (context) => FutureScreen(
-                item: Conversation.getById(widget.conversation.id),
+                item: Conversation.getById(conversation.id),
               ),
             ),
           );
@@ -49,7 +44,7 @@ class _ConversationTileState extends State<ConversationTile> {
           title: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.overrideUnreadFlag ?? widget.conversation.flags.unread)
+              if (overrideUnreadFlag ?? conversation.flags.unread)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
                   child: Icon(
@@ -60,7 +55,7 @@ class _ConversationTileState extends State<ConversationTile> {
                 ),
               Expanded(
                 child: Text(
-                  unescape.convert(widget.conversation.title),
+                  unescape.convert(conversation.title),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                 ),
@@ -70,8 +65,8 @@ class _ConversationTileState extends State<ConversationTile> {
           subtitle: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              if (widget.conversation.lastActivity != null)
-                TimeAgo(widget.conversation.lastActivity!),
+              if (conversation.lastActivity != null)
+                TimeAgo(conversation.lastActivity!),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Icon(
@@ -82,7 +77,7 @@ class _ConversationTileState extends State<ConversationTile> {
               ),
               Text(
                 NumberFormat.compact().format(
-                  widget.conversation.totalChildren,
+                  conversation.totalChildren,
                 ),
               ),
             ],
@@ -93,19 +88,19 @@ class _ConversationTileState extends State<ConversationTile> {
   }
 
   Icon leadingIcon(BuildContext context) {
-    if (widget.isReply == true) {
+    if (isReply == true) {
       return Icon(
         color: Theme.of(context).colorScheme.inversePrimary,
         Icons.reply_outlined,
         size: 28,
       );
-    } else if (widget.mentioned == true) {
+    } else if (mentioned == true) {
       return Icon(
         color: Theme.of(context).colorScheme.inversePrimary,
         Icons.alternate_email,
         size: 28,
       );
-    } else if (widget.conversation.flags.sticky) {
+    } else if (conversation.flags.sticky) {
       return Icon(
         Icons.push_pin_outlined,
         color: Theme.of(context).colorScheme.primary,
