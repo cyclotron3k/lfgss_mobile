@@ -108,14 +108,17 @@ class _SingleCommentState extends State<SingleComment> {
               ),
             ),
           ),
-        Column(
-          // key: ValueKey(widget.comment.id),
-          children: [
-            _titleBar(context),
-            _commentBody(),
-            if (widget.comment.hasAttachments())
-              widget.comment.getAttachments(context: context),
-          ],
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+          child: Column(
+            // key: ValueKey(widget.comment.id),
+            children: [
+              _titleBar(context),
+              _commentBody(),
+              if (widget.comment.hasAttachments())
+                widget.comment.getAttachments(context: context),
+            ],
+          ),
         ),
       ],
     );
@@ -129,6 +132,7 @@ class _SingleCommentState extends State<SingleComment> {
     return Consumer<Settings>(
       builder: (context, settings, _) => CommentHtml(
         html: widget.comment.html,
+        selectable: true,
         embedTweets: settings.getBool("embedTweets") ?? true,
         embedYouTube: settings.getBool("embedYouTube") ?? true,
         replyTarget: widget.comment,
@@ -138,8 +142,8 @@ class _SingleCommentState extends State<SingleComment> {
 
   Widget _titleBar(BuildContext context) => Row(children: [
         Container(
-          width: 38.0,
-          padding: const EdgeInsets.all(8.0),
+          width: 30.0,
+          padding: const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 8.0),
           child: CachedNetworkImage(
             imageUrl: widget.comment.createdBy.avatar,
             width: 22,

@@ -14,6 +14,7 @@ import '../missing_image.dart';
 import '../tweet.dart';
 
 class CommentHtml extends StatefulWidget {
+  final bool selectable;
   final bool embedTweets;
   final bool embedYouTube;
   final String html;
@@ -22,6 +23,7 @@ class CommentHtml extends StatefulWidget {
   const CommentHtml({
     super.key,
     required this.html,
+    this.selectable = false,
     this.embedTweets = false,
     this.embedYouTube = false,
     this.replyTarget,
@@ -62,29 +64,37 @@ class _CommentHtmlState extends State<CommentHtml> {
 
   @override
   Widget build(BuildContext context) {
-    return SelectionArea(
-      onSelectionChanged: (value) => _selectedText = value?.plainText ?? "",
-      contextMenuBuilder: (innerContext, selectableRegionState) =>
-          AdaptiveTextSelectionToolbar(
-        anchors: selectableRegionState.contextMenuAnchors,
-        children: AdaptiveTextSelectionToolbar.getAdaptiveButtons(
-          innerContext,
-          [
-            ...selectableRegionState.contextMenuButtonItems,
-            if (widget.replyTarget != null)
-              ContextMenuButtonItem(
-                  label: "Reply",
-                  onPressed: () {
-                    context.read<ReplyNotifier?>()?.setReplyTarget(
-                          widget.replyTarget!,
-                          text: _selectedText,
-                        );
-                    ContextMenuController.removeAny();
-                  }),
-          ],
-        ).toList(),
-      ),
-      child: Html.fromDom(
+    return widget.selectable
+        ? withSelection(context)
+        : withoutSelection(context);
+  }
+
+  Widget withSelection(BuildContext context) => SelectionArea(
+        onSelectionChanged: (value) => _selectedText = value?.plainText ?? "",
+        contextMenuBuilder: (innerContext, selectableRegionState) =>
+            AdaptiveTextSelectionToolbar(
+          anchors: selectableRegionState.contextMenuAnchors,
+          children: AdaptiveTextSelectionToolbar.getAdaptiveButtons(
+            innerContext,
+            [
+              ...selectableRegionState.contextMenuButtonItems,
+              if (widget.replyTarget != null)
+                ContextMenuButtonItem(
+                    label: "Reply",
+                    onPressed: () {
+                      context.read<ReplyNotifier?>()?.setReplyTarget(
+                            widget.replyTarget!,
+                            text: _selectedText,
+                          );
+                      ContextMenuController.removeAny();
+                    }),
+            ],
+          ).toList(),
+        ),
+        child: withoutSelection(context),
+      );
+
+  Widget withoutSelection(BuildContext context) => Html.fromDom(
         document: _doc,
         onLinkTap: (
           String? url,
@@ -157,9 +167,9 @@ class _CommentHtmlState extends State<CommentHtml> {
           "body": Style(
             // TODO: Workaround for the above issue. Remove when resolved
             textDecorationColor: Colors.blue,
+            margin: Margins.zero,
+            padding: HtmlPaddings.zero,
           ),
         },
-      ),
-    );
-  }
+      );
 }

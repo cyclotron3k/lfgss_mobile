@@ -147,6 +147,7 @@ class CommentTile extends StatelessWidget {
       return Consumer<Settings>(
         builder: (context, settings, _) => CommentHtml(
           html: comment.html,
+          selectable: false,
           embedTweets: settings.getBool("embedTweets") ?? true,
           embedYouTube: settings.getBool("embedYouTube") ?? true,
           replyTarget: comment,
@@ -156,6 +157,7 @@ class CommentTile extends StatelessWidget {
 
     return CommentHtml(
       html: highlight,
+      selectable: false,
       embedTweets: false,
       embedYouTube: false,
     );
