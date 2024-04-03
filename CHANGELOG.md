@@ -1,8 +1,12 @@
 # Changelog
 
 ## v1.0.18
+- Implement replies and mentions on updates screen
 - Update tray background images
+- Update dependencies
 - Fix UI jank with vertical attachment layout
+- Convert a bunch of stateful widgets to stateless
+- Fix tapping on some search results
 
 ## v1.0.17
 - Refactor Comment HTML rendering
