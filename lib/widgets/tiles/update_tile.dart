@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/commentable.dart';
 import '../../models/comment.dart';
 import '../../models/conversation.dart';
+import '../../models/huddle.dart';
 import '../../models/update.dart';
 import '../../models/update_type.dart';
 import '../../services/settings.dart';
@@ -23,8 +25,22 @@ class UpdateTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return switch (update.updateType) {
       UpdateType.reply_to_comment => _replyToComment(context),
+      UpdateType.new_comment_in_huddle => _replyToHuddle(context),
+      UpdateType.mentioned => _mention(context),
       _ => _standardUpdate()
     };
+  }
+
+  Widget _mention(BuildContext context) {
+    final commentableItem = update.parent as CommentableItem;
+    final comment = update.child as Comment;
+    return _replyToCommentable(
+      context,
+      Icons.alternate_email,
+      commentableItem,
+      comment,
+      "${comment.createdBy.profileName} mentioned you",
+    );
   }
 
   Widget _standardUpdate() => Column(
@@ -48,9 +64,37 @@ class UpdateTile extends StatelessWidget {
       );
 
   Widget _replyToComment(BuildContext context) {
-    final unescape = HtmlUnescape();
     final conversation = update.parent as Conversation;
     final comment = update.child as Comment;
+    return _replyToCommentable(
+      context,
+      Icons.reply_outlined,
+      conversation,
+      comment,
+      "${comment.createdBy.profileName} replied to your comment",
+    );
+  }
+
+  Widget _replyToHuddle(BuildContext context) {
+    final huddle = update.parent as Huddle;
+    final comment = update.child as Comment;
+    return _replyToCommentable(
+      context,
+      Icons.reply_outlined,
+      huddle,
+      comment,
+      "${comment.createdBy.profileName} sent a direct message",
+    );
+  }
+
+  Widget _replyToCommentable(
+    BuildContext context,
+    IconData icon,
+    CommentableItem commentableItem,
+    Comment comment,
+    String subtitle,
+  ) {
+    final unescape = HtmlUnescape();
     return Column(
       children: [
         Container(
@@ -58,13 +102,13 @@ class UpdateTile extends StatelessWidget {
           height: 28.0,
           padding: const EdgeInsets.only(left: 64.0),
           child: Text(
-            "${comment.createdBy.profileName} replied to your comment",
+            subtitle,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: Colors.grey),
           ),
         ),
         Card(
-          key: ValueKey(conversation.id),
+          key: ValueKey(commentableItem.id),
           child: InkWell(
             onTap: () async {
               await Navigator.push(
@@ -73,7 +117,7 @@ class UpdateTile extends StatelessWidget {
                   fullscreenDialog: true,
                   maintainState: true,
                   builder: (context) => FutureScreen(
-                    item: Conversation.getByCommentId(
+                    item: commentableItem.getItemByCommentId(
                       comment.id,
                     ),
                   ),
@@ -83,7 +127,7 @@ class UpdateTile extends StatelessWidget {
             child: ListTile(
               leading: Icon(
                 color: Theme.of(context).colorScheme.inversePrimary,
-                Icons.reply_outlined,
+                icon,
                 size: 28,
               ),
               title: Row(
@@ -100,7 +144,7 @@ class UpdateTile extends StatelessWidget {
                     ),
                   Expanded(
                     child: Text(
-                      unescape.convert(conversation.title),
+                      unescape.convert(commentableItem.title),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                     ),

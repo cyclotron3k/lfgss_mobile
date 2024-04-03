@@ -70,6 +70,10 @@ class Huddle implements CommentableItem {
   }
 
   @override
+  Future<Huddle> getItemByCommentId(int commentId) =>
+      Huddle.getByCommentId(commentId);
+
+  @override
   Uri get selfUrl => Uri.https(
         WEB_HOST,
         "/huddles/$id/newest",

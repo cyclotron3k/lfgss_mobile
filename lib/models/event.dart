@@ -122,6 +122,10 @@ class Event implements CommentableItem {
   }
 
   @override
+  Future<Event> getItemByCommentId(int commentId) =>
+      Event.getByCommentId(commentId);
+
+  @override
   Future<Event> getByPageNo(
     int pageNo,
   ) async {

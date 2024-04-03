@@ -12,4 +12,6 @@ abstract class CommentableItem
 
   // `pageNo` is the "public" page number, not our page number
   Future<CommentableItem> getByPageNo(int pageNo);
+
+  Future<CommentableItem> getItemByCommentId(int commentId);
 }

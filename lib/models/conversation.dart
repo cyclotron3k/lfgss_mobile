@@ -157,6 +157,10 @@ class Conversation implements CommentableItem {
   }
 
   @override
+  Future<Conversation> getItemByCommentId(int commentId) =>
+      Conversation.getByCommentId(commentId);
+
+  @override
   Future<Conversation> getByPageNo(
     int pageNo,
   ) async {
