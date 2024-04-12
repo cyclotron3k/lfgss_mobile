@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fix layout in search results
+
 ## v1.0.18
 - Implement replies and mentions on updates screen
 - Update tray background images
