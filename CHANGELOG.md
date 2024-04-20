@@ -2,6 +2,7 @@
 
 ## Next
 - Fix layout in search results
+- Recognise links to comments in fragments
 
 ## v1.0.18
 - Implement replies and mentions on updates screen

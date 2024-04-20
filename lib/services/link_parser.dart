@@ -12,6 +12,7 @@ import '../widgets/profile_sheet.dart';
 import '../widgets/screens/future_screen.dart';
 import '../widgets/screens/future_search_results_screen.dart';
 
+// TODO: Stop being lazy. Parse it properly
 class LinkParser {
   static final List<String> validSchemes = ['https', 'http', 'mailto', 'tel'];
   static final RegExp profileMatcher = RegExp(r'^/profiles/(\d+)$');
@@ -24,6 +25,9 @@ class LinkParser {
   );
   static final RegExp eventMatcher = RegExp(
     r'^(?:/api/v1)?/events/(\d+)(?:/newest)?/?$',
+  );
+  static final RegExp fragmentMatcher = RegExp(
+    r'^(?:/api/v1)?/(?:conversations|events)/\d+/.*#comment(\d+)$',
   );
 
   static Future<void> parseLink(BuildContext context, String link) async {
@@ -115,6 +119,24 @@ class LinkParser {
           builder: (context) => FutureScreen(
             item: Event.getById(
               eventId,
+            ),
+          ),
+        ),
+      );
+      return;
+    } else if (fragmentMatcher.hasMatch(link)) {
+      int otherCommentId = int.parse(
+        fragmentMatcher.firstMatch(link)![1]!,
+      );
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          maintainState: true,
+          builder: (context) => FutureScreen(
+            item: Conversation.getByCommentId(
+              otherCommentId,
             ),
           ),
         ),
