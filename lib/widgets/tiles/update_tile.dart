@@ -125,10 +125,14 @@ class UpdateTile extends StatelessWidget {
               );
             },
             child: ListTile(
-              leading: Icon(
-                color: Theme.of(context).colorScheme.inversePrimary,
-                icon,
-                size: 28,
+              titleAlignment: ListTileTitleAlignment.top,
+              leading: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Icon(
+                  icon,
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                  size: 28,
+                ),
               ),
               title: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
