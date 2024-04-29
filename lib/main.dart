@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart';
 
+import 'models/full_profile.dart';
+import 'models/user_provider.dart';
 import 'notifications.dart';
 import 'services/microcosm_client.dart';
 import 'services/observer_utils.dart';
@@ -20,12 +22,20 @@ void main() async {
     await SharedPreferences.getInstance(),
   );
 
+  var userProvider = UserProvider();
   await MicrocosmClient().updateAccessToken();
-  // var apiClient = MicrocosmClient(settingsProvider: settings);
+  if (MicrocosmClient().loggedIn) {
+    FullProfile.getProfile().then(
+      (value) => userProvider.user = value,
+    );
+  }
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => settings,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => settings),
+        ChangeNotifierProvider(create: (context) => userProvider),
+      ],
       child: const LfgssMobile(),
     ),
   );

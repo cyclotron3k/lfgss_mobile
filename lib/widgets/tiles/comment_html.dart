@@ -6,7 +6,7 @@ import 'package:html/parser.dart' show parse;
 import 'package:provider/provider.dart';
 
 import '../../models/comment.dart';
-import '../../models/reply_notifier.dart';
+import '../../models/comment_shuttle.dart';
 import '../../services/link_parser.dart';
 import '../image_gallery.dart';
 import '../maybe_image.dart';
@@ -82,7 +82,7 @@ class _CommentHtmlState extends State<CommentHtml> {
                 ContextMenuButtonItem(
                     label: "Reply",
                     onPressed: () {
-                      context.read<ReplyNotifier?>()?.setReplyTarget(
+                      context.read<CommentShuttle?>()?.setReplyTarget(
                             widget.replyTarget!,
                             text: _selectedText,
                           );

@@ -33,7 +33,7 @@ class Event implements CommentableItem {
   final DateTime? whentz; // : "2022-10-14T20:00:00Z",
   final String tz; // : "Europe/London",
 
-  final int duration; // : 2880,
+  final int? duration; // : 2880,
   final String? where; // : "Lee Valley Velodrome",
   final EventStatus status; // : "upcoming",
   final int rsvpLimit; // : 0,
@@ -165,7 +165,7 @@ class Event implements CommentableItem {
 
   TZDateTime? _tzEnd;
   TZDateTime? get end {
-    return _tzEnd ??= start?.add(Duration(minutes: duration));
+    return _tzEnd ??= start?.add(Duration(minutes: duration ?? 0));
   }
 
   bool? get multiDay {
@@ -265,9 +265,24 @@ class Event implements CommentableItem {
   }
 
   @override
-  Future<void> resetChildren({bool force = false}) async {
-    final int lastPage = _totalChildren ~/ PAGE_SIZE;
-    await loadPage(lastPage, force: force);
+  Future<void> resetChildren({bool force = false, int? childId}) async {
+    final int pageId;
+
+    int index = -1;
+    if (childId != null) {
+      index = _children.keys.firstWhere(
+        (k) => _children[k]!.id == childId,
+        orElse: () => -1,
+      );
+    }
+
+    if (index >= 0) {
+      pageId = index ~/ PAGE_SIZE;
+    } else {
+      pageId = _totalChildren ~/ PAGE_SIZE;
+    }
+
+    await loadPage(pageId, force: true);
   }
 
   @override

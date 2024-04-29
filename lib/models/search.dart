@@ -127,7 +127,7 @@ class Search implements Paginated<SearchResult> {
   }
 
   @override
-  Future<void> resetChildren({bool force = false}) async {
+  Future<void> resetChildren({bool force = false, int? childId}) async {
     await loadPage(0);
     _children.removeWhere((key, _) => key >= PAGE_SIZE);
   }

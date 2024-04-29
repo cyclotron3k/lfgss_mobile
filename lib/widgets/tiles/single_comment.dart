@@ -3,22 +3,26 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
-import 'package:lfgss_mobile/widgets/tiles/comment_html.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/comment.dart';
-import '../../models/reply_notifier.dart';
+import '../../models/comment_shuttle.dart';
+import '../../models/user_provider.dart';
 import '../../services/link_parser.dart';
 import '../../services/settings.dart';
 import '../profile_sheet.dart';
 import '../swipeable.dart';
 import '../time_ago.dart';
+import 'comment_html.dart';
 
 class SingleComment extends StatefulWidget {
   final Comment comment;
   final bool highlight;
-  const SingleComment(
-      {super.key, required this.comment, this.highlight = false});
+  const SingleComment({
+    super.key,
+    required this.comment,
+    this.highlight = false,
+  });
 
   @override
   State<SingleComment> createState() => _SingleCommentState();
@@ -37,7 +41,7 @@ class _SingleCommentState extends State<SingleComment> {
   void initState() {
     super.initState();
 
-    _swipingEnabled = context.read<ReplyNotifier?>() != null;
+    _swipingEnabled = context.read<CommentShuttle?>() != null;
 
     _edited = widget.comment.revisions > 1;
     _reply = widget.comment.links.containsKey("inReplyToAuthor");
@@ -46,46 +50,57 @@ class _SingleCommentState extends State<SingleComment> {
   }
 
   @override
-  Widget build(BuildContext context) => Swipeable(
-        direction:
-            _swipingEnabled ? SwipeDirection.startToEnd : SwipeDirection.none,
-        swipeThresholds: const {SwipeDirection.startToEnd: 0.18},
-        background: Container(
-          alignment: Alignment.centerLeft,
-          // color: Colors.green,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: AnimatedSize(
-              duration: const Duration(seconds: 1),
-              curve: Curves.elasticOut,
-              child: Icon(
-                Icons.reply,
-                size: _replyActivated ? 32.0 : 22,
-                color: _replyActivated ? Colors.green.shade300 : Colors.grey,
-              ),
+  Widget build(BuildContext context) {
+    bool owner = false;
+    if (Provider.of<UserProvider>(context).hasUser) {
+      owner = widget.comment.createdBy.id ==
+          Provider.of<UserProvider>(
+            context,
+            listen: false,
+          ).user!.id;
+    }
+
+    return Swipeable(
+      direction:
+          _swipingEnabled ? SwipeDirection.startToEnd : SwipeDirection.none,
+      swipeThresholds: const {SwipeDirection.startToEnd: 0.18},
+      background: Container(
+        alignment: Alignment.centerLeft,
+        // color: Colors.green,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: AnimatedSize(
+            duration: const Duration(seconds: 1),
+            curve: Curves.elasticOut,
+            child: Icon(
+              Icons.reply,
+              size: _replyActivated ? 32.0 : 22,
+              color: _replyActivated ? Colors.green.shade300 : Colors.grey,
             ),
           ),
         ),
-        onUpdate: (details) => setState(
-          () => _replyActivated = details.reached,
-        ),
-        onRelease: (details) {
-          setState(() {
-            if (details.reached) {
-              Provider.of<ReplyNotifier?>(
-                context,
-                listen: false,
-              )?.setReplyTarget(
-                widget.comment,
-              );
-            }
-          });
-        },
-        key: ObjectKey(widget.comment),
-        child: _body(context),
-      );
+      ),
+      onUpdate: (details) => setState(
+        () => _replyActivated = details.reached,
+      ),
+      onRelease: (details) {
+        setState(() {
+          if (details.reached) {
+            Provider.of<CommentShuttle?>(
+              context,
+              listen: false,
+            )?.setReplyTarget(
+              widget.comment,
+            );
+          }
+        });
+      },
+      key: ObjectKey(widget.comment),
+      child: _body(context, owner),
+    );
+  }
 
-  Widget _body(BuildContext context) {
+  Widget _body(BuildContext context, bool owner) {
     return Stack(
       children: [
         if (widget.highlight)
@@ -113,8 +128,8 @@ class _SingleCommentState extends State<SingleComment> {
           child: Column(
             // key: ValueKey(widget.comment.id),
             children: [
-              _titleBar(context),
-              _commentBody(),
+              _titleBar(context, owner),
+              _commentBody(owner),
               if (widget.comment.hasAttachments())
                 widget.comment.getAttachments(context: context),
             ],
@@ -124,7 +139,7 @@ class _SingleCommentState extends State<SingleComment> {
     );
   }
 
-  Widget _commentBody() {
+  Widget _commentBody(bool owner) {
     if (_empty) {
       return const SizedBox();
     }
@@ -140,7 +155,7 @@ class _SingleCommentState extends State<SingleComment> {
     );
   }
 
-  Widget _titleBar(BuildContext context) => Row(children: [
+  Widget _titleBar(BuildContext context, bool owner) => Row(children: [
         Container(
           width: 30.0,
           padding: const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 8.0),
@@ -202,6 +217,23 @@ class _SingleCommentState extends State<SingleComment> {
                   ),
                 ),
               TimeAgo(widget.comment.created, color: Colors.grey),
+              if (owner)
+                PopupMenuButton(
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      onTap: () => Provider.of<CommentShuttle?>(
+                        context,
+                        listen: false,
+                      )?.setEditTarget(
+                        widget.comment,
+                      ),
+                      child: const Text("Edit"),
+                    ),
+                  ],
+                  child: const Icon(
+                    Icons.more_vert,
+                  ),
+                ),
             ],
           ),
         ),

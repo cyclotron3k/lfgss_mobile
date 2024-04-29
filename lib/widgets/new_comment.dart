@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../constants.dart';
 import '../models/comment.dart';
-import '../models/reply_notifier.dart';
+import '../models/comment_shuttle.dart';
 import '../services/microcosm_client.dart';
 import '../services/profile_aware_input_controller.dart';
 import 'attachment_thumbnail.dart';
@@ -41,8 +41,9 @@ class _NewCommentState extends State<NewComment> {
   final _controller = ProfileAwareInputController();
   final List<XFile> _attachments = [];
   Comment? _inReplyTo;
+  Comment? _editing;
   bool _sending = false;
-  ReplyNotifier? _replyNotifier;
+  CommentShuttle? _commentShuttle;
   final _commentInputKey = GlobalKey();
 
   final FocusNode _focusNode = FocusNode();
@@ -53,8 +54,8 @@ class _NewCommentState extends State<NewComment> {
   void initState() {
     super.initState();
     _controller.text = widget.initialState;
-    _replyNotifier = context.read<ReplyNotifier?>();
-    _replyNotifier?.addListener(_handleReplyUpdate);
+    _commentShuttle = context.read<CommentShuttle?>();
+    _commentShuttle?.addListener(_handleReplyUpdate);
     _controller.addListener(_handleTypingEvent);
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
@@ -67,7 +68,7 @@ class _NewCommentState extends State<NewComment> {
 
   @override
   void dispose() {
-    _replyNotifier?.removeListener(_handleReplyUpdate);
+    _commentShuttle?.removeListener(_handleReplyUpdate);
     _controller.removeListener(_handleTypingEvent);
     _controller.dispose();
     _hideOverlay();
@@ -189,19 +190,48 @@ class _NewCommentState extends State<NewComment> {
   }
 
   void _handleReplyUpdate() {
-    if (_replyNotifier!.replyText != null && _replyNotifier!.replyText != "") {
-      _controller.text += "> ${_replyNotifier!.replyText}";
+    if (_commentShuttle!.editTarget != null) {
+      _controller.text = _commentShuttle!.editTarget!.markdown;
+    } else if (_commentShuttle!.replyText != null &&
+        _commentShuttle!.replyText != "") {
+      _controller.text += "> ${_commentShuttle!.replyText}";
+    } else {
+      _controller.text = "";
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    _inReplyTo = context.watch<ReplyNotifier>().replyTarget;
+    _inReplyTo = context.watch<CommentShuttle>().replyTarget;
+    _editing = context.watch<CommentShuttle>().editTarget;
 
     return Material(
       elevation: 2.0,
       child: Column(
         children: [
+          if (_editing != null) ...[
+            const Divider(thickness: 1.0, height: 0.0),
+            Row(
+              children: [
+                const SizedBox(width: 8.0),
+                const Icon(Icons.edit_note),
+                const SizedBox(width: 8.0),
+                const Expanded(
+                  child: Text(
+                    "Editing...",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8.0),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  visualDensity: VisualDensity.compact,
+                  onPressed: () => context.read<CommentShuttle>().clear(),
+                ),
+              ],
+            ),
+          ],
           if (_inReplyTo != null) ...[
             const Divider(thickness: 1.0, height: 0.0),
             Row(
@@ -220,7 +250,7 @@ class _NewCommentState extends State<NewComment> {
                 IconButton(
                   icon: const Icon(Icons.close),
                   visualDensity: VisualDensity.compact,
-                  onPressed: () => context.read<ReplyNotifier>().clear(),
+                  onPressed: () => context.read<CommentShuttle>().clear(),
                 ),
               ],
             ),
@@ -299,7 +329,7 @@ class _NewCommentState extends State<NewComment> {
                         dimension: 18.0,
                         child: CircularProgressIndicator(),
                       )
-                    : const Icon(Icons.send),
+                    : Icon(_editing == null ? Icons.send : Icons.save),
                 onPressed: _sending ? null : _postComment,
               ),
             ],
@@ -375,15 +405,9 @@ class _NewCommentState extends State<NewComment> {
     }
 
     setState(() => _sending = true);
-    log("Sending message...");
 
     try {
       Map<String, String> fileHashes = await _uploadAttachments();
-
-      Uri url = Uri.https(
-        API_HOST,
-        "/api/v1/comments",
-      );
 
       Map<String, dynamic> payload = {
         "itemType": widget.itemType.name,
@@ -391,22 +415,38 @@ class _NewCommentState extends State<NewComment> {
         "markdown": _controller.text,
         if (_inReplyTo != null) "inReplyTo": _inReplyTo!.id,
       };
-      log("Posting new comment...");
-      Json comment = await MicrocosmClient().postJson(url, payload);
-      log("Posting new comment: success");
+      log(_editing == null ? "Posting new comment..." : "Updating comment...");
+
+      Json comment;
+      if (_editing == null) {
+        Uri url = Uri.https(
+          API_HOST,
+          "/api/v1/comments",
+        );
+        comment = await MicrocosmClient().postJson(url, payload);
+      } else {
+        Uri url = Uri.https(
+          API_HOST,
+          "/api/v1/comments/${_editing!.id}",
+        );
+        comment = await MicrocosmClient().putJson(url, payload);
+      }
+
       if (_attachments.isNotEmpty) {
         await _linkAttachments(comment["id"], fileHashes);
       }
 
       setState(() {
+        int? id = _editing?.id;
         _sending = false;
         _controller.text = "";
         _attachments.clear();
         _inReplyTo = null;
+        _editing = null;
         if (context.mounted) {
-          context.read<ReplyNotifier>().clear();
+          context.read<CommentShuttle>().clear();
         }
-        widget.onPostSuccess();
+        widget.onPostSuccess(id);
       });
 
       if (!context.mounted) return;

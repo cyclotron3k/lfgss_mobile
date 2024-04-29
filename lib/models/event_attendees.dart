@@ -119,7 +119,7 @@ class EventAttendees implements Paginated<Profile> {
   }
 
   @override
-  Future<void> resetChildren({bool force = false}) async {
+  Future<void> resetChildren({bool force = false, int? childId}) async {
     // TODO: implement resetChildren
     throw UnimplementedError();
   }

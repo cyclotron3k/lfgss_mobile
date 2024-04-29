@@ -208,9 +208,24 @@ class Conversation implements CommentableItem {
   }
 
   @override
-  Future<void> resetChildren({bool force = false}) async {
-    final int lastPage = _totalChildren ~/ PAGE_SIZE;
-    await loadPage(lastPage);
+  Future<void> resetChildren({bool force = false, int? childId}) async {
+    final int pageId;
+
+    int index = -1;
+    if (childId != null) {
+      index = _children.keys.firstWhere(
+        (k) => _children[k]!.id == childId,
+        orElse: () => -1,
+      );
+    }
+
+    if (index >= 0) {
+      pageId = index ~/ PAGE_SIZE;
+    } else {
+      pageId = _totalChildren ~/ PAGE_SIZE;
+    }
+
+    await loadPage(pageId, force: true);
   }
 
   @override

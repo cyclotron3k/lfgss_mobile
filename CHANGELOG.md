@@ -1,8 +1,10 @@
 # Changelog
 
-## Next
+## v1.0.19
+- Edit comments
 - Fix layout in search results
 - Recognise links to comments in fragments
+- Fix rendering of Events with no times
 
 ## v1.0.18
 - Implement replies and mentions on updates screen

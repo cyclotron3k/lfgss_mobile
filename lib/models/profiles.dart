@@ -109,7 +109,7 @@ class Profiles implements Paginated<Profile> {
   }
 
   @override
-  Future<void> resetChildren({bool force = false}) async {
+  Future<void> resetChildren({bool force = false, int? childId}) async {
     await loadPage(0, force: force);
     _children.removeWhere((key, _) => key >= _pageSize);
   }

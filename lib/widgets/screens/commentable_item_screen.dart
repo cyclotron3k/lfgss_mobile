@@ -8,7 +8,7 @@ import '../../constants.dart';
 import '../../core/commentable.dart';
 import '../../models/event.dart';
 import '../../models/huddle.dart';
-import '../../models/reply_notifier.dart';
+import '../../models/comment_shuttle.dart';
 import '../../models/search.dart';
 import '../../models/search_parameters.dart';
 import '../../services/microcosm_client.dart';
@@ -241,8 +241,8 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
         ],
         title: Text(widget.item.title),
       ),
-      body: ChangeNotifierProvider<ReplyNotifier>(
-        create: (BuildContext context) => ReplyNotifier(),
+      body: ChangeNotifierProvider<CommentShuttle>(
+        create: (BuildContext context) => CommentShuttle(),
         child: Column(
           children: [
             Expanded(
@@ -264,8 +264,8 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
                 itemType: CommentableType.values.byName(
                   widget.item.runtimeType.toString().toLowerCase(),
                 ),
-                onPostSuccess: () async {
-                  await widget.item.resetChildren();
+                onPostSuccess: (int? id) async {
+                  await widget.item.resetChildren(childId: id);
                   if (context.mounted) setState(() {});
                 },
               )

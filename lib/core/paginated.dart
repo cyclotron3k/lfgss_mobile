@@ -9,7 +9,13 @@ abstract class Paginated<T> {
   int get startPage;
 
   void parsePage(Json json);
+
   Future<T> getChild(int i);
+
   Widget childTile(int i);
-  Future<void> resetChildren({bool force = false});
+
+  Future<void> resetChildren({
+    bool force = false,
+    int? childId,
+  });
 }
