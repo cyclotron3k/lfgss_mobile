@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Clickable Profile chips on Events
+
 ## v1.0.19
 - Edit comments
 - Fix layout in search results

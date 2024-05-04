@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../services/microcosm_client.dart';
 import '../core/paginated.dart';
+import '../widgets/profile_sheet.dart';
 import 'profile.dart';
 
 // TODO: refactor this whole file
@@ -50,11 +51,19 @@ class EventAttendees implements Paginated<Profile> {
         if (snapshot.hasData) {
           // return const SizedBox(width: 100.0, height: 158.0);
           Profile profile = snapshot.data![index];
-          return Chip(
+          return ActionChip(
+            visualDensity: VisualDensity.compact,
+            onPressed: () => showModalBottomSheet<void>(
+              enableDrag: true,
+              showDragHandle: true,
+              context: context,
+              builder: (BuildContext context) => ProfileSheet(
+                profile: profile,
+              ),
+            ),
             avatar: CircleAvatar(
               foregroundImage: CachedNetworkImageProvider(profile.avatar),
               backgroundColor: Colors.grey.shade800,
-              child: const Icon(Icons.person),
             ),
             label: Text(profile.profileName),
           );
