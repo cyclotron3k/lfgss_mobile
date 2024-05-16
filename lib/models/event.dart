@@ -8,13 +8,16 @@ import '../core/item.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/event_tile.dart';
 import '../widgets/tiles/future_comment_tile.dart';
+import 'attendee.dart';
 import 'comment.dart';
 import 'event_attendees.dart';
 import 'flags.dart';
 import 'permissions.dart';
 import 'profile.dart';
 
-enum EventStatus { proposed, upcoming, postponed, cancelled }
+enum EventStatus { proposed, upcoming, postponed, cancelled, past }
+
+enum EventTiming { pending, active, expired, unknown }
 
 class Event implements CommentableItem {
   @override
@@ -35,9 +38,9 @@ class Event implements CommentableItem {
 
   final int? duration; // : 2880,
   final String? where; // : "Lee Valley Velodrome",
-  final EventStatus status; // : "upcoming",
+  final EventStatus status; // Unreliable. Always: "upcoming",
   final int rsvpLimit; // : 0,
-  final int rsvpAttend; // : 4,
+  int rsvpAttend; // : 4,
 
   final double? lat; // 51.3972176057575
   final double? lon; // -0.039101243019104004
@@ -48,7 +51,7 @@ class Event implements CommentableItem {
 
   // Metadata
   @override
-  final Flags flags;
+  Flags flags;
   final DateTime? lastActivity;
   final Permissions permissions;
   @override
@@ -74,15 +77,15 @@ class Event implements CommentableItem {
         ),
         whentz = DateTime.tryParse(
           json["whentz"] ?? "",
-        ), // DateTime: "2022-10-14T21:00:00Z",
-        tz = json["tz"], // String: "Europe/London",
-        duration = json["duration"], // int: 2880,
-        where = json["where"], // String: "Lee Valley Velodrome",
+        ),
+        tz = json["tz"],
+        duration = json["duration"],
+        where = json["where"],
         status = EventStatus.values.byName(
           json["status"],
-        ), // EventStatus: "upcoming",
-        rsvpLimit = json["rsvpLimit"], // int: 0,
-        rsvpAttend = json["rsvpAttend"] ?? 0, // int: 4,
+        ),
+        rsvpLimit = json["rsvpLimit"],
+        rsvpAttend = json["rsvpAttend"] ?? 0,
         lat = json["lat"],
         lon = json["lon"],
         north = json["north"],
@@ -176,6 +179,14 @@ class Event implements CommentableItem {
         start!.year != end!.year;
   }
 
+  // This is necessary due to https://git.dee.kitchen/buro9/microcosm/issues/35
+  EventTiming get timingStatus {
+    if (whentz == null) return EventTiming.unknown;
+    if (whentz!.isAfter(DateTime.now())) return EventTiming.pending;
+    if (end!.isBefore(DateTime.now())) return EventTiming.expired;
+    return EventTiming.active;
+  }
+
   bool? equivalentTz() {
     if (whentz == null) return null;
 
@@ -194,17 +205,37 @@ class Event implements CommentableItem {
     return rsvpAttend > 0;
   }
 
-  Widget getAttendees() {
-    _eventAttendees ??= EventAttendees(
-      eventId: id,
-      attendeeCount: rsvpAttend,
+  Future<EventAttendees> getAttendees() async {
+    _eventAttendees ??= await EventAttendees.getByEventId(id);
+    return _eventAttendees!;
+  }
+
+  Future<void> updateAttendance(int attendeeId, AttendeeStatus rsvp) async {
+    Uri uri = Uri.https(
+      API_HOST,
+      "/api/v1/events/$id/attendees",
     );
-    return _eventAttendees!.build();
+
+    await MicrocosmClient().putJson(
+      uri,
+      [
+        {
+          "profileId": attendeeId,
+          "rsvp": rsvp.name,
+        }
+      ],
+      followRedirects: false,
+    );
+
+    final attendees = await getAttendees();
+    await attendees.resetChildren(force: true);
   }
 
   @override
   void parsePage(Json json) {
     _totalChildren = json["comments"]["total"];
+    rsvpAttend = json["rsvpAttend"] ?? 0;
+    flags = Flags.fromJson(json: json["meta"]["flags"]);
 
     List<Comment> comments = json["comments"]["items"]
         .map<Comment>(

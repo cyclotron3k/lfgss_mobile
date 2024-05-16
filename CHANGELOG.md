@@ -1,7 +1,10 @@
 # Changelog
 
 ## Next
+- Attend/Flounce Event
 - Clickable Profile chips on Events
+- Fix Timezone issue on Events
+- View attendees
 
 ## v1.0.19
 - Edit comments

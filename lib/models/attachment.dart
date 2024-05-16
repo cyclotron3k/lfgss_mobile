@@ -24,23 +24,6 @@ class Attachment {
     return url.startsWith('/') ? "https://$API_HOST$url" : url;
   }
 
-  Widget asHero({double? height}) {
-    return Hero(
-      tag: fileHash,
-      child: MaybeImage(
-        imageUrl: getUrl(),
-        height: height,
-        imageBuilder: (context, imageProvider) => ClipRRect(
-          borderRadius: BorderRadius.circular(8.0),
-          child: Image(image: imageProvider),
-        ),
-        errorWidget: (context, url, error) => const Icon(
-          Icons.error_outline,
-        ),
-      ),
-    );
-  }
-
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 8.0),
@@ -54,7 +37,16 @@ class Attachment {
             ),
           );
         },
-        child: asHero(),
+        child: MaybeImage(
+          imageUrl: getUrl(),
+          imageBuilder: (context, imageProvider) => ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Image(image: imageProvider),
+          ),
+          errorWidget: (context, url, error) => const Icon(
+            Icons.error_outline,
+          ),
+        ),
       ),
     );
   }

@@ -9,6 +9,7 @@ class Flags {
   bool watched;
   bool sendEmail;
   bool sendSMS;
+  bool attending;
 
   Flags({
     this.sticky = false,
@@ -21,6 +22,7 @@ class Flags {
     this.ignored = false,
     this.sendEmail = false,
     this.sendSMS = false,
+    this.attending = false,
   });
 
   Flags.fromJson({required Map<String, dynamic> json})
@@ -33,5 +35,6 @@ class Flags {
         watched = json['watched'] ?? false,
         ignored = json['ignored'] ?? false,
         sendEmail = json['sendEmail'] ?? false,
-        sendSMS = json['sendSMS'] ?? false;
+        sendSMS = json['sendSMS'] ?? false,
+        attending = json['attending'] ?? false;
 }

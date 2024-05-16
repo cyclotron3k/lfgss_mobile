@@ -118,9 +118,7 @@ class Microcosm implements PaginatedItem<Item>, Authored {
   }
 
   @override
-  int get totalChildren {
-    return _totalChildren;
-  }
+  int get totalChildren => _totalChildren;
 
   static Future<Microcosm> root() async {
     Uri uri = Uri.parse(

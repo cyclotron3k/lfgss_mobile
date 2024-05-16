@@ -504,7 +504,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
     );
 
     log("Inviting participants...");
-    Json _ = await MicrocosmClient().putJson(
+    await MicrocosmClient().putJson(
       url,
       invitePayload,
       followRedirects: false,

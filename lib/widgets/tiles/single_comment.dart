@@ -156,15 +156,18 @@ class _SingleCommentState extends State<SingleComment> {
   }
 
   Widget _titleBar(BuildContext context, bool owner) => Row(children: [
-        Container(
-          width: 30.0,
-          padding: const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 8.0),
-          child: CachedNetworkImage(
-            imageUrl: widget.comment.createdBy.avatar,
-            width: 22,
-            height: 22,
-            errorWidget: (context, url, error) => const Icon(
-              Icons.person_outline,
+        InkWell(
+          onTap: () => _showProfileModal(context),
+          child: Container(
+            width: 30.0,
+            padding: const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 8.0),
+            child: CachedNetworkImage(
+              imageUrl: widget.comment.createdBy.avatar,
+              width: 22,
+              height: 22,
+              errorWidget: (context, url, error) => const Icon(
+                Icons.person_outline,
+              ),
             ),
           ),
         ),

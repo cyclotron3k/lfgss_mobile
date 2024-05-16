@@ -417,7 +417,7 @@ class _NewCommentState extends State<NewComment> {
       };
       log(_editing == null ? "Posting new comment..." : "Updating comment...");
 
-      Json comment;
+      Json? comment;
       if (_editing == null) {
         Uri url = Uri.https(
           API_HOST,
@@ -433,7 +433,7 @@ class _NewCommentState extends State<NewComment> {
       }
 
       if (_attachments.isNotEmpty) {
-        await _linkAttachments(comment["id"], fileHashes);
+        await _linkAttachments(comment!["id"], fileHashes);
       }
 
       setState(() {

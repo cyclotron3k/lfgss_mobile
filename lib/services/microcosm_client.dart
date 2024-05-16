@@ -59,16 +59,6 @@ class MicrocosmClient {
     }
   }
 
-  Future<http.Response> get(Uri url) async {
-    return http.get(
-      url,
-      headers: {
-        'User-Agent': userAgent,
-        if (accessToken != null) 'Authorization': "Bearer $accessToken",
-      },
-    );
-  }
-
   Future<void> logout() async {
     // TODO: looks like logout isn't implemented on the backend?
 
@@ -90,6 +80,16 @@ class MicrocosmClient {
     //     'Authorization': "Bearer $accessToken",
     //   },
     // );
+  }
+
+  Future<http.Response> get(Uri url) async {
+    return http.get(
+      url,
+      headers: {
+        'User-Agent': userAgent,
+        if (accessToken != null) 'Authorization': "Bearer $accessToken",
+      },
+    );
   }
 
   Future<Json> getJson(
@@ -129,6 +129,19 @@ class MicrocosmClient {
     return await _inFlight[url]!.response;
   }
 
+  Future<http.Response> post(Uri url, Object body) async {
+    String jsonBody = jsonEncode(body);
+    return http.post(
+      url,
+      headers: <String, String>{
+        'User-Agent': userAgent,
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer $accessToken",
+      },
+      body: jsonBody,
+    );
+  }
+
   Future<Json> postJson(
     Uri url,
     Object body, {
@@ -166,21 +179,10 @@ class MicrocosmClient {
     return data["data"];
   }
 
-  Future<http.Response> delete(Uri url, [Object? body]) async {
-    return http.delete(
-      url,
-      headers: <String, String>{
-        'User-Agent': userAgent,
-        'Content-Type': 'application/json',
-        'Authorization': "Bearer $accessToken",
-      },
-      body: jsonEncode(body),
-    );
-  }
-
-  Future<http.Response> post(Uri url, Object body) async {
+  Future<http.Response> put(Uri url, Object body) async {
     String jsonBody = jsonEncode(body);
-    return http.post(
+    log("PUTting $jsonBody");
+    return http.put(
       url,
       headers: <String, String>{
         'User-Agent': userAgent,
@@ -191,7 +193,7 @@ class MicrocosmClient {
     );
   }
 
-  Future<Json> putJson(
+  Future<Json?> putJson(
     Uri url,
     Object body, {
     bool followRedirects = true,
@@ -222,23 +224,21 @@ class MicrocosmClient {
     if (data["status"] != 200) {
       log("Failed to PUT to: $url");
       log("Error: ${data["error"]}");
-      throw "Couldn't PUt to: $url";
+      throw "Couldn't PUT to: $url";
     }
 
     return data["data"];
   }
 
-  Future<http.Response> put(Uri url, Object body) async {
-    String jsonBody = jsonEncode(body);
-    log("PUTting $jsonBody");
-    return http.put(
+  Future<http.Response> delete(Uri url, [Object? body]) async {
+    return http.delete(
       url,
       headers: <String, String>{
         'User-Agent': userAgent,
         'Content-Type': 'application/json',
         'Authorization': "Bearer $accessToken",
       },
-      body: jsonBody,
+      body: jsonEncode(body),
     );
   }
 
@@ -320,18 +320,4 @@ class MicrocosmClient {
       throw "Error from API Upload: ${response.statusCode}";
     }
   }
-
-  // Uri getUrl({Json params = const {}}) {
-  //   Map<String, String> stringy = {};
-
-  //   for (var item in params.keys) {
-  //     stringy[item] = params[item].toString();
-  //   }
-
-  //   return Uri.https(
-  //     HOST,
-  //     "/api/v1$path/$id",
-  //     stringy,
-  //   );
-  // }
 }

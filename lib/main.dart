@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_timezone_updated_gradle/flutter_native_timezone.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart';
+import 'package:timezone/timezone.dart';
 
 import 'models/full_profile.dart';
 import 'models/user_provider.dart';
@@ -15,8 +17,13 @@ typedef Json = Map<String, dynamic>;
 
 void main() async {
   initializeTimeZones();
+
   WidgetsFlutterBinding.ensureInitialized();
   initTasks();
+
+  final String timeZone = await FlutterNativeTimezone.getLocalTimezone();
+  setLocalLocation(getLocation(timeZone));
+  // await FlutterNativeTimezone.getLocalTimezone();
 
   var settings = Settings(
     await SharedPreferences.getInstance(),
@@ -61,7 +68,7 @@ class LfgssMobile extends StatelessWidget {
             seedColor: const Color.fromARGB(255, 0x1e, 0x72, 0xc4),
           ).copyWith(
             primary: const Color.fromARGB(255, 62, 166, 240),
-            inversePrimary: Color.fromARGB(255, 236, 161, 20),
+            inversePrimary: const Color.fromARGB(255, 236, 161, 20),
           ),
         );
 
