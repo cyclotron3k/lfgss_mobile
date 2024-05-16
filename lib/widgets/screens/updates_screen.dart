@@ -17,6 +17,8 @@ class UpdatesScreen extends StatefulWidget {
 }
 
 class _UpdatesScreenState extends State<UpdatesScreen> with RouteAware {
+  final _spinnerKey = GlobalKey<RefreshIndicatorState>();
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -30,9 +32,7 @@ class _UpdatesScreenState extends State<UpdatesScreen> with RouteAware {
   }
 
   @override
-  void didPopNext() async {
-    await _refreshScreen();
-  }
+  void didPopNext() async => _spinnerKey.currentState?.show();
 
   Future<void> _refreshScreen() async {
     await widget.updates.resetChildren();
@@ -42,6 +42,7 @@ class _UpdatesScreenState extends State<UpdatesScreen> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
+      key: _spinnerKey,
       onRefresh: _refreshScreen,
       child: CustomScrollView(
         // cacheExtent: 400.0,

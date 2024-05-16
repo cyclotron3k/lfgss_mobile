@@ -170,7 +170,8 @@ class _ProfileSheetState extends State<ProfileSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return SizedBox(
+      height: MediaQuery.of(context).copyWith().size.height * 0.40,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[

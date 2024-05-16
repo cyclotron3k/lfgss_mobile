@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.20+25
+version: 1.0.21+26
 
 environment:
   sdk: '>=3.0.2 <4.0.0'
@@ -47,7 +47,7 @@ dependencies:
   url_launcher: ^6.1.12
   share_plus: ^7.1.0
   flutter_cache_manager: ^3.3.1
-  photo_view: ^0.14.0
+  photo_view: ^0.15.0
   webview_flutter: ^4.2.3
   webview_flutter_android: ^3.9.3
   webview_cookie_manager: ^2.0.6
@@ -75,7 +75,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
   flutter_launcher_icons: "^0.13.1"
 
 flutter_launcher_icons:
@@ -100,8 +100,7 @@ flutter:
   assets:
     - assets/images/background_dark.jpg
     - assets/images/background_light.jpg
-    - assets/launcher_icon/foreground.png
-    - assets/launcher_icon/background.png
+    - assets/launcher_icon/play_store_icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

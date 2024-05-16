@@ -329,56 +329,53 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 }
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.info),
-              title: const Text("About"),
-              onTap: () {
-                showAboutDialog(
-                  context: context,
-                  applicationIcon: const CircleAvatar(
-                    backgroundImage: AssetImage(
-                      'assets/launcher_icon/background.png',
-                    ),
-                    foregroundImage: AssetImage(
-                      'assets/launcher_icon/foreground.png',
-                    ),
+            AboutListTile(
+              icon: const Icon(Icons.info),
+              applicationIcon: SizedBox(
+                width: 50.0,
+                height: 50.0,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.asset(
+                    "assets/launcher_icon/play_store_icon.png",
                   ),
-                  applicationVersion: '1.0.20',
-                  children: [
-                    const Text("Built by me, Aidan Samuel"),
-                    const Text("aka @cyclotron3k"),
-                    const SizedBox(height: 10.0),
-                    Text.rich(
-                      TextSpan(
-                        text: "This is an open-source project. ",
-                        children: [
-                          const TextSpan(
-                            text:
-                                "Build it yourself, contribute code or report issues on ",
-                          ),
-                          TextSpan(
-                            text: "GitHub",
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                launchUrl(
-                                  Uri.parse(
-                                    "https://github.com/cyclotron3k/lfgss_mobile",
-                                  ),
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              },
-                            style: const TextStyle(
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline,
-                              decorationColor: Colors.blue,
-                            ),
-                          ),
-                        ],
+                ),
+              ),
+              applicationName: "LFGSS Mobile",
+              applicationVersion: "1.0.21",
+              aboutBoxChildren: [
+                const Text("Built by me, Aidan Samuel"),
+                const Text("aka @cyclotron3k"),
+                const SizedBox(height: 10.0),
+                Text.rich(
+                  TextSpan(
+                    text: "This is an open-source project. ",
+                    children: [
+                      const TextSpan(
+                        text:
+                            "Build it yourself, contribute code or report issues on ",
                       ),
-                    ),
-                  ],
-                );
-              },
+                      TextSpan(
+                        text: "GitHub",
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            launchUrl(
+                              Uri.parse(
+                                "https://github.com/cyclotron3k/lfgss_mobile",
+                              ),
+                              mode: LaunchMode.externalApplication,
+                            );
+                          },
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.blue,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),

@@ -18,6 +18,8 @@ class MicrocosmScreen extends StatefulWidget {
 }
 
 class _MicrocosmScreenState extends State<MicrocosmScreen> with RouteAware {
+  final _spinnerKey = GlobalKey<RefreshIndicatorState>();
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -31,9 +33,7 @@ class _MicrocosmScreenState extends State<MicrocosmScreen> with RouteAware {
   }
 
   @override
-  void didPopNext() async {
-    await _refreshScreen();
-  }
+  void didPopNext() async => _spinnerKey.currentState?.show();
 
   Future<void> _refreshScreen() async {
     await widget.microcosm.resetChildren();
@@ -69,6 +69,7 @@ class _MicrocosmScreenState extends State<MicrocosmScreen> with RouteAware {
     return Scaffold(
       floatingActionButton: fab,
       body: RefreshIndicator(
+        key: _spinnerKey,
         onRefresh: _refreshScreen,
         child: CustomScrollView(
           // cacheExtent: 400.0,

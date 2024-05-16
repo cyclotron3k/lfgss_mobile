@@ -19,6 +19,8 @@ class HuddlesScreen extends StatefulWidget {
 }
 
 class _HuddlesScreenState extends State<HuddlesScreen> with RouteAware {
+  final _spinnerKey = GlobalKey<RefreshIndicatorState>();
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -32,9 +34,7 @@ class _HuddlesScreenState extends State<HuddlesScreen> with RouteAware {
   }
 
   @override
-  void didPopNext() async {
-    await _refreshScreen();
-  }
+  void didPopNext() async => _spinnerKey.currentState?.show();
 
   Future<void> _refreshScreen() async {
     await widget.huddles.resetChildren();
@@ -66,6 +66,7 @@ class _HuddlesScreenState extends State<HuddlesScreen> with RouteAware {
     return Scaffold(
       floatingActionButton: fab,
       body: RefreshIndicator(
+        key: _spinnerKey,
         onRefresh: _refreshScreen,
         child: CustomScrollView(
           // cacheExtent: 400.0,

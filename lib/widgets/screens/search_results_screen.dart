@@ -23,6 +23,8 @@ class SearchResultsScreen extends StatefulWidget {
 
 class _SearchResultsScreenState extends State<SearchResultsScreen>
     with RouteAware {
+  final _spinnerKey = GlobalKey<RefreshIndicatorState>();
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -40,9 +42,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen>
   }
 
   @override
-  void didPopNext() async {
-    return await _refreshScreen();
-  }
+  void didPopNext() async => _spinnerKey.currentState?.show();
 
   Future<void> _refreshScreen() async {
     await widget.search.resetChildren();
@@ -52,6 +52,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen>
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
+      key: _spinnerKey,
       onRefresh: _refreshScreen,
       child: CustomScrollView(
         // cacheExtent: 400.0,

@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.21
+- Shorter Profile bottom sheet
+- Show RefreshSpinner more often
+- Bump dependencies
+
 ## v1.0.20
 - Attend/Flounce Event
 - Clickable Profile chips on Events
