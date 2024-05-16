@@ -1,6 +1,6 @@
 # Changelog
 
-## Next
+## v1.0.20
 - Attend/Flounce Event
 - Clickable Profile chips on Events
 - Fix Timezone issue on Events
