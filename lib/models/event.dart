@@ -9,8 +9,8 @@ import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/event_tile.dart';
 import '../widgets/tiles/future_comment_tile.dart';
 import 'attendee.dart';
+import 'attendees.dart';
 import 'comment.dart';
-import 'event_attendees.dart';
 import 'flags.dart';
 import 'permissions.dart';
 import 'profile.dart';
@@ -199,14 +199,14 @@ class Event implements CommentableItem {
         start!.year == myTZ.year;
   }
 
-  EventAttendees? _eventAttendees;
+  Attendees? _eventAttendees;
 
   bool hasAttendees() {
     return rsvpAttend > 0;
   }
 
-  Future<EventAttendees> getAttendees() async {
-    _eventAttendees ??= await EventAttendees.getByEventId(id);
+  Future<Attendees> getAttendees() async {
+    _eventAttendees ??= await Attendees.getByEventId(id);
     return _eventAttendees!;
   }
 

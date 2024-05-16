@@ -1,13 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/models/event_attendees.dart';
 
+import '../models/attendees.dart';
 import 'attendee_shimmer.dart';
 import 'attendees_sheet.dart';
 
 class AttendeesList extends StatelessWidget {
-  final Future<EventAttendees> futureAttendees;
+  final Future<Attendees> futureAttendees;
   final int initialAttendeeCount;
   final int rsvpAttend;
   final int preview = 8;
@@ -20,7 +20,7 @@ class AttendeesList extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => FutureBuilder<EventAttendees>(
+  Widget build(BuildContext context) => FutureBuilder<Attendees>(
         future: futureAttendees,
         builder: (context, snapshot) {
           List<Widget> chips;
@@ -70,7 +70,7 @@ class AttendeesList extends StatelessWidget {
 
   Future<void> _showProfileModal(
     BuildContext context,
-    EventAttendees attendees,
+    Attendees attendees,
   ) =>
       showModalBottomSheet<void>(
         enableDrag: true,

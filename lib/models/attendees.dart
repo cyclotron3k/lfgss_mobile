@@ -7,7 +7,7 @@ import '../widgets/attendee_chip.dart';
 import '../widgets/attendee_shimmer.dart';
 import 'attendee.dart';
 
-class EventAttendees implements Paginated<Attendee> {
+class Attendees implements Paginated<Attendee> {
   final int eventId;
   @override
   final int startPage;
@@ -16,7 +16,7 @@ class EventAttendees implements Paginated<Attendee> {
 
   final Map<int, Attendee> _children = {};
 
-  EventAttendees.fromJson({
+  Attendees.fromJson({
     required this.eventId,
     required Json json,
     this.startPage = 0,
@@ -41,7 +41,7 @@ class EventAttendees implements Paginated<Attendee> {
     }
   }
 
-  static Future<EventAttendees> getByEventId(int eventId) async {
+  static Future<Attendees> getByEventId(int eventId) async {
     Uri uri = Uri.https(
       API_HOST,
       "/api/v1/events/$eventId/attendees",
@@ -52,7 +52,7 @@ class EventAttendees implements Paginated<Attendee> {
 
     Json json = await MicrocosmClient().getJson(uri);
 
-    return EventAttendees.fromJson(
+    return Attendees.fromJson(
       eventId: eventId,
       json: json,
       startPage: json["attendees"]["page"] - 1,

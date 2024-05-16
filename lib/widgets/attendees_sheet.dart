@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:lfgss_mobile/models/event_attendees.dart';
 
 import '../models/attendee.dart';
+import '../models/attendees.dart';
 
 class AttendeesSheet extends StatefulWidget {
   const AttendeesSheet({
@@ -10,7 +10,7 @@ class AttendeesSheet extends StatefulWidget {
     required this.attendees,
   });
 
-  final EventAttendees attendees;
+  final Attendees attendees;
 
   @override
   State<AttendeesSheet> createState() => _ProfileSheetState();
