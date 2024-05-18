@@ -280,7 +280,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
         ? await widget.item.unsubscribe()
         : await widget.item.subscribe();
 
-    if (!context.mounted) return;
+    if (!mounted) return;
     setState(() {});
 
     if (result) {

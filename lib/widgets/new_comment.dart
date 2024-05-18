@@ -449,7 +449,7 @@ class _NewCommentState extends State<NewComment> {
         widget.onPostSuccess(id);
       });
 
-      if (!context.mounted) return;
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Message sent successfully!'),
@@ -460,7 +460,7 @@ class _NewCommentState extends State<NewComment> {
     } catch (error) {
       setState(() => _sending = false);
 
-      if (!context.mounted) return;
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Failed to send message'),

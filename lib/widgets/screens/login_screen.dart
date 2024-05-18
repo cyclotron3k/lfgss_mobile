@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
             await settings.setString("accessToken", accessToken);
             await MicrocosmClient().updateAccessToken();
 
-            if (!context.mounted) return;
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Login successful'),
