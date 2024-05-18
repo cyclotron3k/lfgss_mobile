@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/commentable.dart';
+import '../../core/commentable_item.dart';
 import '../../models/comment.dart';
 import '../../models/conversation.dart';
 import '../../models/huddle.dart';

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
-import '../../core/commentable.dart';
-import '../../models/conversation.dart';
 import '../constants.dart';
 import '../core/authored.dart';
+import '../core/commentable_item.dart';
 import '../core/item.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/single_comment.dart';
 import 'comment_attachments.dart';
+import 'conversation.dart';
 import 'event.dart';
 import 'flags.dart';
 import 'huddle.dart';

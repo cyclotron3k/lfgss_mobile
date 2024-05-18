@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/comment.dart';
-import '../core/commentable.dart';
+import '../core/commentable_item.dart';
 import '../core/item.dart';
 import '../widgets/tiles/comment_tile.dart';
 import 'flags.dart';

@@ -5,7 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../constants.dart';
-import '../../core/commentable.dart';
+import '../../core/commentable_item.dart';
 import '../../models/event.dart';
 import '../../models/huddle.dart';
 import '../../models/comment_shuttle.dart';

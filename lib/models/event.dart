@@ -3,7 +3,7 @@ import 'package:html_unescape/html_unescape_small.dart';
 import 'package:timezone/timezone.dart' show Location, getLocation, TZDateTime;
 
 import '../constants.dart';
-import '../core/commentable.dart';
+import '../core/commentable_item.dart';
 import '../core/item.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/event_tile.dart';

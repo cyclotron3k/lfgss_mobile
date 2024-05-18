@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../core/commentable.dart';
+import '../../core/commentable_item.dart';
 import 'commentable_item_screen.dart';
 
 class FutureScreen extends StatefulWidget {

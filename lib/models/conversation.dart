@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
 import '../constants.dart';
-import '../core/commentable.dart';
+import '../core/commentable_item.dart';
 import '../core/item.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/conversation_tile.dart';

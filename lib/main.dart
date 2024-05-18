@@ -23,7 +23,6 @@ void main() async {
 
   final String timeZone = await FlutterNativeTimezone.getLocalTimezone();
   setLocalLocation(getLocation(timeZone));
-  // await FlutterNativeTimezone.getLocalTimezone();
 
   var settings = Settings(
     await SharedPreferences.getInstance(),
