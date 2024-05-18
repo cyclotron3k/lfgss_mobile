@@ -218,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     if (details == null) return;
 
-    if (!context.mounted) return;
+    if (!mounted) return;
 
     if (details.didNotificationLaunchApp) {
       if (details.notificationResponse?.payload == null) {
@@ -331,16 +331,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ),
             AboutListTile(
               icon: const Icon(Icons.info),
-              applicationIcon: SizedBox(
-                width: 50.0,
-                height: 50.0,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Image.asset(
-                    "assets/launcher_icon/play_store_icon.png",
-                  ),
-                ),
-              ),
+              applicationIcon: const AppIcon(),
               applicationName: "LFGSS Mobile",
               applicationVersion: "1.0.21",
               aboutBoxChildren: [
@@ -431,4 +422,36 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
     );
   }
+}
+
+class AppIcon extends StatefulWidget {
+  const AppIcon({
+    super.key,
+  });
+
+  @override
+  State<AppIcon> createState() => _AppIconState();
+}
+
+class _AppIconState extends State<AppIcon> {
+  double turns = 0;
+  @override
+  Widget build(BuildContext context) => AnimatedRotation(
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeOutBack,
+        turns: turns,
+        child: GestureDetector(
+          onTap: () => setState(() => turns++),
+          child: SizedBox(
+            width: 50.0,
+            height: 50.0,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image.asset(
+                "assets/launcher_icon/play_store_icon.png",
+              ),
+            ),
+          ),
+        ),
+      );
 }
