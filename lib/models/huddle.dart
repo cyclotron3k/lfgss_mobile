@@ -101,15 +101,17 @@ class Huddle implements CommentableItem {
     parsePage(json);
   }
 
-  static Future<Huddle> getById(int id) async {
-    // int pageId = await getFirstUnreadPage(id);
+  static Future<Huddle> getById(int id, [int? offset]) async {
+    String path = offset == null
+        ? "/api/v1/huddles/$id/newcomment"
+        : "/api/v1/huddles/$id";
 
     Uri uri = Uri.https(
       API_HOST,
-      "/api/v1/huddles/$id/newcomment",
+      path,
       {
+        if (offset != null) "offset": offset.toString(),
         "limit": PAGE_SIZE.toString(),
-        // "offset": (PAGE_SIZE * pageId).toString(),
       },
     );
 

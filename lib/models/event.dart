@@ -257,11 +257,15 @@ class Event implements CommentableItem {
         "/events/$id/newest",
       );
 
-  static Future<Event> getById(int id) async {
+  static Future<Event> getById(int id, [int? offset]) async {
+    String path =
+        offset == null ? "/api/v1/events/$id/newcomment" : "/api/v1/events/$id";
+
     Uri uri = Uri.https(
       API_HOST,
-      "/api/v1/events/$id/newcomment",
+      path,
       {
+        if (offset != null) "offset": offset.toString(),
         "limit": PAGE_SIZE.toString(),
       },
     );

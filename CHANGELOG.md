@@ -4,6 +4,7 @@
 - Shorter Profile bottom sheet
 - Show RefreshSpinner more often
 - Bump dependencies
+- Refactor link parsing
 
 ## v1.0.20
 - Attend/Flounce Event

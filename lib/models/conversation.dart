@@ -121,11 +121,16 @@ class Conversation implements CommentableItem {
   @override
   int get totalChildren => _totalChildren;
 
-  static Future<Conversation> getById(int id) async {
+  static Future<Conversation> getById(int id, [int? offset]) async {
+    String path = offset == null
+        ? "/api/v1/conversations/$id/newcomment"
+        : "/api/v1/conversations/$id";
+
     Uri uri = Uri.https(
       API_HOST,
-      "/api/v1/conversations/$id/newcomment",
+      path,
       {
+        if (offset != null) "offset": offset.toString(),
         "limit": PAGE_SIZE.toString(),
       },
     );
