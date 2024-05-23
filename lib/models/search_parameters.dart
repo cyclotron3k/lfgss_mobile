@@ -14,6 +14,7 @@ class SearchParameters {
   final bool? following;
   final bool? hasAttachment;
   final int? authorId;
+  final int? id;
   final int? since;
   final int? until;
   final String? sort;
@@ -45,6 +46,7 @@ class SearchParameters {
     this.following,
     this.hasAttachment,
     this.authorId,
+    this.id,
     this.since,
     this.until,
     this.sort,
@@ -70,6 +72,9 @@ class SearchParameters {
             : null,
         authorId = uri.queryParameters.containsKey('authorId')
             ? int.parse(uri.queryParameters['authorId']!)
+            : null,
+        id = uri.queryParameters.containsKey('id')
+            ? int.parse(uri.queryParameters['id']!)
             : null,
         since = uri.queryParameters.containsKey('since')
             ? int.parse(uri.queryParameters['since']!)
@@ -103,6 +108,10 @@ class SearchParameters {
 
     if (authorId != null) {
       parameters["authorId"] = authorId.toString();
+    }
+
+    if (id != null) {
+      parameters["id"] = id.toString();
     }
 
     if (since != null) {
