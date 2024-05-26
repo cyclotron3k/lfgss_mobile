@@ -333,7 +333,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               icon: const Icon(Icons.info),
               applicationIcon: const AppIcon(),
               applicationName: "LFGSS Mobile",
-              applicationVersion: "1.0.21",
+              applicationVersion: "1.0.22",
               aboutBoxChildren: [
                 const Text("Built by me, Aidan Samuel"),
                 const Text("aka @cyclotron3k"),

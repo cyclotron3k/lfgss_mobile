@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.0.22
+- Fix crashing on Pixel 8a
+
 ## v1.0.21
 - Shorter Profile bottom sheet
 - Show RefreshSpinner more often
