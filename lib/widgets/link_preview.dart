@@ -11,25 +11,39 @@ class LinkPreview extends StatefulWidget {
 }
 
 class _LinkPreviewState extends State<LinkPreview> {
-  Uri? location;
-  bool resolved = false;
-  bool error = false;
+  List<Uri> locations = [];
 
-  Future<void> resolveRedirect() async {
+  bool resolved = false;
+  bool infiniteLoop = false;
+  bool inTooDeep = false;
+  final limit = 8;
+
+  Future<void> lookup() async {
     final client = HttpClient();
 
-    var request = await client.getUrl(widget.primary);
+    var request = await client.getUrl(locations.last);
     request.followRedirects = false;
 
     var response = await request.close();
-    resolved = true;
 
     if (response.isRedirect) {
       response.drain();
-      var loc = response.headers.value(HttpHeaders.locationHeader);
-      location = Uri.parse(loc!);
+      final loc = response.headers.value(HttpHeaders.locationHeader);
+      final nextUri = Uri.parse(loc!);
+
+      if (locations.contains(nextUri)) {
+        infiniteLoop = true;
+        resolved = true;
+      } else if (locations.length > limit) {
+        locations.add(nextUri);
+        inTooDeep = true;
+        resolved = true;
+      } else {
+        locations.add(nextUri);
+        lookup();
+      }
     } else {
-      error = true;
+      resolved = true;
     }
 
     setState(() {});
@@ -38,7 +52,10 @@ class _LinkPreviewState extends State<LinkPreview> {
   @override
   void initState() {
     super.initState();
-    resolveRedirect();
+
+    // There's a problem where shortened links are being served with HTTP, when they should be HTTPS
+    locations.add(widget.primary.replace(scheme: 'https'));
+    lookup();
   }
 
   @override
@@ -50,10 +67,24 @@ class _LinkPreviewState extends State<LinkPreview> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.primary.toString()),
+          SizedBox(
+            width: 280.0,
+            height: 160.0,
+            child: ListView.builder(
+              itemBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text(
+                  "${index + 1}. ${locations[index].toString()}",
+                ),
+              ),
+              itemCount: locations.length,
+              //prototypeItem: const Text(" "),
+            ),
+          ),
           const SizedBox(height: 10),
-          if (error) const Text("Could not determine final destination"),
-          if (location != null) Text(location.toString()),
+          if (inTooDeep) const Text("Too many hops. Gave up looking."),
+          if (infiniteLoop)
+            const Text("Infinite loop detected. Gave up looking."),
           if (!resolved)
             const SizedBox(
               width: 16.0,

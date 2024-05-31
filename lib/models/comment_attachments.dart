@@ -73,7 +73,6 @@ class CommentAttachments {
           physics: physics,
           scrollDirection: scrollDirection,
           shrinkWrap: true,
-          // prototypeItem: const Icon(Icons.image, size: 64.0),
           itemBuilder: getAttachment,
         ),
       );
@@ -81,42 +80,46 @@ class CommentAttachments {
   }
 
   Widget getAttachment(BuildContext context, int index) {
-    return FutureBuilder(
-      future: getAttachmentList(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          // return const SizedBox(width: 100.0, height: 158.0);
-          return snapshot.data![index].build(context);
-        } else if (snapshot.hasError) {
-          return Icon(
-            Icons.error_outline,
-            color: Theme.of(context).colorScheme.error,
-            size: 64.0,
-          );
-        } else {
-          return Padding(
-            padding: const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 8.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: Container(
-                color: Colors.grey.shade800,
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxHeight: 32.0,
-                        maxWidth: 32.0,
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.easeInOut,
+      child: FutureBuilder(
+        future: getAttachmentList(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            // return const SizedBox(width: 100.0, height: 158.0);
+            return snapshot.data![index].build(context);
+          } else if (snapshot.hasError) {
+            return Icon(
+              Icons.error_outline,
+              color: Theme.of(context).colorScheme.error,
+              size: 64.0,
+            );
+          } else {
+            return Padding(
+              padding: const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 8.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Container(
+                  color: Colors.grey.shade800,
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxHeight: 32.0,
+                          maxWidth: 32.0,
+                        ),
+                        child: const CircularProgressIndicator(),
                       ),
-                      child: const CircularProgressIndicator(),
                     ),
                   ),
                 ),
               ),
-            ),
-          );
-        }
-      },
+            );
+          }
+        },
+      ),
     );
   }
 }

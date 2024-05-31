@@ -19,27 +19,19 @@ class AttachmentThumbnail extends StatefulWidget {
 
 class _AttachmentThumbnailState extends State<AttachmentThumbnail> {
   bool remove = false;
-  late Widget image;
   double? dx;
   double? dy;
 
   @override
-  void initState() {
-    File file = File(widget.image.path);
-
-    image = ClipRRect(
+  Widget build(BuildContext context) {
+    Widget image = ClipRRect(
       borderRadius: BorderRadius.circular(8.0),
       child: Image.file(
-        file,
+        File(widget.image.path),
         height: 80.0 - 8.0,
       ),
     );
 
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Draggable(
       // affinity: Axis.horizontal,
       // axis: Axis.vertical,

@@ -1,7 +1,13 @@
 # Changelog
 
+## v1.0.23
+- Improve link preview
+- Maybe fix horizontal attachment scroll glitch
+
 ## v1.0.22
 - Fix crashing on Pixel 8a
+- Refresh app icon
+- Minor search improvement
 
 ## v1.0.21
 - Shorter Profile bottom sheet

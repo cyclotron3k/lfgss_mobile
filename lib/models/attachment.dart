@@ -38,6 +38,7 @@ class Attachment {
           );
         },
         child: MaybeImage(
+          fit: BoxFit.contain,
           imageUrl: getUrl(),
           imageBuilder: (context, imageProvider) => ClipRRect(
             borderRadius: BorderRadius.circular(8.0),

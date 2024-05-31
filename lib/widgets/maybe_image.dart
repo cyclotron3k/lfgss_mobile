@@ -131,47 +131,43 @@ class _MaybeImageState extends State<MaybeImage> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 100),
-      curve: Curves.easeInOut,
-      child: Consumer<Settings>(builder: (context, settings, child) {
-        if (_allowDownload(settings)) {
-          return widget.cni.build(context);
-        }
+    return Consumer<Settings>(builder: (context, settings, child) {
+      if (_allowDownload(settings)) {
+        return widget.cni.build(context);
+      }
 
-        return FutureBuilder<bool>(
-          future: _precached,
-          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            if (snapshot.hasData) {
-              if (snapshot.data! as bool) {
-                return widget.cni.build(context);
-              } else {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Container(
-                    color: Colors.grey.shade800,
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: InkWell(
-                        child: const Center(
-                          child: Icon(Icons.download),
-                        ),
-                        onTap: () {
-                          setState(() => imageState = ImageState.downloading);
-                        },
+      return FutureBuilder<bool>(
+        future: _precached,
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data! as bool) {
+              return widget.cni.build(context);
+            } else {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Container(
+                  color: Colors.grey.shade800,
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: InkWell(
+                      child: const Center(
+                        child: Icon(Icons.download),
                       ),
+                      onTap: () {
+                        setState(() => imageState = ImageState.downloading);
+                      },
                     ),
                   ),
-                );
-              }
-            } else {
-              return const AspectRatio(
-                aspectRatio: 1,
+                ),
               );
             }
-          },
-        );
-      }),
-    );
+          } else {
+            return const AspectRatio(
+              aspectRatio: 1,
+            );
+          }
+        },
+      );
+    });
   }
 }
