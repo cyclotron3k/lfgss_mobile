@@ -2,7 +2,9 @@
 
 ## v1.0.23
 - Improve link preview
-- Maybe fix horizontal attachment scroll glitch
+- Fix horizontal attachment scroll glitch
+- Fix layout issue with iframs
+- Fix layout issue with lists
 
 ## v1.0.22
 - Fix crashing on Pixel 8a

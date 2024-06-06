@@ -44,9 +44,14 @@ class _CommentHtmlState extends State<CommentHtml> {
 
     _doc = parse(widget.html);
 
-    final RegExp tweetMatcher = RegExp(
-      r'^https://(twitter|x)\.com/\w+/status/\d+',
-    );
+    // The BRs following IFRAMEs cause layout issues, so remove them:
+    _doc.querySelectorAll("iframe + br").forEach((ele) => ele.remove());
+
+    // The BRs that are inserted into lists cause havoc too:
+    _doc.querySelectorAll("li > br:last-child").forEach((ele) => ele.remove());
+
+    final tweetMatcher = RegExp(r'^https://(twitter|x)\.com/\w+/status/\d+');
+
     if (widget.embedTweets) {
       final anchors = _doc.querySelectorAll('a');
       for (final anchor in anchors) {
