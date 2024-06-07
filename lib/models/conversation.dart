@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 
@@ -161,6 +162,12 @@ class Conversation implements CommentableItem {
     );
   }
 
+  // TODO: DRY
+  @override
+  Comment? getCachedComment(int commentId) => _children.values.firstWhereOrNull(
+        (v) => v.id == commentId,
+      );
+
   @override
   Future<Conversation> getItemByCommentId(int commentId) =>
       Conversation.getByCommentId(commentId);
@@ -251,10 +258,14 @@ class Conversation implements CommentableItem {
   Widget childTile(int i) {
     if (_children.containsKey(i)) {
       var comment = _children[i]!;
-      return comment.renderAsSingleComment(highlight: highlight == comment.id);
+      return comment.renderAsSingleComment(
+        contextItem: this,
+        highlight: highlight == comment.id,
+      );
     }
     return FutureCommentTile(
       comment: getChild(i),
+      contextItem: this,
       highlight: highlight,
     );
   }

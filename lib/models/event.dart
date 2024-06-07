@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:timezone/timezone.dart' show Location, getLocation, TZDateTime;
@@ -123,6 +124,12 @@ class Event implements CommentableItem {
       highlight: commentId,
     );
   }
+
+  // TODO: DRY
+  @override
+  Comment? getCachedComment(int commentId) => _children.values.firstWhereOrNull(
+        (v) => v.id == commentId,
+      );
 
   @override
   Future<Event> getItemByCommentId(int commentId) =>
@@ -336,10 +343,14 @@ class Event implements CommentableItem {
   Widget childTile(int i) {
     if (_children.containsKey(i)) {
       var comment = _children[i]!;
-      return comment.renderAsSingleComment(highlight: highlight == comment.id);
+      return comment.renderAsSingleComment(
+        contextItem: this,
+        highlight: highlight == comment.id,
+      );
     }
     return FutureCommentTile(
       comment: getChild(i),
+      contextItem: this,
       highlight: highlight,
     );
   }

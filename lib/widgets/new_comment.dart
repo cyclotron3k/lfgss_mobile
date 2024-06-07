@@ -185,6 +185,7 @@ class _NewCommentState extends State<NewComment> {
     if (_overlayEntry != null) {
       // log("hiding overlay");
       _overlayEntry?.remove();
+      _overlayEntry?.dispose();
       _overlayEntry = null;
     }
   }

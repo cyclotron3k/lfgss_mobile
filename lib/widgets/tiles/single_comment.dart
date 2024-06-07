@@ -5,23 +5,29 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/commentable_item.dart';
 import '../../models/comment.dart';
 import '../../models/comment_shuttle.dart';
 import '../../models/user_provider.dart';
-import '../../services/link_parser.dart';
 import '../../services/settings.dart';
 import '../profile_sheet.dart';
+import '../thread_view.dart';
 import '../swipeable.dart';
 import '../time_ago.dart';
 import 'comment_html.dart';
 
 class SingleComment extends StatefulWidget {
   final Comment comment;
+  final CommentableItem contextItem;
   final bool highlight;
+  final bool hideReply;
+
   const SingleComment({
     super.key,
     required this.comment,
+    required this.contextItem,
     this.highlight = false,
+    this.hideReply = false,
   });
 
   @override
@@ -66,7 +72,6 @@ class _SingleCommentState extends State<SingleComment> {
       swipeThresholds: const {SwipeDirection.startToEnd: 0.18},
       background: Container(
         alignment: Alignment.centerLeft,
-        // color: Colors.green,
         child: Padding(
           padding: const EdgeInsets.only(left: 16.0),
           child: AnimatedSize(
@@ -187,14 +192,22 @@ class _SingleCommentState extends State<SingleComment> {
                   ),
                 ),
               ),
-              if (_reply)
+              if (_reply && !widget.hideReply)
                 InkWell(
-                  onTap: () async {
-                    LinkParser.parseUri(
-                      context,
-                      widget.comment.links["inReplyTo"]!.href,
-                    );
-                  },
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (BuildContext context) => Dialog(
+                      clipBehavior: Clip.hardEdge,
+                      child: AnimatedSize(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOut,
+                        child: ThreadView(
+                          rootComment: widget.comment,
+                          commentableItem: widget.contextItem,
+                        ),
+                      ),
+                    ),
+                  ),
                   child: Text(
                     "replied to ${HtmlUnescape().convert(widget.comment.links["inReplyToAuthor"]!.title ?? "")}",
                     style: const TextStyle(color: Colors.grey),

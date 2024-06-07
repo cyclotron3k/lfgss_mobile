@@ -5,10 +5,10 @@ import 'package:provider/provider.dart';
 
 import '../../core/commentable_item.dart';
 import '../../models/comment.dart';
-import '../../services/link_parser.dart';
 import '../../services/settings.dart';
 import '../profile_sheet.dart';
 import '../screens/future_screen.dart';
+import '../thread_view.dart';
 import '../time_ago.dart';
 import 'comment_html.dart';
 
@@ -108,12 +108,20 @@ class CommentTile extends StatelessWidget {
                     ),
                     if (showReplied)
                       InkWell(
-                        onTap: () async {
-                          LinkParser.parseUri(
-                            context,
-                            comment.links["inReplyTo"]!.href,
-                          );
-                        },
+                        onTap: () => showDialog(
+                          context: context,
+                          builder: (BuildContext context) => Dialog(
+                            clipBehavior: Clip.hardEdge,
+                            child: AnimatedSize(
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeOut,
+                              child: ThreadView(
+                                rootComment: comment,
+                                commentableItem: contextItem,
+                              ),
+                            ),
+                          ),
+                        ),
                         child: Text(
                           "replied to ${HtmlUnescape().convert(comment.links["inReplyToAuthor"]!.title ?? "")}",
                           style: const TextStyle(color: Colors.grey),

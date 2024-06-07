@@ -67,6 +67,7 @@ class _LinkPreviewState extends State<LinkPreview> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // TODO: Copy pattern from thread view
           SizedBox(
             width: 280.0,
             height: 160.0,

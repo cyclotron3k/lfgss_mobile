@@ -59,7 +59,8 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
       return HuddleHeader(huddle: widget.item as Huddle);
     }
     throw Exception(
-        "Tried to create a header element for a ${widget.item.runtimeType} which doesn't have a handler defined.");
+      "Tried to create a header element for a ${widget.item.runtimeType} which doesn't have a handler defined.",
+    );
   }
 
   Widget _pageDivider(int index) {

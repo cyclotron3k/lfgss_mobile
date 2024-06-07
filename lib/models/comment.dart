@@ -45,7 +45,7 @@ class Comment implements Item, Authored {
   Uri get selfUrl => Uri.https(WEB_HOST, "/comments/$id");
 
   Future<Comment?> getParentComment() async {
-    if (inReplyTo == null) return null;
+    if (inReplyTo == null || inReplyTo == 0) return null;
     if (_parentComment != null) return _parentComment;
 
     Uri uri = Uri.https(
@@ -83,16 +83,21 @@ class Comment implements Item, Authored {
     bool? isReply,
     bool? mentioned,
     bool highlight = false,
-  }) {
-    return const Placeholder(); // CommentTile(comment: this);
-  }
+  }) =>
+      const Placeholder(); // CommentTile(comment: this);
 
   Widget renderAsSingleComment({
+    required CommentableItem contextItem,
     bool? overrideUnreadFlag,
     bool highlight = false,
-  }) {
-    return SingleComment(comment: this, highlight: highlight);
-  }
+    bool hideReply = false,
+  }) =>
+      SingleComment(
+        comment: this,
+        contextItem: contextItem,
+        highlight: highlight,
+        hideReply: hideReply,
+      );
 
   Comment.fromJson({required Json json})
       : id = json["id"],
@@ -108,12 +113,12 @@ class Comment implements Item, Authored {
         created = DateTime.parse(json['meta']['created']),
         flags = Flags.fromJson(json: json["meta"]["flags"]),
         links = Links.fromJson(json: json["meta"]["links"]) {
-    if (json["meta"]?["replies"] != null) {
-      _replies = <Comment>[];
-      for (var reply in json["meta"]["replies"] as List<Json>) {
-        _replies!.add(Comment.fromJson(json: reply));
-      }
-    }
+    // if (json["meta"]?["replies"] != null) {
+    //   _replies = <Comment>[];
+    //   for (var reply in json["meta"]["replies"] as List<Json>) {
+    //     _replies!.add(Comment.fromJson(json: reply));
+    //   }
+    // }
     if (json["meta"]?["inReplyTo"] != null) {
       _parentComment = Comment.fromJson(json: json["meta"]["inReplyTo"]);
     }

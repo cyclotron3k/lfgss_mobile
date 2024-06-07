@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lfgss_mobile/core/commentable_item.dart';
 
 import '../../core/item.dart';
 import '../../models/comment.dart';
@@ -6,10 +7,12 @@ import 'comment_shimmer.dart';
 
 class FutureCommentTile extends StatelessWidget {
   final Future<Comment> comment;
+  final CommentableItem contextItem;
   final int highlight;
   const FutureCommentTile({
     super.key,
     required this.comment,
+    required this.contextItem,
     this.highlight = 0,
   });
 
@@ -25,6 +28,7 @@ class FutureCommentTile extends StatelessWidget {
             Comment comment = snapshot.data! as Comment;
             return comment.renderAsSingleComment(
               highlight: comment.id == highlight,
+              contextItem: contextItem,
             );
           } else if (snapshot.hasError) {
             return Center(
