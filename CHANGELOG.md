@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.0.24
+- Single thread view
+
 ## v1.0.23
 - Improve link preview
 - Fix horizontal attachment scroll glitch
