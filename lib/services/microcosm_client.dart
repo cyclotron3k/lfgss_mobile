@@ -7,8 +7,9 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:quiver/collection.dart' show LruMap;
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../constants.dart';
 import 'relaxed_jpeg_decoder.dart';
 
@@ -30,7 +31,7 @@ class _ExpiringResponse {
 }
 
 class MicrocosmClient {
-  static const String userAgent = "LFGSSMobile/1.0.24 (android;cyclotron3k)";
+  static const String userAgent = "LFGSSMobile/1.0.25 (android;cyclotron3k)";
   static final MicrocosmClient _singleton = MicrocosmClient._internal();
   String? accessToken;
 

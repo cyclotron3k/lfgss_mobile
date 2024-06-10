@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.0.25
+- Fix Profile picture url handling
+
 ## v1.0.24
 - Single thread view
 

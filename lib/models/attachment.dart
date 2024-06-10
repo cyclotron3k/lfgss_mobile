@@ -10,7 +10,7 @@ class Attachment {
   final String fileName;
   final String fileExt;
   final DateTime created;
-  final String url;
+  final String _url;
 
   Attachment.fromJson({required json})
       : profileId = json["profileId"],
@@ -18,11 +18,9 @@ class Attachment {
         fileName = json["fileName"],
         fileExt = json["fileExt"],
         created = DateTime.parse(json["created"]),
-        url = json["meta"]["links"][0]["href"]; // TODO: be more robust
+        _url = json["meta"]["links"][0]["href"]; // TODO: be more robust
 
-  String getUrl() {
-    return url.startsWith('/') ? "https://$API_HOST$url" : url;
-  }
+  String get url => _url.startsWith('/') ? "https://$API_HOST$_url" : _url;
 
   Widget build(BuildContext context) {
     return Padding(
@@ -39,7 +37,7 @@ class Attachment {
         },
         child: MaybeImage(
           fit: BoxFit.contain,
-          imageUrl: getUrl(),
+          imageUrl: url,
           imageBuilder: (context, imageProvider) => ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
             child: Image(image: imageProvider),

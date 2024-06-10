@@ -11,8 +11,8 @@ import '../../models/comment_shuttle.dart';
 import '../../models/user_provider.dart';
 import '../../services/settings.dart';
 import '../profile_sheet.dart';
-import '../thread_view.dart';
 import '../swipeable.dart';
+import '../thread_view.dart';
 import '../time_ago.dart';
 import 'comment_html.dart';
 

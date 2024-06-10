@@ -28,11 +28,9 @@ class Profile implements Item {
         visible = json["visible"],
         _avatar = json["avatar"];
 
-  String get avatar {
-    return _avatar.toString().startsWith('/')
-        ? "https://$WEB_HOST$_avatar"
-        : _avatar;
-  }
+  String get avatar => _avatar.toString().startsWith('/')
+      ? "https://$API_HOST$_avatar"
+      : _avatar;
 
   Future<bool> get isBlocked async {
     return false;
