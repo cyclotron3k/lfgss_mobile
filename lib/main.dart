@@ -62,6 +62,7 @@ class LfgssMobile extends StatelessWidget {
         );
 
         var darkTheme = ThemeData(
+          dialogTheme: DialogTheme(backgroundColor: Colors.grey[850]),
           colorScheme: ColorScheme.fromSeed(
             brightness: Brightness.dark,
             seedColor: const Color.fromARGB(255, 0x1e, 0x72, 0xc4),

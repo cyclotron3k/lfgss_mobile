@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.0.26
+- Better thread-view layout
+
 ## v1.0.25
 - Fix Profile picture url handling
 

@@ -115,9 +115,14 @@ class CommentTile extends StatelessWidget {
                             child: AnimatedSize(
                               duration: const Duration(milliseconds: 250),
                               curve: Curves.easeOut,
-                              child: ThreadView(
-                                rootComment: comment,
-                                commentableItem: contextItem,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0,
+                                ),
+                                child: ThreadView(
+                                  rootComment: comment,
+                                  commentableItem: contextItem,
+                                ),
                               ),
                             ),
                           ),

@@ -201,9 +201,14 @@ class _SingleCommentState extends State<SingleComment> {
                       child: AnimatedSize(
                         duration: const Duration(milliseconds: 250),
                         curve: Curves.easeOut,
-                        child: ThreadView(
-                          rootComment: widget.comment,
-                          commentableItem: widget.contextItem,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                          ),
+                          child: ThreadView(
+                            rootComment: widget.comment,
+                            commentableItem: widget.contextItem,
+                          ),
                         ),
                       ),
                     ),

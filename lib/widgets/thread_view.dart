@@ -83,6 +83,7 @@ class _ThreadViewState extends State<ThreadView> {
         notificationPredicate: (_) => false,
         onRefresh: () => completeFuture.future,
         child: ListView.separated(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
           reverse: true,
           shrinkWrap: true,
           itemBuilder: (context, index) =>
@@ -93,6 +94,7 @@ class _ThreadViewState extends State<ThreadView> {
           itemCount: comments.length,
           separatorBuilder: (BuildContext context, int index) => const Divider(
             indent: 8.0,
+            endIndent: 8.0,
           ),
         ),
       );
