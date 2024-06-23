@@ -96,7 +96,7 @@ class Comment implements Item, Authored {
         comment: this,
         contextItem: contextItem,
         highlight: highlight,
-        hideReply: hideReply,
+        inert: hideReply,
       );
 
   Comment.fromJson({required Json json})
@@ -124,9 +124,7 @@ class Comment implements Item, Authored {
     }
   }
 
-  bool hasAttachments() {
-    return attachments > 0;
-  }
+  bool get hasAttachments => attachments > 0;
 
   Future<CommentableItem> get container {
     if (itemType == 'conversation') {

@@ -20,14 +20,14 @@ class SingleComment extends StatefulWidget {
   final Comment comment;
   final CommentableItem contextItem;
   final bool highlight;
-  final bool hideReply;
+  final bool inert;
 
   const SingleComment({
     super.key,
     required this.comment,
     required this.contextItem,
     this.highlight = false,
-    this.hideReply = false,
+    this.inert = false,
   });
 
   @override
@@ -47,18 +47,18 @@ class _SingleCommentState extends State<SingleComment> {
   void initState() {
     super.initState();
 
-    _swipingEnabled = context.read<CommentShuttle?>() != null;
+    _swipingEnabled = !widget.inert && context.read<CommentShuttle?>() != null;
 
     _edited = widget.comment.revisions > 1;
     _reply = widget.comment.links.containsKey("inReplyToAuthor");
     _empty = widget.comment.markdown == ".";
-    _deleted = _empty && !widget.comment.hasAttachments();
+    _deleted = _empty && !widget.comment.hasAttachments;
   }
 
   @override
   Widget build(BuildContext context) {
     bool owner = false;
-    if (Provider.of<UserProvider>(context).hasUser) {
+    if (!widget.inert && Provider.of<UserProvider>(context).hasUser) {
       owner = widget.comment.createdBy.id ==
           Provider.of<UserProvider>(
             context,
@@ -135,7 +135,7 @@ class _SingleCommentState extends State<SingleComment> {
             children: [
               _titleBar(context, owner),
               _commentBody(owner),
-              if (widget.comment.hasAttachments())
+              if (widget.comment.hasAttachments)
                 widget.comment.getAttachments(context: context),
             ],
           ),
@@ -192,7 +192,7 @@ class _SingleCommentState extends State<SingleComment> {
                   ),
                 ),
               ),
-              if (_reply && !widget.hideReply)
+              if (_reply && !widget.inert)
                 InkWell(
                   onTap: () => showDialog(
                     context: context,
@@ -238,7 +238,7 @@ class _SingleCommentState extends State<SingleComment> {
                   ),
                 ),
               TimeAgo(widget.comment.created, color: Colors.grey),
-              if (owner)
+              if (owner && !widget.inert)
                 PopupMenuButton(
                   itemBuilder: (context) => [
                     PopupMenuItem(
