@@ -8,9 +8,11 @@ import 'search_screen.dart';
 
 class MicrocosmScreen extends StatefulWidget {
   final Microcosm microcosm;
+  final ScrollController? controller;
   const MicrocosmScreen({
     super.key,
     required this.microcosm,
+    this.controller,
   });
 
   @override
@@ -73,6 +75,7 @@ class _MicrocosmScreenState extends State<MicrocosmScreen> with RouteAware {
         onRefresh: _refreshScreen,
         child: CustomScrollView(
           // cacheExtent: 400.0,
+          controller: widget.controller,
           slivers: <Widget>[
             SliverAppBar(
               floating: true,

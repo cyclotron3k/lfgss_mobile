@@ -5,7 +5,12 @@ import 'updates_screen.dart';
 
 class FutureUpdatesScreen extends StatefulWidget {
   final Future<Updates> updates;
-  const FutureUpdatesScreen({super.key, required this.updates});
+  final ScrollController? controller;
+  const FutureUpdatesScreen({
+    super.key,
+    required this.updates,
+    this.controller,
+  });
 
   @override
   State<FutureUpdatesScreen> createState() => _FutureUpdatesScreenState();
@@ -18,7 +23,10 @@ class _FutureUpdatesScreenState extends State<FutureUpdatesScreen> {
       future: widget.updates,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return UpdatesScreen(updates: snapshot.data!);
+          return UpdatesScreen(
+            updates: snapshot.data!,
+            controller: widget.controller,
+          );
         } else if (snapshot.hasError) {
           return Center(
             child: Icon(

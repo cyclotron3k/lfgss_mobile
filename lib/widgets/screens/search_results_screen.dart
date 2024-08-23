@@ -6,12 +6,14 @@ import 'search_screen.dart';
 
 class SearchResultsScreen extends StatefulWidget {
   final Search search;
+  final ScrollController? controller;
   final String? title;
   final bool showSummary;
   final bool autoUpdate;
   const SearchResultsScreen({
     super.key,
     required this.search,
+    this.controller,
     this.title,
     this.showSummary = true,
     this.autoUpdate = false,
@@ -56,6 +58,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen>
       onRefresh: _refreshScreen,
       child: CustomScrollView(
         // cacheExtent: 400.0,
+        controller: widget.controller,
         slivers: <Widget>[
           SliverAppBar(
             floating: true,

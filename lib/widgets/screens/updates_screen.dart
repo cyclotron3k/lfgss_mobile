@@ -7,9 +7,11 @@ import 'search_screen.dart';
 
 class UpdatesScreen extends StatefulWidget {
   final Updates updates;
+  final ScrollController? controller;
   const UpdatesScreen({
     super.key,
     required this.updates,
+    this.controller,
   });
 
   @override
@@ -46,6 +48,7 @@ class _UpdatesScreenState extends State<UpdatesScreen> with RouteAware {
       onRefresh: _refreshScreen,
       child: CustomScrollView(
         // cacheExtent: 400.0,
+        controller: widget.controller,
         slivers: <Widget>[
           SliverAppBar(
             floating: true,

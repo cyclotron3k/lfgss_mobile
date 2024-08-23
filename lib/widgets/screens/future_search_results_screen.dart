@@ -5,6 +5,7 @@ import 'search_results_screen.dart';
 
 class FutureSearchResultsScreen extends StatefulWidget {
   final Future<Search> search;
+  final ScrollController? controller;
   final String? title;
   final bool showSummary;
   final bool autoUpdate;
@@ -12,6 +13,7 @@ class FutureSearchResultsScreen extends StatefulWidget {
   const FutureSearchResultsScreen({
     super.key,
     required this.search,
+    this.controller,
     this.title,
     this.showSummary = true,
     this.autoUpdate = false,
@@ -34,6 +36,7 @@ class _FutureSearchResultsScreenState extends State<FutureSearchResultsScreen> {
             title: widget.title,
             showSummary: widget.showSummary,
             autoUpdate: widget.autoUpdate,
+            controller: widget.controller,
           );
         } else if (snapshot.hasError) {
           return Center(

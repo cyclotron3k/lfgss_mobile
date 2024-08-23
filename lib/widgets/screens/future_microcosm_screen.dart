@@ -5,7 +5,12 @@ import 'microcosm_screen.dart';
 
 class FutureMicrocosmScreen extends StatefulWidget {
   final Future<Microcosm> microcosm;
-  const FutureMicrocosmScreen({super.key, required this.microcosm});
+  final ScrollController? controller;
+  const FutureMicrocosmScreen({
+    super.key,
+    required this.microcosm,
+    this.controller,
+  });
 
   @override
   State<FutureMicrocosmScreen> createState() => _FutureMicrocosmScreenState();
@@ -18,7 +23,10 @@ class _FutureMicrocosmScreenState extends State<FutureMicrocosmScreen> {
       future: widget.microcosm,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return MicrocosmScreen(microcosm: snapshot.data!);
+          return MicrocosmScreen(
+            microcosm: snapshot.data!,
+            controller: widget.controller,
+          );
         } else if (snapshot.hasError) {
           return Center(
             child: Icon(

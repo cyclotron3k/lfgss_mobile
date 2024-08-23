@@ -39,6 +39,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   List<Widget> _tabs = [];
+  List<ScrollController> _scrollControllers = [];
   int _currentIndex = 0;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -51,6 +52,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    _scrollControllers = <ScrollController>[
+      ScrollController(),
+      ScrollController(),
+      ScrollController(),
+      ScrollController(),
+    ];
 
     _initProfile();
     _initTabs();
@@ -104,6 +112,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    for (var sc in _scrollControllers) {
+      sc.dispose();
+    }
     super.dispose();
   }
 
@@ -129,21 +140,31 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
 
     _tabs = <Widget>[
-      FutureMicrocosmScreen(microcosm: Microcosm.root()),
+      FutureMicrocosmScreen(
+        microcosm: Microcosm.root(),
+        controller: _scrollControllers[0],
+      ),
       FutureSearchResultsScreen(
         search: _today,
         title: "Today",
         showSummary: false,
         autoUpdate: true,
+        controller: _scrollControllers[1],
       ),
       MicrocosmClient().loggedIn
-          ? FutureUpdatesScreen(updates: _following!)
+          ? FutureUpdatesScreen(
+              updates: _following!,
+              controller: _scrollControllers[2],
+            )
           : const LoginToSee(
               what: "your updates",
               icon: Icon(Icons.bookmark_border),
             ),
       MicrocosmClient().loggedIn
-          ? FutureHuddlesScreen(huddles: _huddles!)
+          ? FutureHuddlesScreen(
+              huddles: _huddles!,
+              controller: _scrollControllers[3],
+            )
           : const LoginToSee(
               what: "Huddles",
               icon: Icon(Icons.email_outlined),
@@ -333,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               icon: const Icon(Icons.info),
               applicationIcon: const AppIcon(),
               applicationName: "LFGSS Mobile",
-              applicationVersion: "1.0.26",
+              applicationVersion: "1.0.27",
               aboutBoxChildren: [
                 const Text("Built by me, Aidan Samuel"),
                 const Text("aka @cyclotron3k"),
@@ -411,6 +432,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         onTap: (value) {
           if (value == 4) {
             _toggleDrawer();
+          } else if (_currentIndex == value) {
+            if (_scrollControllers[_currentIndex].hasClients) {
+              _scrollControllers[_currentIndex].animateTo(
+                0,
+                duration: const Duration(milliseconds: 175),
+                curve: Curves.easeInOut,
+              );
+            }
           } else {
             setState(() => _currentIndex = value);
           }

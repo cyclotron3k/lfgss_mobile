@@ -9,9 +9,11 @@ import 'search_screen.dart';
 
 class HuddlesScreen extends StatefulWidget {
   final Huddles huddles;
+  final ScrollController? controller;
   const HuddlesScreen({
     super.key,
     required this.huddles,
+    this.controller,
   });
 
   @override
@@ -70,6 +72,7 @@ class _HuddlesScreenState extends State<HuddlesScreen> with RouteAware {
         onRefresh: _refreshScreen,
         child: CustomScrollView(
           // cacheExtent: 400.0,
+          controller: widget.controller,
           slivers: <Widget>[
             SliverAppBar(
               floating: true,
