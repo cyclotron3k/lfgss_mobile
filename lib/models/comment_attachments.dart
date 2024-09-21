@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:developer' show log;
 
 import '../constants.dart';
 import '../services/microcosm_client.dart';
@@ -90,6 +91,7 @@ class CommentAttachments {
             // return const SizedBox(width: 100.0, height: 158.0);
             return snapshot.data![index].build(context);
           } else if (snapshot.hasError) {
+            log(snapshot.error.toString());
             return Icon(
               Icons.error_outline,
               color: Theme.of(context).colorScheme.error,

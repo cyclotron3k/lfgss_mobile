@@ -36,11 +36,13 @@ class Attachment {
           );
         },
         child: MaybeImage(
-          fit: BoxFit.contain,
           imageUrl: url,
           imageBuilder: (context, imageProvider) => ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
-            child: Image(image: imageProvider),
+            child: Image(
+              image: imageProvider,
+              fit: BoxFit.contain,
+            ),
           ),
           errorWidget: (context, url, error) => const Icon(
             Icons.error_outline,
