@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.28
+
+- Fix layout of extra wide attachments
+
 ## v1.0.27
 
 - Scroll to top
