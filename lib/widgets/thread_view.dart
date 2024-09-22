@@ -43,7 +43,7 @@ class _ThreadViewState extends State<ThreadView> {
     bool done = false;
     if (nextId == null || nextId == 0) {
       completeFuture.complete();
-      setState(() {});
+      if (mounted) setState(() {});
       return;
     }
 
@@ -74,7 +74,7 @@ class _ThreadViewState extends State<ThreadView> {
       lookup();
     }
 
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override

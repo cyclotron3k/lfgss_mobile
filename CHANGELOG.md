@@ -3,6 +3,7 @@
 ## v1.0.28
 
 - Fix layout of extra wide attachments
+- Swipe between attachments in gallery view
 
 ## v1.0.27
 

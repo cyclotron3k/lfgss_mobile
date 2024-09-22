@@ -5,6 +5,7 @@ import 'dart:developer' show log;
 import '../constants.dart';
 import '../services/microcosm_client.dart';
 import '../services/settings.dart';
+import '../widgets/attachment_gallery.dart';
 import '../widgets/screens/settings_screen.dart';
 import 'attachment.dart';
 
@@ -88,8 +89,23 @@ class CommentAttachments {
         future: getAttachmentList(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            // return const SizedBox(width: 100.0, height: 158.0);
-            return snapshot.data![index].build(context);
+            return GestureDetector(
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    opaque: false,
+                    barrierColor: Colors.black.withOpacity(0.8),
+                    barrierDismissible: false,
+                    pageBuilder: (context, _, __) => AttachmentGallery(
+                      attachments: snapshot.data!,
+                      initialIndex: index,
+                    ),
+                  ),
+                );
+              },
+              child: snapshot.data![index].build(context),
+            );
           } else if (snapshot.hasError) {
             log(snapshot.error.toString());
             return Icon(

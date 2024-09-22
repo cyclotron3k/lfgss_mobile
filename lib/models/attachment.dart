@@ -25,28 +25,17 @@ class Attachment {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 8.0),
-      child: GestureDetector(
-        onTap: () async {
-          await Navigator.of(context).push(
-            ImageGallery(
-              url: url,
-              heroTag: fileHash,
-              fileName: fileName,
-            ),
-          );
-        },
-        child: MaybeImage(
-          imageUrl: url,
-          imageBuilder: (context, imageProvider) => ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: Image(
-              image: imageProvider,
-              fit: BoxFit.contain,
-            ),
+      child: MaybeImage(
+        imageUrl: url,
+        imageBuilder: (context, imageProvider) => ClipRRect(
+          borderRadius: BorderRadius.circular(8.0),
+          child: Image(
+            image: imageProvider,
+            fit: BoxFit.contain,
           ),
-          errorWidget: (context, url, error) => const Icon(
-            Icons.error_outline,
-          ),
+        ),
+        errorWidget: (context, url, error) => const Icon(
+          Icons.error_outline,
         ),
       ),
     );
