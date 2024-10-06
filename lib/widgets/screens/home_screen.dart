@@ -8,6 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../constants.dart';
 import '../../models/conversation.dart';
 import '../../models/event.dart';
 import '../../models/full_profile.dart';
@@ -354,7 +355,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               icon: const Icon(Icons.info),
               applicationIcon: const AppIcon(),
               applicationName: "LFGSS Mobile",
-              applicationVersion: "1.0.29",
+              applicationVersion: APP_VERSION,
               aboutBoxChildren: [
                 const Text("Built by me, Aidan Samuel"),
                 const Text("aka @cyclotron3k"),
