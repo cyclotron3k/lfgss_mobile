@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
-import '../widgets/image_gallery.dart';
 import '../widgets/maybe_image.dart';
 
 class Attachment {

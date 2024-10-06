@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.29
+
+- Fix Flickr images (by setting non-generic user-agent)
+- Layout tweaks
+
 ## v1.0.28
 
 - Fix layout of extra wide attachments

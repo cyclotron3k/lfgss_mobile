@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_iframe/flutter_html_iframe.dart';
@@ -129,10 +131,13 @@ class _CommentHtmlState extends State<CommentHtml> {
                     borderRadius: BorderRadius.circular(8.0),
                     child: Image(image: imageProvider),
                   ),
-                  errorWidget: (context, url, error) => const SizedBox(
-                    width: 64,
-                    child: MissingImage(),
-                  ),
+                  errorWidget: (context, url, error) {
+                    log("Error loading image", error: error);
+                    return const SizedBox(
+                      width: 48,
+                      child: MissingImage(),
+                    );
+                  },
                 ),
               );
             },
@@ -145,6 +150,9 @@ class _CommentHtmlState extends State<CommentHtml> {
             ),
         ],
         style: {
+          "p": Style(
+            margin: Margins.only(top: 0.0, bottom: 8.0),
+          ),
           "img": Style(
             padding: HtmlPaddings.only(
               top: 10.0,

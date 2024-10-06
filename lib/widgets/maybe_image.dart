@@ -18,8 +18,7 @@ class MaybeImage extends StatefulWidget {
 
   MaybeImage({
     super.key,
-    required imageUrl,
-    httpHeaders,
+    required String imageUrl,
     imageBuilder,
     placeholder,
     progressIndicatorBuilder = _defaultProgress,
@@ -47,7 +46,7 @@ class MaybeImage extends StatefulWidget {
     maxHeightDiskCache,
   }) : cni = CachedNetworkImage(
           imageUrl: imageUrl,
-          httpHeaders: httpHeaders,
+          httpHeaders: const {"User-Agent": USER_AGENT},
           imageBuilder: imageBuilder,
           placeholder: placeholder,
           progressIndicatorBuilder: progressIndicatorBuilder,
