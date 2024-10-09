@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.30
+
+- Fix swipe-to-reply causing widget rebuilds
+
 ## v1.0.29
 
 - Fix Flickr images (by setting non-generic user-agent)

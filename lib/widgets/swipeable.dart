@@ -270,8 +270,7 @@ class _SwipeableClipper extends CustomClipper<Rect> {
 
 enum _FlingGestureKind { none, forward, reverse }
 
-class _SwipeableState extends State<Swipeable>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+class _SwipeableState extends State<Swipeable> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
@@ -293,11 +292,6 @@ class _SwipeableState extends State<Swipeable>
   bool _swipeThresholdReached = false;
 
   final GlobalKey _contentKey = GlobalKey();
-
-  @override
-  bool get wantKeepAlive =>
-      (_moveController?.isAnimating ?? false) ||
-      (_resizeController?.isAnimating ?? false);
 
   @override
   void dispose() {
@@ -526,9 +520,6 @@ class _SwipeableState extends State<Swipeable>
     if (status == AnimationStatus.completed && !_dragUnderway) {
       await _handleMoveCompleted();
     }
-    if (context.mounted) {
-      updateKeepAlive();
-    }
   }
 
   Future<void> _handleMoveCompleted() async {
@@ -537,8 +528,6 @@ class _SwipeableState extends State<Swipeable>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // See AutomaticKeepAliveClientMixin.
-
     assert(!_directionIsXAxis || debugCheckHasDirectionality(context));
 
     Widget? background = widget.background;

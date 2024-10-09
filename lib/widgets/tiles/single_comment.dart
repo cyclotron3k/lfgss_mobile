@@ -39,8 +39,8 @@ class _SingleCommentState extends State<SingleComment> {
   late final bool _reply;
   late final bool _empty;
   late final bool _deleted;
+  final _activatedNotifier = ValueNotifier<bool>(false);
 
-  bool _replyActivated = false;
   bool _swipingEnabled = false;
 
   @override
@@ -53,6 +53,12 @@ class _SingleCommentState extends State<SingleComment> {
     _reply = widget.comment.links.containsKey("inReplyToAuthor");
     _empty = widget.comment.markdown == ".";
     _deleted = _empty && !widget.comment.hasAttachments;
+  }
+
+  @override
+  void dispose() {
+    _activatedNotifier.dispose();
+    super.dispose();
   }
 
   @override
@@ -77,72 +83,69 @@ class _SingleCommentState extends State<SingleComment> {
           child: AnimatedSize(
             duration: const Duration(seconds: 1),
             curve: Curves.elasticOut,
-            child: Icon(
-              Icons.reply,
-              size: _replyActivated ? 32.0 : 22,
-              color: _replyActivated ? Colors.green.shade300 : Colors.grey,
+            child: ValueListenableBuilder<bool>(
+              valueListenable: _activatedNotifier,
+              builder: (context, replyActivated, _) => Icon(
+                Icons.reply,
+                size: replyActivated ? 32.0 : 22,
+                color: replyActivated ? Colors.green.shade300 : Colors.grey,
+              ),
             ),
           ),
         ),
       ),
-      onUpdate: (details) => setState(
-        () => _replyActivated = details.reached,
-      ),
+      onUpdate: (details) => _activatedNotifier.value = details.reached,
       onRelease: (details) {
-        setState(() {
-          if (details.reached) {
-            Provider.of<CommentShuttle?>(
-              context,
-              listen: false,
-            )?.setReplyTarget(
-              widget.comment,
-            );
-          }
-        });
+        if (details.reached) {
+          Provider.of<CommentShuttle?>(
+            context,
+            listen: false,
+          )?.setReplyTarget(
+            widget.comment,
+          );
+        }
       },
       key: ObjectKey(widget.comment),
       child: _body(context, owner),
     );
   }
 
-  Widget _body(BuildContext context, bool owner) {
-    return Stack(
-      children: [
-        if (widget.highlight)
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(4.0),
-                    bottomRight: Radius.circular(4.0),
-                  ),
-                  child: Container(
-                    width: 4.0,
-                    height: double.infinity,
-                    color: Colors.amber,
+  Widget _body(BuildContext context, bool owner) => Stack(
+        children: [
+          if (widget.highlight)
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(4.0),
+                      bottomRight: Radius.circular(4.0),
+                    ),
+                    child: Container(
+                      width: 4.0,
+                      height: double.infinity,
+                      color: Colors.amber,
+                    ),
                   ),
                 ),
               ),
             ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+            child: Column(
+              // key: ValueKey(widget.comment.id),
+              children: [
+                _titleBar(context, owner),
+                _commentBody(owner),
+                if (widget.comment.hasAttachments)
+                  widget.comment.getAttachments(context: context),
+              ],
+            ),
           ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-          child: Column(
-            // key: ValueKey(widget.comment.id),
-            children: [
-              _titleBar(context, owner),
-              _commentBody(owner),
-              if (widget.comment.hasAttachments)
-                widget.comment.getAttachments(context: context),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
 
   Widget _commentBody(bool owner) {
     if (_empty) {

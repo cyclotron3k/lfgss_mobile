@@ -37,7 +37,6 @@ class CommentHtml extends StatefulWidget {
 
 class _CommentHtmlState extends State<CommentHtml> {
   String _selectedText = "";
-
   late final Document _doc;
 
   @override
