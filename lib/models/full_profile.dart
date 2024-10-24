@@ -45,8 +45,9 @@ class FullProfile extends Profile {
     bool ignoreCache = false,
   ]) async {
     bool ignoreCache = false;
-    Uri uri = Uri.parse(
-      "https://$API_HOST/api/v1/${id == 0 ? 'whoami' : "profiles/$id"}",
+    Uri uri = Uri.https(
+      API_HOST,
+      "/api/v1/${id == 0 ? 'whoami' : "profiles/$id"}",
     );
 
     Map<String, dynamic> json = await MicrocosmClient().getJson(
