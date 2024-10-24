@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.31
+
+- Clear obsolete notifications
+- Hand off unrecognised attachments to the OS
+
 ## v1.0.30
 
 - Fix swipe-to-reply causing widget rebuilds
