@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:provider/provider.dart';
 
@@ -63,6 +64,19 @@ class UpdateTile extends StatelessWidget {
         ],
       );
 
+  Future<void> _dismissNotification() async {
+    var plugin = FlutterLocalNotificationsPlugin();
+
+    await plugin.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings(
+          'ic_stat_lfgss_notification',
+        ),
+      ),
+    );
+    await plugin.cancel(update.topicId);
+  }
+
   Widget _replyToComment(BuildContext context) {
     final conversation = update.parent as Conversation;
     final comment = update.child as Comment;
@@ -111,6 +125,7 @@ class UpdateTile extends StatelessWidget {
           key: ValueKey(commentableItem.id),
           child: InkWell(
             onTap: () async {
+              _dismissNotification();
               await Navigator.push(
                 context,
                 MaterialPageRoute(

@@ -104,21 +104,16 @@ void callbackDispatcher() {
 
 Future<FlutterLocalNotificationsPlugin> initNotifications(
     Function(NotificationResponse)? callback) async {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  final plugin = FlutterLocalNotificationsPlugin();
 
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('ic_stat_lfgss_notification');
-
-  const InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-  );
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
+  await plugin.initialize(
+    const InitializationSettings(
+      android: AndroidInitializationSettings('ic_stat_lfgss_notification'),
+    ),
     onDidReceiveNotificationResponse: callback,
   );
 
-  return flutterLocalNotificationsPlugin;
+  return plugin;
 }
 
 Future<void> initTasks() async {

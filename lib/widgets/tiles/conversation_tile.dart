@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:intl/intl.dart';
 
@@ -20,6 +21,19 @@ class ConversationTile extends StatelessWidget {
     this.mentioned,
   });
 
+  Future<void> _dismissNotification() async {
+    var plugin = FlutterLocalNotificationsPlugin();
+
+    await plugin.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings(
+          'ic_stat_lfgss_notification',
+        ),
+      ),
+    );
+    await plugin.cancel(conversation.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     final unescape = HtmlUnescape();
@@ -28,6 +42,7 @@ class ConversationTile extends StatelessWidget {
       key: ValueKey(conversation.id),
       child: InkWell(
         onTap: () async {
+          _dismissNotification();
           Navigator.push(
             context,
             MaterialPageRoute(
