@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 
 import '../models/attendee.dart';
 import '../models/event.dart';
@@ -102,6 +103,21 @@ class _EventHeaderState extends State<EventHeader> {
                       color: Colors.grey,
                     ),
                   ),
+            trailing: IconButton(
+                onPressed: () {
+                  if (widget.event.lat != null && widget.event.lon != null) {
+                    MapsLauncher.launchCoordinates(
+                      widget.event.lat!,
+                      widget.event.lon!,
+                      widget.event.where,
+                    );
+                  } else if (widget.event.where != null) {
+                    MapsLauncher.launchQuery(
+                      widget.event.where!,
+                    );
+                  }
+                },
+                icon: const Icon(Icons.map)),
           ),
           AttendeesList(
             futureAttendees: widget.event.getAttendees(),
