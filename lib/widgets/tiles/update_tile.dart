@@ -64,18 +64,8 @@ class UpdateTile extends StatelessWidget {
         ],
       );
 
-  Future<void> _dismissNotification() async {
-    var plugin = FlutterLocalNotificationsPlugin();
-
-    await plugin.initialize(
-      const InitializationSettings(
-        android: AndroidInitializationSettings(
-          'ic_stat_lfgss_notification',
-        ),
-      ),
-    );
-    await plugin.cancel(update.topicId);
-  }
+  Future<void> _dismissNotification() =>
+      FlutterLocalNotificationsPlugin().cancel(update.topicId);
 
   Widget _replyToComment(BuildContext context) {
     final conversation = update.parent as Conversation;

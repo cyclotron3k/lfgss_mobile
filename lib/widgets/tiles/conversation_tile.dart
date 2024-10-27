@@ -21,18 +21,8 @@ class ConversationTile extends StatelessWidget {
     this.mentioned,
   });
 
-  Future<void> _dismissNotification() async {
-    var plugin = FlutterLocalNotificationsPlugin();
-
-    await plugin.initialize(
-      const InitializationSettings(
-        android: AndroidInitializationSettings(
-          'ic_stat_lfgss_notification',
-        ),
-      ),
-    );
-    await plugin.cancel(conversation.id);
-  }
+  Future<void> _dismissNotification() async =>
+      FlutterLocalNotificationsPlugin().cancel(conversation.id);
 
   @override
   Widget build(BuildContext context) {
