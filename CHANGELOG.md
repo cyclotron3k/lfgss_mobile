@@ -4,6 +4,7 @@
 
 - Clear obsolete notifications
 - Hand off unrecognised attachments to the OS
+- Add map link to events
 
 ## v1.0.30
 

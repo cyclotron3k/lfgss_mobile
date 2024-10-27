@@ -103,7 +103,8 @@ void callbackDispatcher() {
 }
 
 Future<FlutterLocalNotificationsPlugin> initNotifications(
-    Function(NotificationResponse)? callback) async {
+  Function(NotificationResponse)? callback,
+) async {
   final plugin = FlutterLocalNotificationsPlugin();
 
   await plugin.initialize(
@@ -139,9 +140,8 @@ Future<void> initTasks() async {
     // frequency: Duration(minutes: 15),
   );
 
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      await initNotifications(null);
-  flutterLocalNotificationsPlugin
+  final plugin = await initNotifications(null);
+  plugin
       .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>()
       ?.requestNotificationsPermission();

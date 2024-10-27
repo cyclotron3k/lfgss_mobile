@@ -233,10 +233,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void _runWhileAppIsTerminated() async {
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        await initNotifications(_handleNotification);
-    var details =
-        await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+    final plugin = await initNotifications(_handleNotification);
+    final details = await plugin.getNotificationAppLaunchDetails();
 
     if (details == null) return;
 
@@ -276,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode =
+    final isDarkMode =
         MediaQuery.platformBrightnessOf(context) == Brightness.dark;
 
     return Scaffold(
