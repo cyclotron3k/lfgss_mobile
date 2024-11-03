@@ -60,7 +60,9 @@ class _ProfileSheetState extends State<AttendeesSheet> {
                 Expanded(child: Text(attendee.profile.profileName)),
                 Text(
                   attendee.rsvp.name,
-                  style: const TextStyle(color: Colors.grey),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             );

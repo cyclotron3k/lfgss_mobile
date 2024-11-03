@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.32
+
+- Better light-mode colours
+
 ## v1.0.31
 
 - Clear obsolete notifications

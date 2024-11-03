@@ -227,10 +227,12 @@ class _AdaptableFormState extends State<AdaptableForm> {
                         child: Row(
                           children: [
                             Text("Attachments (${_attachments.length})"),
-                            const Text(
+                            Text(
                               " • drag to remove",
                               style: TextStyle(
-                                color: Colors.grey,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                                 fontStyle: FontStyle.italic,
                               ),
                             ),

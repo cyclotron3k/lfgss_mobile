@@ -168,12 +168,18 @@ class _CommentHtmlState extends State<CommentHtml> {
               left: BorderSide(color: Colors.grey, width: 4.0),
             ),
             fontStyle: FontStyle.italic,
-            color: Theme.of(context).primaryColorLight,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           "a": Style.fromTextStyle(
             const TextStyle(
               // See: https://github.com/Sub6Resources/flutter_html/issues/1361
               decorationColor: Colors.blue,
+            ),
+          ),
+          "pre": Style(
+            backgroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            padding: HtmlPaddings.only(
+              left: 4.0,
             ),
           ),
           "body": Style(

@@ -82,8 +82,11 @@ class Updates extends Paginated<Item> {
       },
     );
 
-    Json json =
-        await MicrocosmClient().getJson(uri, ttl: 5, ignoreCache: force);
+    Json json = await MicrocosmClient().getJson(
+      uri,
+      ttl: 5,
+      ignoreCache: force,
+    );
     parsePage(json);
   }
 

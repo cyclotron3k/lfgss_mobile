@@ -190,7 +190,7 @@ class _SingleCommentState extends State<SingleComment> {
                   widget.comment.createdBy.profileName,
                   style: TextStyle(
                     color: (_deleted
-                        ? Colors.grey
+                        ? Theme.of(context).colorScheme.onSurfaceVariant
                         : Theme.of(context).textTheme.bodyMedium!.color),
                   ),
                 ),
@@ -218,7 +218,9 @@ class _SingleCommentState extends State<SingleComment> {
                   ),
                   child: Text(
                     "replied to ${HtmlUnescape().convert(widget.comment.links["inReplyToAuthor"]!.title ?? "")}",
-                    style: const TextStyle(color: Colors.grey),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
             ],
@@ -235,12 +237,15 @@ class _SingleCommentState extends State<SingleComment> {
                 Text(
                   (_deleted ? "Deleted •" : "Edited •"),
                   textAlign: TextAlign.end,
-                  style: const TextStyle(
-                    color: Colors.grey,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
-              TimeAgo(widget.comment.created, color: Colors.grey),
+              TimeAgo(
+                widget.comment.created,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               if (owner && !widget.inert)
                 PopupMenuButton(
                   itemBuilder: (context) => [

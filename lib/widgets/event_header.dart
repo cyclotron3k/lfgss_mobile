@@ -96,11 +96,11 @@ class _EventHeaderState extends State<EventHeader> {
             leading: const Icon(Icons.location_on),
             title: widget.event.where != null
                 ? Text(widget.event.where!)
-                : const Text(
+                : Text(
                     "TBD",
                     style: TextStyle(
                       fontStyle: FontStyle.italic,
-                      color: Colors.grey,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
             trailing: IconButton(

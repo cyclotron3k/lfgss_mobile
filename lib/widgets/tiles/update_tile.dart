@@ -108,7 +108,9 @@ class UpdateTile extends StatelessWidget {
           child: Text(
             subtitle,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Colors.grey),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
         Card(

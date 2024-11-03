@@ -76,7 +76,9 @@ class CommentTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.start,
-                      style: const TextStyle(color: Colors.grey),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
@@ -129,7 +131,10 @@ class CommentTile extends StatelessWidget {
                         ),
                         child: Text(
                           "replied to ${HtmlUnescape().convert(comment.links["inReplyToAuthor"]!.title ?? "")}",
-                          style: const TextStyle(color: Colors.grey),
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                   ],
@@ -142,7 +147,10 @@ class CommentTile extends StatelessWidget {
                   alignment: WrapAlignment.end,
                   spacing: 4.0,
                   children: [
-                    TimeAgo(comment.created, color: Colors.grey),
+                    TimeAgo(
+                      comment.created,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ],
                 ),
               ),

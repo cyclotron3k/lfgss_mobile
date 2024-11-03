@@ -231,13 +231,17 @@ class _ProfileSheetState extends State<ProfileSheet> {
       children: [
         Text(
           "Member since ${DateFormat('d MMMM, y').format(fp.created)}",
-          style: const TextStyle(color: Colors.grey),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         Row(
           children: [
-            const Text(
+            Text(
               "Last active ",
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             TimeAgo(
               fp.lastActive,

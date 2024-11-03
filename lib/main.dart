@@ -57,6 +57,9 @@ class LfgssMobile extends StatelessWidget {
         var lightTheme = ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: const Color.fromARGB(255, 77, 134, 219),
+          ).copyWith(
+            inversePrimary: const Color.fromARGB(255, 209, 112, 1),
+            onSurfaceVariant: Colors.grey.shade600,
           ),
           // textTheme: TextTheme(),
         );
@@ -69,6 +72,7 @@ class LfgssMobile extends StatelessWidget {
           ).copyWith(
             primary: const Color.fromARGB(255, 62, 166, 240),
             inversePrimary: const Color.fromARGB(255, 236, 161, 20),
+            onSurfaceVariant: Colors.grey.shade500,
           ),
         );
 
