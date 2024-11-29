@@ -112,19 +112,26 @@ class MicrocosmClient {
 
     int expiresAt = DateTime.now().millisecondsSinceEpoch + ttl * 1000;
 
+    final future = get(url).then((response) {
+      log("Retrieved page: $url");
+      String page = const Utf8Decoder().convert(response.body.codeUnits);
+      Json data = json.decode(page);
+      if (data["status"] != 200) {
+        log("Failed to retrieve resource from: $url");
+        log("Error: ${data["error"]}");
+        throw "Couldn't retrieve resource: $url";
+      }
+      return data["data"];
+    });
+
+    future.catchError((error) {
+      _inFlight.remove(url);
+      throw error;
+    });
+
     _inFlight[url] ??= _ExpiringResponse(
       expiresAt: expiresAt,
-      response: get(url).then((response) {
-        log("Retrieved page: $url");
-        String page = const Utf8Decoder().convert(response.body.codeUnits);
-        Json data = json.decode(page);
-        if (data["status"] != 200) {
-          log("Failed to retrieve resource from: $url");
-          log("Error: ${data["error"]}");
-          throw "Couldn't retrieve resource: $url";
-        }
-        return data["data"];
-      }),
+      response: future as Future<Json>,
     );
 
     return await _inFlight[url]!.response;
