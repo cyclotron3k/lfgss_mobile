@@ -61,8 +61,6 @@ class MicrocosmClient {
   }
 
   Future<void> logout() async {
-    // TODO: looks like logout isn't implemented on the backend?
-
     if (accessToken == null) return;
 
     final sharedPreference = await SharedPreferences.getInstance();
@@ -70,17 +68,19 @@ class MicrocosmClient {
     accessToken = null;
     clearCache();
 
-    // var uri = Uri.https(
-    //   HOST,
-    //   "/api/v1/auth/$accessToken",
-    // );
+    var uri = Uri.https(
+      API_HOST,
+      "/api/v1/auth/$accessToken",
+    );
 
-    // await http.delete(
-    //   uri,
-    //   headers: {
-    //     'Authorization': "Bearer $accessToken",
-    //   },
-    // );
+    await http.delete(
+      uri,
+      headers: {
+        'Authorization': "Bearer $accessToken",
+      },
+    ).then(
+      (value) => log("Deleted access token: ${value.statusCode}"),
+    );
   }
 
   Future<http.Response> get(Uri url) async {
