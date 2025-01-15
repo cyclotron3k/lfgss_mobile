@@ -63,24 +63,22 @@ class MicrocosmClient {
   Future<void> logout() async {
     if (accessToken == null) return;
 
-    final sharedPreference = await SharedPreferences.getInstance();
-    await sharedPreference.remove("accessToken");
-    accessToken = null;
-    clearCache();
-
-    var uri = Uri.https(
-      API_HOST,
-      "/api/v1/auth/$accessToken",
-    );
-
     await http.delete(
-      uri,
+      Uri.https(
+        API_HOST,
+        "/api/v1/auth/$accessToken",
+      ),
       headers: {
         'Authorization': "Bearer $accessToken",
       },
     ).then(
       (value) => log("Deleted access token: ${value.statusCode}"),
     );
+
+    final sharedPreference = await SharedPreferences.getInstance();
+    await sharedPreference.remove("accessToken");
+    accessToken = null;
+    clearCache();
   }
 
   Future<http.Response> get(Uri url) async {
@@ -121,7 +119,7 @@ class MicrocosmClient {
         log("Error: ${data["error"]}");
         throw "Couldn't retrieve resource: $url";
       }
-      return data["data"];
+      return data["data"] as Json;
     });
 
     future.catchError((error) {
@@ -131,7 +129,7 @@ class MicrocosmClient {
 
     _inFlight[url] ??= _ExpiringResponse(
       expiresAt: expiresAt,
-      response: future as Future<Json>,
+      response: future,
     );
 
     return await _inFlight[url]!.response;

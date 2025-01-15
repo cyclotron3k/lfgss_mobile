@@ -132,11 +132,6 @@ class Update implements Item {
         return "New user";
       case UpdateType.reply_to_comment:
         return "A reply to your comment";
-      default:
-        {
-          log("Can't handle updateType of: $updateType");
-          return "";
-        }
     }
   }
 
