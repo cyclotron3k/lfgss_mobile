@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _runWhileAppIsTerminated();
 
     // For sharing images coming from outside the app while the app is in the memory
-    ReceiveSharingIntent.getMediaStream().listen(
+    ReceiveSharingIntent.instance.getMediaStream().listen(
       (List<SharedMediaFile> value) {
         if (value.isEmpty) return;
         Navigator.push(
@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
 
     // For sharing images coming from outside the app while the app is closed
-    ReceiveSharingIntent.getInitialMedia().then(
+    ReceiveSharingIntent.instance.getInitialMedia().then(
       (List<SharedMediaFile> value) {
         if (value.isEmpty) return;
         Navigator.push(

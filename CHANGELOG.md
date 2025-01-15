@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.33
+
+- Better cache management (don't cache failed requests)
+- Do logout properly
+- Manual retry button for failed tiles
+- Major updates
+
 ## v1.0.32
 
 - Better light-mode colours

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_native_timezone_updated_gradle/flutter_native_timezone.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart';
@@ -21,7 +21,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   initTasks();
 
-  final String timeZone = await FlutterNativeTimezone.getLocalTimezone();
+  final String timeZone = await FlutterTimezone.getLocalTimezone();
   setLocalLocation(getLocation(timeZone));
 
   var settings = Settings(

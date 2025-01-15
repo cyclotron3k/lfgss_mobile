@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lfgss_mobile/core/commentable_item.dart';
 
 import '../constants.dart';
 import '../models/full_profile.dart';
@@ -16,9 +17,11 @@ class ProfileSheet extends StatefulWidget {
   const ProfileSheet({
     super.key,
     required this.profile,
+    this.context,
   });
 
   final Profile profile;
+  final CommentableItem? context;
 
   @override
   State<ProfileSheet> createState() => _ProfileSheetState();

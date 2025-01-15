@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/item.dart';
+import '../../models/refresh_request_notifier.dart';
 import 'item_shimmer.dart';
 
 class FutureItemTile extends StatelessWidget {
@@ -16,10 +18,24 @@ class FutureItemTile extends StatelessWidget {
           return snapshot.data!.renderAsTile();
         } else if (snapshot.hasError) {
           return Center(
-            child: Icon(
-              Icons.error_outline,
-              color: Theme.of(context).colorScheme.error,
-              size: 64.0,
+            child: Column(
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  color: Theme.of(context).colorScheme.error,
+                  size: 64.0,
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Provider.of<RefreshRequestNotifier?>(
+                      context,
+                      listen: false,
+                    )?.requestRefresh();
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry'),
+                ),
+              ],
             ),
           );
         } else {

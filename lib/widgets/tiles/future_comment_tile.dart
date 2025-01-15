@@ -31,12 +31,19 @@ class FutureCommentTile extends StatelessWidget {
               contextItem: contextItem,
             );
           } else if (snapshot.hasError) {
-            return Center(
-              child: Icon(
-                Icons.error_outline,
-                color: Theme.of(context).colorScheme.error,
-                size: 64.0,
-              ),
+            return Column(
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  color: Theme.of(context).colorScheme.error,
+                  size: 64.0,
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry'),
+                ),
+              ],
             );
           } else {
             return const CommmentShimmer();

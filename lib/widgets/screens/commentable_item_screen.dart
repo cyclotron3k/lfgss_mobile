@@ -9,6 +9,7 @@ import '../../core/commentable_item.dart';
 import '../../models/event.dart';
 import '../../models/huddle.dart';
 import '../../models/comment_shuttle.dart';
+import '../../models/refresh_request_notifier.dart';
 import '../../models/search.dart';
 import '../../models/search_parameters.dart';
 import '../../services/microcosm_client.dart';
@@ -242,35 +243,41 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
         ],
         title: Text(widget.item.title),
       ),
-      body: ChangeNotifierProvider<CommentShuttle>(
-        create: (BuildContext context) => CommentShuttle(),
-        child: Column(
-          children: [
-            Expanded(
-              child: CustomScrollView(
-                center: forwardListKey,
-                slivers: [
-                  if (hasCustomHeader)
-                    SliverToBoxAdapter(
-                      child: buildHeader(),
-                    ),
-                  reverseList,
-                  forwardList,
-                ],
-              ),
-            ),
-            if (widget.item.canComment && MicrocosmClient().loggedIn)
-              NewComment(
-                itemId: widget.item.id,
-                itemType: CommentableType.values.byName(
-                  widget.item.runtimeType.toString().toLowerCase(),
+      body: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => CommentShuttle()),
+          ChangeNotifierProvider(create: (context) => RefreshRequestNotifier()),
+        ],
+        child: ChangeNotifierProvider<CommentShuttle>(
+          create: (BuildContext context) => CommentShuttle(),
+          child: Column(
+            children: [
+              Expanded(
+                child: CustomScrollView(
+                  center: forwardListKey,
+                  slivers: [
+                    if (hasCustomHeader)
+                      SliverToBoxAdapter(
+                        child: buildHeader(),
+                      ),
+                    reverseList,
+                    forwardList,
+                  ],
                 ),
-                onPostSuccess: (int? id) async {
-                  await widget.item.resetChildren(childId: id);
-                  if (context.mounted) setState(() {});
-                },
-              )
-          ],
+              ),
+              if (widget.item.canComment && MicrocosmClient().loggedIn)
+                NewComment(
+                  itemId: widget.item.id,
+                  itemType: CommentableType.values.byName(
+                    widget.item.runtimeType.toString().toLowerCase(),
+                  ),
+                  onPostSuccess: (int? id) async {
+                    await widget.item.resetChildren(childId: id);
+                    if (context.mounted) setState(() {});
+                  },
+                )
+            ],
+          ),
         ),
       ),
     );
