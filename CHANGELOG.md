@@ -4,8 +4,8 @@
 
 - Better cache management (don't cache failed requests)
 - Do logout properly
-- Manual retry button for failed tiles
 - Major updates
+- Fix rendering of mentions in DMs, in Updates page.
 
 ## v1.0.32
 

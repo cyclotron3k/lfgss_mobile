@@ -9,6 +9,7 @@ import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:quiver/collection.dart' show LruMap;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 
 import '../constants.dart';
 import 'relaxed_jpeg_decoder.dart';
@@ -78,7 +79,11 @@ class MicrocosmClient {
     final sharedPreference = await SharedPreferences.getInstance();
     await sharedPreference.remove("accessToken");
     accessToken = null;
+
     clearCache();
+
+    final cookieManager = WebviewCookieManager();
+    cookieManager.clearCookies();
   }
 
   Future<http.Response> get(Uri url) async {
@@ -120,7 +125,7 @@ class MicrocosmClient {
         throw "Couldn't retrieve resource: $url";
       }
       return data["data"] as Json;
-    });
+    }, onError: (error) => log("Error: $error"));
 
     future.catchError((error) {
       _inFlight.remove(url);

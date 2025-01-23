@@ -38,11 +38,11 @@ class FutureCommentTile extends StatelessWidget {
                   color: Theme.of(context).colorScheme.error,
                   size: 64.0,
                 ),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'),
-                ),
+                // ElevatedButton.icon(
+                //   onPressed: () {},
+                //   icon: const Icon(Icons.refresh),
+                //   label: const Text('Retry'),
+                // ),
               ],
             );
           } else {

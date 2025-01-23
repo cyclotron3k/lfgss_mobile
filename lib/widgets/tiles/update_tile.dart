@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import '../../core/commentable_item.dart';
 import '../../models/comment.dart';
-import '../../models/conversation.dart';
 import '../../models/huddle.dart';
 import '../../models/update.dart';
 import '../../models/update_type.dart';
@@ -68,7 +67,7 @@ class UpdateTile extends StatelessWidget {
       FlutterLocalNotificationsPlugin().cancel(update.topicId);
 
   Widget _replyToComment(BuildContext context) {
-    final conversation = update.parent as Conversation;
+    final conversation = update.parent as CommentableItem;
     final comment = update.child as Comment;
     return _replyToCommentable(
       context,

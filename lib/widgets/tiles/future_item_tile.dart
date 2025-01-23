@@ -25,16 +25,16 @@ class FutureItemTile extends StatelessWidget {
                   color: Theme.of(context).colorScheme.error,
                   size: 64.0,
                 ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Provider.of<RefreshRequestNotifier?>(
-                      context,
-                      listen: false,
-                    )?.requestRefresh();
-                  },
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'),
-                ),
+                // ElevatedButton.icon(
+                //   onPressed: () {
+                //     Provider.of<RefreshRequestNotifier?>(
+                //       context,
+                //       listen: false,
+                //     )?.requestRefresh();
+                //   },
+                //   icon: const Icon(Icons.refresh),
+                //   label: const Text('Retry'),
+                // ),
               ],
             ),
           );
