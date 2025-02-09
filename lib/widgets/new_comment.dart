@@ -206,136 +206,138 @@ class _NewCommentState extends State<NewComment> {
     _inReplyTo = context.watch<CommentShuttle>().replyTarget;
     _editing = context.watch<CommentShuttle>().editTarget;
 
-    return Material(
-      elevation: 2.0,
-      child: Column(
-        children: [
-          if (_editing != null) ...[
-            const Divider(thickness: 1.0, height: 0.0),
-            Row(
-              children: [
-                const SizedBox(width: 8.0),
-                const Icon(Icons.edit_note),
-                const SizedBox(width: 8.0),
-                const Expanded(
-                  child: Text(
-                    "Editing...",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(width: 8.0),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  visualDensity: VisualDensity.compact,
-                  onPressed: () => context.read<CommentShuttle>().clear(),
-                ),
-              ],
-            ),
-          ],
-          if (_inReplyTo != null) ...[
-            const Divider(thickness: 1.0, height: 0.0),
-            Row(
-              children: [
-                const SizedBox(width: 8.0),
-                const Icon(Icons.reply),
-                const SizedBox(width: 8.0),
-                Expanded(
-                  child: Text(
-                    "${_inReplyTo!.createdBy.profileName}: ${_inReplyTo!.markdown}",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(width: 8.0),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  visualDensity: VisualDensity.compact,
-                  onPressed: () => context.read<CommentShuttle>().clear(),
-                ),
-              ],
-            ),
-          ],
-          if (_attachments.isNotEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Wrap(
-                runSpacing: 8.0,
-                spacing: 8.0,
+    return SafeArea(
+      child: Material(
+        elevation: 2.0,
+        child: Column(
+          children: [
+            if (_editing != null) ...[
+              const Divider(thickness: 1.0, height: 0.0),
+              Row(
                 children: [
-                  for (final attachment in _attachments)
-                    AttachmentThumbnail(
-                      key: ObjectKey(attachment),
-                      image: attachment,
-                      onRemoveItem: (XFile image) {
-                        setState(() => _attachments.remove(image));
-                      },
+                  const SizedBox(width: 8.0),
+                  const Icon(Icons.edit_note),
+                  const SizedBox(width: 8.0),
+                  const Expanded(
+                    child: Text(
+                      "Editing...",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    visualDensity: VisualDensity.compact,
+                    onPressed: () => context.read<CommentShuttle>().clear(),
+                  ),
                 ],
               ),
-            ),
-          Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8.0, 6.0, 0.0, 6.0),
-                  child: CompositedTransformTarget(
-                    link: _layerLink,
-                    child: TextField(
-                      key: _commentInputKey,
-                      focusNode: _focusNode,
-                      controller: _controller,
-                      autofocus: false,
-                      maxLines: 5,
-                      minLines: 1,
-                      keyboardType: TextInputType.multiline,
-                      textCapitalization: TextCapitalization.sentences,
-                      enabled: !_sending,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        filled: true,
-                        floatingLabelBehavior: FloatingLabelBehavior.never,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(32.0),
-                          borderSide: const BorderSide(
-                            width: 0,
-                            style: BorderStyle.none,
+            ],
+            if (_inReplyTo != null) ...[
+              const Divider(thickness: 1.0, height: 0.0),
+              Row(
+                children: [
+                  const SizedBox(width: 8.0),
+                  const Icon(Icons.reply),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: Text(
+                      "${_inReplyTo!.createdBy.profileName}: ${_inReplyTo!.markdown}",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    visualDensity: VisualDensity.compact,
+                    onPressed: () => context.read<CommentShuttle>().clear(),
+                  ),
+                ],
+              ),
+            ],
+            if (_attachments.isNotEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Wrap(
+                  runSpacing: 8.0,
+                  spacing: 8.0,
+                  children: [
+                    for (final attachment in _attachments)
+                      AttachmentThumbnail(
+                        key: ObjectKey(attachment),
+                        image: attachment,
+                        onRemoveItem: (XFile image) {
+                          setState(() => _attachments.remove(image));
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8.0, 6.0, 0.0, 6.0),
+                    child: CompositedTransformTarget(
+                      link: _layerLink,
+                      child: TextField(
+                        key: _commentInputKey,
+                        focusNode: _focusNode,
+                        controller: _controller,
+                        autofocus: false,
+                        maxLines: 5,
+                        minLines: 1,
+                        keyboardType: TextInputType.multiline,
+                        textCapitalization: TextCapitalization.sentences,
+                        enabled: !_sending,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          filled: true,
+                          floatingLabelBehavior: FloatingLabelBehavior.never,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(32.0),
+                            borderSide: const BorderSide(
+                              width: 0,
+                              style: BorderStyle.none,
+                            ),
                           ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12.0,
+                            vertical: 12.0,
+                          ),
+                          labelText: 'New comment...',
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 12.0,
-                        ),
-                        labelText: 'New comment...',
                       ),
                     ),
                   ),
                 ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.attach_file),
-                visualDensity: VisualDensity.compact,
-                onPressed: _sending ? null : _pickMultiImage,
-              ),
-              IconButton(
-                icon: const Icon(Icons.camera_alt),
-                visualDensity: VisualDensity.compact,
-                onPressed: _sending ? null : _pickImage,
-              ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                icon: _sending
-                    ? const SizedBox.square(
-                        dimension: 18.0,
-                        child: CircularProgressIndicator(),
-                      )
-                    : Icon(_editing == null ? Icons.send : Icons.save),
-                onPressed: _sending ? null : _postComment,
-              ),
-            ],
-          ),
-        ],
+                IconButton(
+                  icon: const Icon(Icons.attach_file),
+                  visualDensity: VisualDensity.compact,
+                  onPressed: _sending ? null : _pickMultiImage,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.camera_alt),
+                  visualDensity: VisualDensity.compact,
+                  onPressed: _sending ? null : _pickImage,
+                ),
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  icon: _sending
+                      ? const SizedBox.square(
+                          dimension: 18.0,
+                          child: CircularProgressIndicator(),
+                        )
+                      : Icon(_editing == null ? Icons.send : Icons.save),
+                  onPressed: _sending ? null : _postComment,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

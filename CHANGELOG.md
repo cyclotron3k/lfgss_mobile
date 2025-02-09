@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.34
+
+- Better layout in Android 15
+
 ## v1.0.33
 
 - Better cache management (don't cache failed requests)

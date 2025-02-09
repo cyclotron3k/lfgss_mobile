@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../core/item.dart';
-import '../../models/refresh_request_notifier.dart';
 import 'item_shimmer.dart';
 
 class FutureItemTile extends StatelessWidget {
