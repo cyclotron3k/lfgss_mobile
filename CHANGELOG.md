@@ -3,6 +3,7 @@
 ## v1.0.34
 
 - Better layout in Android 15
+- Fix parsing of some profile links
 
 ## v1.0.33
 

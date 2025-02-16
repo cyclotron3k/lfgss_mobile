@@ -29,7 +29,7 @@ class LinkParser {
   static final eventIndicator = RegExp(r'/events/');
   static final huddleIndicator = RegExp(r'/huddles/');
   static final fragments = RegExp(r'^comment(\d+)$');
-  static final profileMatcher = RegExp(r'^/profiles/(\d+)$');
+  static final profileMatcher = RegExp(r'^/profiles/(\d+)/?$');
   static final searchMatcher = RegExp(r'^/search/');
   static final commentMatcher = RegExp(
     r'^(?:/api/v1)?/comments/(\d+)(?:/incontext)?/?$',
