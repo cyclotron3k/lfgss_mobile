@@ -4,6 +4,8 @@
 
 - Better layout in Android 15
 - Fix parsing of some profile links
+- Fix HTML link styling
+- Bump dependencies
 
 ## v1.0.33
 
