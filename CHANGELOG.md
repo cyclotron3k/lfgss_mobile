@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.35
+
+- Notifications indicate attachments
+
 ## v1.0.34
 
 - Better layout in Android 15

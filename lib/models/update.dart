@@ -86,10 +86,19 @@ class Update implements Item {
 
   String get body {
     if (child is Comment) {
-      return "${(child as Comment).createdBy.profileName}: ${(child as Comment).markdown}";
+      return _bodyForCommentUpdate(child as Comment);
     } else {
       return description;
     }
+  }
+
+  String _bodyForCommentUpdate(Comment comment) {
+    String str = "${comment.createdBy.profileName}:";
+    if (comment.markdown != ".") {
+      str += " ${comment.markdown}";
+    }
+    str += " 📸" * comment.attachments;
+    return str;
   }
 
   int get topicId {
