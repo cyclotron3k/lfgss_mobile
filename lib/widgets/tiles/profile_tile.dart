@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/profile.dart';
+import '../../services/avatar_cache_manager.dart';
 import '../profile_sheet.dart';
 
 class ProfileTile extends StatelessWidget {
@@ -40,6 +41,7 @@ class ProfileTile extends StatelessWidget {
                     )
                   : CachedNetworkImage(
                       imageUrl: profile.avatar,
+                      cacheManager: AvatarCacheManager.instance,
                       width: 28,
                       height: 28,
                       errorWidget: (context, url, error) => const Icon(

@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.36
+
+- Most cached images now expire after 14 days.
+
 ## v1.0.35
 
 - Notifications indicate attachments

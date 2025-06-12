@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/profile.dart';
 import '../../models/profiles.dart';
+import '../../services/avatar_cache_manager.dart';
 
 class ProfileSelector extends StatefulWidget {
   final Function(Profile) onSelected;
@@ -56,6 +57,7 @@ class _ProfileSelectorState extends State<ProfileSelector> {
               title: Text(profile.profileName),
               leading: CachedNetworkImage(
                 imageUrl: profile.avatar,
+                cacheManager: AvatarCacheManager.instance,
                 width: 28,
                 height: 28,
                 errorWidget: (context, url, error) => const Icon(

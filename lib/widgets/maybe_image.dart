@@ -4,6 +4,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
+import '../services/attachment_cache_manager.dart';
 import '../services/settings.dart';
 
 enum ImageState {
@@ -61,7 +62,7 @@ class MaybeImage extends StatefulWidget {
           alignment: alignment,
           repeat: repeat,
           matchTextDirection: matchTextDirection,
-          cacheManager: cacheManager,
+          cacheManager: cacheManager ?? AttachmentCacheManager.instance,
           useOldImageOnUrlChange: useOldImageOnUrlChange,
           color: color,
           filterQuality: filterQuality,

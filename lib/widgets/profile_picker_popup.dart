@@ -6,6 +6,7 @@ import 'package:quiver/collection.dart' show LruMap;
 
 import '../models/profile.dart';
 import '../models/profiles.dart';
+import '../services/avatar_cache_manager.dart';
 
 class ProfilePickerPopup extends StatefulWidget {
   const ProfilePickerPopup({
@@ -84,6 +85,7 @@ class _ProfilePickerPopupState extends State<ProfilePickerPopup> {
                   dense: true,
                   leading: CachedNetworkImage(
                     imageUrl: profile.avatar,
+                    cacheManager: AvatarCacheManager.instance,
                     width: 28.0,
                     height: 28.0,
                     errorWidget: (context, url, error) => const Icon(

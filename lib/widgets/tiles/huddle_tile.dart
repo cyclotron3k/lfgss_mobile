@@ -4,6 +4,7 @@ import 'package:html_unescape/html_unescape_small.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/huddle.dart';
+import '../../services/avatar_cache_manager.dart';
 import '../screens/future_screen.dart';
 import '../time_ago.dart';
 
@@ -82,6 +83,7 @@ class HuddleTile extends StatelessWidget {
                           width: 22.0,
                           height: 22.0,
                           imageUrl: profile.avatar,
+                          cacheManager: AvatarCacheManager.instance,
                           imageBuilder: (context, imageProvider) {
                             return ClipRRect(
                               borderRadius: BorderRadius.circular(4.0),
