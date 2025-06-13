@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.37
+
+- Render HTML tables
+
 ## v1.0.36
 
 - Most cached images now expire after 14 days.

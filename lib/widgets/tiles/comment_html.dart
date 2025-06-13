@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html_table/flutter_html_table.dart';
 import 'package:flutter_html_iframe/flutter_html_iframe.dart';
 import 'package:html/dom.dart' show Document, Element;
 import 'package:html/parser.dart' show parse;
@@ -110,6 +111,7 @@ class _CommentHtmlState extends State<CommentHtml> {
           await LinkParser.parseLink(context, url ?? "");
         },
         extensions: [
+          const TableHtmlExtension(),
           ImageExtension(
             handleNetworkImages: true,
             handleAssetImages: false,

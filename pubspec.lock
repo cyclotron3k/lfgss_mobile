@@ -230,6 +230,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  flutter_html_table:
+    dependency: "direct main"
+    description:
+      name: flutter_html_table
+      sha256: de15300b1f6d8014e1702e7edfdf3411f362c8fb753e89bac4c99215ea94a4d8
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   flutter_image_compress:
     dependency: "direct main"
     description:
@@ -286,6 +294,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.13.1"
+  flutter_layout_grid:
+    dependency: transitive
+    description:
+      name: flutter_layout_grid
+      sha256: "739e568db97af031d528dfd8a80d333df0e5a310a126e087690fa42cd61dfb5f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.8"
   flutter_lints:
     dependency: "direct dev"
     description:
