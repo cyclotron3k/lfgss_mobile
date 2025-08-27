@@ -14,6 +14,13 @@ class MicrocosmTile extends StatelessWidget {
     final unescape = HtmlUnescape();
     return Card(
       key: ValueKey(microcosm.id),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withAlpha(127),
+          width: 2.0,
+        ),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
       child: InkWell(
         onTap: () {
           Navigator.push(

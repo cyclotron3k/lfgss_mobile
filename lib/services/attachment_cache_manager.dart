@@ -6,6 +6,7 @@ class AttachmentCacheManager {
     Config(
       key,
       stalePeriod: const Duration(days: 14),
+      maxNrOfCacheObjects: 1000,
     ),
   );
 }

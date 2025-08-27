@@ -49,7 +49,7 @@ class CommentAttachments {
   }
 
   Widget build(BuildContext context) {
-    return Consumer<Settings>(builder: (context, settings, child) {
+    return Consumer<Settings>(builder: (context, settings, _) {
       Layout layout = Layout.values.byName(
         settings.getString("layout") ?? "horizontalSmall",
       );

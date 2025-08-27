@@ -27,6 +27,7 @@ class ConversationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final unescape = HtmlUnescape();
+    final unread = overrideUnreadFlag ?? conversation.flags.unread;
 
     return Card(
       key: ValueKey(conversation.id),
@@ -45,11 +46,11 @@ class ConversationTile extends StatelessWidget {
           );
         },
         child: ListTile(
-          leading: leadingIcon(context),
+          leading: leadingIcon(context, unread),
           title: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (overrideUnreadFlag ?? conversation.flags.unread)
+              if (unread)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0.0, 6.0, 6.0, 6.0),
                   child: Icon(
@@ -92,7 +93,7 @@ class ConversationTile extends StatelessWidget {
     );
   }
 
-  Icon leadingIcon(BuildContext context) {
+  Icon leadingIcon(BuildContext context, bool unread) {
     if (isReply == true) {
       return Icon(
         color: Theme.of(context).colorScheme.inversePrimary,
@@ -108,7 +109,7 @@ class ConversationTile extends StatelessWidget {
     } else if (conversation.flags.sticky) {
       return Icon(
         Icons.push_pin_outlined,
-        color: Theme.of(context).colorScheme.primary,
+        color: unread ? Theme.of(context).colorScheme.primary : null,
         size: 28,
       );
     } else {

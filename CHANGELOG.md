@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.38
+
+- Styling tweaks
+
 ## v1.0.37
 
 - Render HTML tables
