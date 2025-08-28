@@ -6,9 +6,12 @@ import 'huddles_screen.dart';
 class FutureHuddlesScreen extends StatefulWidget {
   final Future<Huddles> huddles;
   final ScrollController? controller;
+  final Function onRetry;
+
   const FutureHuddlesScreen({
     super.key,
     required this.huddles,
+    required this.onRetry,
     this.controller,
   });
 
@@ -17,6 +20,17 @@ class FutureHuddlesScreen extends StatefulWidget {
 }
 
 class _FutureHuddlesScreenState extends State<FutureHuddlesScreen> {
+  bool refreshDisabled = false;
+
+  Future<void> _refresh() async {
+    setState(() => refreshDisabled = true);
+    try {
+      await widget.onRetry();
+    } finally {
+      setState(() => refreshDisabled = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Huddles>(
@@ -29,10 +43,21 @@ class _FutureHuddlesScreenState extends State<FutureHuddlesScreen> {
           );
         } else if (snapshot.hasError) {
           return Center(
-            child: Icon(
-              Icons.error_outline,
-              color: Theme.of(context).colorScheme.error,
-              size: 64.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  color: Theme.of(context).colorScheme.error,
+                  size: 64.0,
+                ),
+                const SizedBox(height: 16.0),
+                ElevatedButton.icon(
+                  onPressed: refreshDisabled ? null : _refresh,
+                  icon: const Icon(Icons.refresh),
+                  label: Text(refreshDisabled ? 'Retrying...' : 'Retry'),
+                ),
+              ],
             ),
           );
         } else {

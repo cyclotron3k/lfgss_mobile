@@ -39,7 +39,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  List<Widget> _tabs = [];
   List<ScrollController> _scrollControllers = [];
   int _currentIndex = 0;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -62,7 +61,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     ];
 
     _initProfile();
-    _initTabs();
     if (MicrocosmClient().loggedIn) _currentIndex = 2;
 
     _runWhileAppIsTerminated();
@@ -125,25 +123,34 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void _refresh() {
+    _microcosms.then((value) => value.resetChildren());
     _following?.then((value) => value.resetChildren());
     _huddles?.then((value) => value.resetChildren());
     _today.then((value) => value.resetChildren());
   }
 
+  Future<Microcosm> _microcosms = Microcosm.root();
   Future<Updates>? _following;
   Future<Huddles>? _huddles;
-  final Future<Search> _today = Search.today();
+  Future<Search> _today = Search.today();
 
-  void _initTabs() {
+  List<Widget> _buildTabs() {
     if (MicrocosmClient().loggedIn) {
-      _following = Updates.root();
-      _huddles = Huddles.root();
+      _following ??= Updates.root();
+      _huddles ??= Huddles.root();
     }
 
-    _tabs = <Widget>[
+    return <Widget>[
       FutureMicrocosmScreen(
-        microcosm: Microcosm.root(),
+        microcosm: _microcosms,
         controller: _scrollControllers[0],
+        onRetry: () async {
+          var tmp = Microcosm.root();
+          setState(() {
+            _microcosms = tmp;
+          });
+          await tmp;
+        },
       ),
       FutureSearchResultsScreen(
         search: _today,
@@ -151,11 +158,25 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         showSummary: false,
         autoUpdate: true,
         controller: _scrollControllers[1],
+        onRetry: () async {
+          var tmp = Search.today();
+          setState(() {
+            _today = tmp;
+          });
+          await tmp;
+        },
       ),
       MicrocosmClient().loggedIn
           ? FutureUpdatesScreen(
               updates: _following!,
               controller: _scrollControllers[2],
+              onRetry: () async {
+                var tmp = Updates.root();
+                setState(() {
+                  _following = tmp;
+                });
+                await tmp;
+              },
             )
           : const LoginToSee(
               what: "your updates",
@@ -165,6 +186,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ? FutureHuddlesScreen(
               huddles: _huddles!,
               controller: _scrollControllers[3],
+              onRetry: () async {
+                var tmp = Huddles.root();
+                setState(() {
+                  _huddles = tmp;
+                });
+                await tmp;
+              },
             )
           : const LoginToSee(
               what: "Huddles",
@@ -249,6 +277,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             maintainState: true,
             builder: (context) => FutureUpdatesScreen(
               updates: Updates.root(),
+              onRetry: () async {
+                var tmp = Updates.root();
+                setState(() {
+                  _following = tmp;
+                });
+                await tmp;
+              },
             ),
           ),
         );
@@ -331,7 +366,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 if (MicrocosmClient().loggedIn) {
                   await MicrocosmClient().logout();
                   _initProfile();
-                  _initTabs();
+                  _refresh();
+                  _buildTabs();
                   setState(() {});
                 } else {
                   _toggleDrawer();
@@ -344,7 +380,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ),
                   );
                   _initProfile();
-                  _initTabs();
+                  _refresh();
+                  _buildTabs();
                   setState(() {});
                 }
               },
@@ -446,7 +483,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
       body: IndexedStack(
         index: _currentIndex,
-        children: _tabs,
+        children: _buildTabs(),
       ),
     );
   }
