@@ -21,7 +21,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   initTasks();
 
-  setLocalLocation(getLocation(FlutterTimezone.getLocalTimezone().toString()));
+  setLocalLocation(
+    getLocation((await FlutterTimezone.getLocalTimezone()).identifier),
+  );
 
   var settings = Settings(
     await SharedPreferences.getInstance(),

@@ -3,6 +3,18 @@ allprojects {
         google()
         mavenCentral()
     }
+
+    // Source: https://github.com/pikaju/flutter-maps-launcher/issues/55#issuecomment-3356514104
+    subprojects {
+        afterEvaluate { project ->
+            if (project.hasProperty('android')) {
+                project.android {
+                    // Force all modules to use compileSdk of the current flutter version
+                    compileSdkVersion flutter.compileSdkVersion
+                }
+            }
+        }
+    }
 }
 
 rootProject.buildDir = '../build'

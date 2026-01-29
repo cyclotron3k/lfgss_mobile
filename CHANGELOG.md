@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.40
+
+- Bump dependencies
+
 ## v1.0.39
 
 - Add retry option for pages that failed initial load
