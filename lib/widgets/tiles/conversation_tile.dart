@@ -22,7 +22,7 @@ class ConversationTile extends StatelessWidget {
   });
 
   Future<void> _dismissNotification() async =>
-      FlutterLocalNotificationsPlugin().cancel(conversation.id);
+      FlutterLocalNotificationsPlugin().cancel(id: conversation.id);
 
   @override
   Widget build(BuildContext context) {

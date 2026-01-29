@@ -117,7 +117,8 @@ class MicrocosmClient {
 
     final future = get(url).then((response) {
       log("Retrieved page: $url");
-      String page = const Utf8Decoder().convert(response.body.codeUnits);
+      String page = response
+          .body; // const Utf8Decoder().convert(response.body.codeUnits);
       Json data = json.decode(page);
       if (data["status"] != 200) {
         log("Failed to retrieve resource from: $url");

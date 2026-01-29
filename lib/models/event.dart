@@ -161,7 +161,7 @@ class Event implements CommentableItem {
   }
 
   Location? _location;
-  get tzLocation => _location ??= getLocation(tz);
+  Location get tzLocation => _location ??= getLocation(tz);
 
   TZDateTime? _tzStart;
   TZDateTime? get start {

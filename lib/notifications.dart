@@ -78,10 +78,12 @@ void callbackDispatcher() {
             update.updateType == UpdateType.new_comment_in_huddle;
 
         await flutterLocalNotificationsPlugin.show(
-          update.topicId,
-          update.title,
-          update.body,
-          important ? importantNotificationDetails : generalNotificationDetails,
+          id: update.topicId,
+          title: update.title,
+          body: update.body,
+          notificationDetails: important
+              ? importantNotificationDetails
+              : generalNotificationDetails,
           payload: update.payload,
         );
       }
@@ -108,7 +110,7 @@ Future<FlutterLocalNotificationsPlugin> initNotifications(
   final plugin = FlutterLocalNotificationsPlugin();
 
   await plugin.initialize(
-    const InitializationSettings(
+    settings: const InitializationSettings(
       android: AndroidInitializationSettings('ic_stat_lfgss_notification'),
     ),
     onDidReceiveNotificationResponse: callback,
@@ -127,7 +129,7 @@ Future<void> initTasks() async {
   Workmanager().registerPeriodicTask(
     "periodic-task-identifier",
     "updateChecker",
-    existingWorkPolicy: ExistingWorkPolicy.replace,
+    existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
     constraints: Constraints(
       networkType: NetworkType.connected,
       requiresBatteryNotLow: true,

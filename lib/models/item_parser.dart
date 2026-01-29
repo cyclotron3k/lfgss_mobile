@@ -1,3 +1,4 @@
+import '../core/item.dart';
 import 'comment.dart';
 import 'conversation.dart';
 import 'event.dart';
@@ -9,7 +10,7 @@ import 'unknown_item.dart';
 typedef Json = Map<String, dynamic>;
 
 class ItemParser {
-  static parseItemJson(String itemType, Json json) {
+  static Item parseItemJson(String itemType, Json json) {
     switch (itemType) {
       case "comment":
         return Comment.fromJson(json: json);
