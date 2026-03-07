@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.41
+
+- Fix embedded YouTube content
+- Bump dependencies
+
 ## v1.0.40
 
 - Bump dependencies
