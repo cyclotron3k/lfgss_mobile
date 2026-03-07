@@ -3,14 +3,15 @@ import 'dart:developer';
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
-import 'package:flutter_html_iframe/flutter_html_iframe.dart';
 import 'package:html/dom.dart' show Document, Element;
 import 'package:html/parser.dart' show parse;
 import 'package:provider/provider.dart';
 
+import '../../constants.dart';
 import '../../models/comment.dart';
 import '../../models/comment_shuttle.dart';
 import '../../services/link_parser.dart';
+import 'iframe_embed.dart';
 import '../image_gallery.dart';
 import '../maybe_image.dart';
 import '../missing_image.dart';
@@ -39,6 +40,7 @@ class CommentHtml extends StatefulWidget {
 class _CommentHtmlState extends State<CommentHtml> {
   String _selectedText = "";
   late final Document _doc;
+  static const _iframeReferer = 'https://$WEB_HOST/';
 
   @override
   void initState() {
@@ -143,7 +145,19 @@ class _CommentHtmlState extends State<CommentHtml> {
               );
             },
           ),
-          if (widget.embedYouTube) const IframeHtmlExtension(),
+          if (widget.embedYouTube)
+            TagExtension(
+              tagsToExtend: {"iframe"},
+              builder: (context) => Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: IframeEmbed(
+                  src: context.attributes["src"],
+                  width: context.attributes["width"],
+                  height: context.attributes["height"],
+                  referer: _iframeReferer,
+                ),
+              ),
+            ),
           if (widget.embedTweets)
             TagExtension(
               tagsToExtend: {"tweet"},
