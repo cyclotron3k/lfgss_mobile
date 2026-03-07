@@ -2,7 +2,8 @@
 
 ## v1.0.41
 
-- Fix embeded YouTube content
+- Fix embedded YouTube content
+- Bump dependencies
 
 ## v1.0.40
 
