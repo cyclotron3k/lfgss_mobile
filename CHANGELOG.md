@@ -3,6 +3,7 @@
 ## v1.0.42
 
 - Floating app bar on commentable item screen
+- Jump to relevant page & post when using "Open in browser"
 
 ## v1.0.41
 

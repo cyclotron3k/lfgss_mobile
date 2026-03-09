@@ -33,6 +33,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   final TextEditingController _pageNoController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final Map<int, GlobalKey> _commentKeys = {};
   static const Key _forwardListKey = ValueKey<String>('forward-list-center');
   late int maxPageNumber;
   late final ValueNotifier<double> _floatingHeaderTranslateY;
@@ -136,6 +137,89 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     }
   }
 
+  GlobalKey _commentKey(int index) {
+    return _commentKeys.putIfAbsent(
+      index,
+      () => GlobalKey(debugLabel: 'comment-$index'),
+    );
+  }
+
+  int? _currentCommentIndex() {
+    if (!mounted) return null;
+
+    final mediaQuery = MediaQuery.of(context);
+    final topInset = mediaQuery.padding.top + kToolbarHeight;
+    final bottomInset = mediaQuery.padding.bottom;
+    final viewportHeight = mediaQuery.size.height - topInset - bottomInset;
+
+    if (viewportHeight <= 0) return null;
+
+    final viewportCenterY = topInset + (viewportHeight / 2);
+    int? bestIndex;
+    double bestDistance = double.infinity;
+
+    for (final entry in _commentKeys.entries) {
+      final currentContext = entry.value.currentContext;
+      if (currentContext == null) continue;
+
+      final renderObject = currentContext.findRenderObject();
+      if (renderObject is! RenderBox || !renderObject.attached) continue;
+
+      final topLeft = renderObject.localToGlobal(Offset.zero);
+      final rect = topLeft & renderObject.size;
+      final isVisible =
+          rect.bottom > topInset && rect.top < topInset + viewportHeight;
+      if (!isVisible) continue;
+
+      final distance = (rect.center.dy - viewportCenterY).abs();
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestIndex = entry.key;
+      }
+    }
+
+    return bestIndex;
+  }
+
+  Future<Uri> _webUrlForCurrentPosition() async {
+    final selfUrl = widget.item.selfUrl;
+    final pathWithoutNewest = selfUrl.path.replaceFirst(
+      RegExp(r'/newest/?$'),
+      '',
+    );
+    final basePath = pathWithoutNewest.endsWith('/')
+        ? pathWithoutNewest
+        : '$pathWithoutNewest/';
+
+    final visibleIndex = _currentCommentIndex();
+    final fallbackOffset = ((widget.item.startPage * PAGE_SIZE) ~/ 25) * 25;
+    final offset =
+        visibleIndex == null ? fallbackOffset : (visibleIndex ~/ 25) * 25;
+
+    int? visibleCommentId;
+    if (visibleIndex != null) {
+      try {
+        visibleCommentId = await widget.item
+            .getChild(visibleIndex)
+            .then((comment) => comment.id)
+            .timeout(
+              const Duration(milliseconds: 150),
+              onTimeout: () => null,
+            );
+      } catch (_) {
+        visibleCommentId = null;
+      }
+    }
+
+    return Uri(
+      scheme: selfUrl.scheme,
+      host: selfUrl.host,
+      path: basePath,
+      queryParameters: {'offset': offset.toString()},
+      fragment: visibleCommentId == null ? null : 'comment$visibleCommentId',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     int forwardItemCount =
@@ -163,8 +247,11 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
         return Column(
           children: [
             _pageDivider(widget.item.startPage * PAGE_SIZE + index),
-            widget.item.childTile(
-              widget.item.startPage * PAGE_SIZE + index,
+            KeyedSubtree(
+              key: _commentKey(widget.item.startPage * PAGE_SIZE + index),
+              child: widget.item.childTile(
+                widget.item.startPage * PAGE_SIZE + index,
+              ),
             ),
           ],
         );
@@ -176,8 +263,11 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
       itemBuilder: (BuildContext context, int index) => Column(
         children: [
           _pageDivider(widget.item.startPage * PAGE_SIZE - index - 1),
-          widget.item.childTile(
-            widget.item.startPage * PAGE_SIZE - index - 1,
+          KeyedSubtree(
+            key: _commentKey(widget.item.startPage * PAGE_SIZE - index - 1),
+            child: widget.item.childTile(
+              widget.item.startPage * PAGE_SIZE - index - 1,
+            ),
           ),
         ],
       ),
@@ -273,10 +363,14 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
           child: const Text('Jump to page'),
         ),
         MenuItemButton(
-          onPressed: () => launchUrl(
-            widget.item.selfUrl,
-            mode: LaunchMode.externalApplication,
-          ),
+          onPressed: () async {
+            final url = await _webUrlForCurrentPosition();
+            if (!context.mounted) return;
+            await launchUrl(
+              url,
+              mode: LaunchMode.externalApplication,
+            );
+          },
           leadingIcon: const Icon(Icons.open_in_browser),
           child: const Text('Open in browser'),
         ),
