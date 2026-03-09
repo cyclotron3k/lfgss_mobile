@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.42
+
+- Floating app bar on commentable item screen
+
 ## v1.0.41
 
 - Fix embedded YouTube content

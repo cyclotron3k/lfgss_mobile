@@ -207,6 +207,7 @@ class _NewCommentState extends State<NewComment> {
     _editing = context.watch<CommentShuttle>().editTarget;
 
     return SafeArea(
+      top: false,
       child: Material(
         elevation: 2.0,
         child: Column(

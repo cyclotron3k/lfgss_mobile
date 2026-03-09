@@ -32,12 +32,61 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   bool refreshDisabled = false;
   final TextEditingController _pageNoController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  static const Key _forwardListKey = ValueKey<String>('forward-list-center');
   late int maxPageNumber;
+  late final ValueNotifier<double> _floatingHeaderTranslateY;
+  double _floatingHeaderHeight = kToolbarHeight;
+  double _lastScrollOffset = 0.0;
 
   @override
   void initState() {
     super.initState();
     maxPageNumber = (widget.item.totalChildren / 25).ceil();
+    _floatingHeaderTranslateY = ValueNotifier<double>(-_floatingHeaderHeight);
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final nextHeaderHeight = MediaQuery.paddingOf(context).top + kToolbarHeight;
+    if ((nextHeaderHeight - _floatingHeaderHeight).abs() > 0.1) {
+      final wasHidden =
+          _floatingHeaderTranslateY.value <= -_floatingHeaderHeight + 0.5;
+      _floatingHeaderHeight = nextHeaderHeight;
+      final nextTranslateY =
+          wasHidden ? -_floatingHeaderHeight : _floatingHeaderTranslateY.value;
+      _floatingHeaderTranslateY.value =
+          nextTranslateY.clamp(-_floatingHeaderHeight, 0.0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_handleScroll)
+      ..dispose();
+    _floatingHeaderTranslateY.dispose();
+    _pageNoController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    if (!_scrollController.hasClients) return;
+
+    final offset = _scrollController.offset;
+    final delta = offset - _lastScrollOffset;
+    _lastScrollOffset = offset;
+
+    if (delta.abs() < 1.0) return;
+
+    final nextTranslateY = (_floatingHeaderTranslateY.value - delta)
+        .clamp(-_floatingHeaderHeight, 0.0);
+    if ((nextTranslateY - _floatingHeaderTranslateY.value).abs() > 0.1) {
+      _floatingHeaderTranslateY.value = nextTranslateY;
+    }
   }
 
   Future<void> _refresh() async {
@@ -91,9 +140,8 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   Widget build(BuildContext context) {
     int forwardItemCount =
         widget.item.totalChildren - widget.item.startPage * PAGE_SIZE;
-    Key forwardListKey = UniqueKey();
     Widget forwardList = SliverList.builder(
-      key: forwardListKey,
+      key: _forwardListKey,
       itemBuilder: (BuildContext context, int index) {
         if (forwardItemCount == index) {
           return Column(
@@ -136,113 +184,106 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
       itemCount: widget.item.startPage * PAGE_SIZE,
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: null,
-        automaticallyImplyLeading: false,
-        actions: <Widget>[
-          MenuAnchor(
-            builder: (
-              BuildContext context,
-              MenuController controller,
-              Widget? child,
-            ) {
-              return IconButton(
-                onPressed: () {
-                  if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    controller.open();
-                  }
-                },
-                icon: const Icon(Icons.more_vert),
-                tooltip: 'Show menu',
-              );
-            },
-            menuChildren: <MenuItemButton>[
-              MenuItemButton(
-                onPressed: () async {
-                  String? query = await _showSearchDialog(context);
+    Widget overflowMenu = MenuAnchor(
+      builder: (
+        BuildContext context,
+        MenuController controller,
+        Widget? child,
+      ) {
+        return IconButton(
+          onPressed: () {
+            if (controller.isOpen) {
+              controller.close();
+            } else {
+              controller.open();
+            }
+          },
+          icon: const Icon(Icons.more_vert),
+          tooltip: 'Show menu',
+        );
+      },
+      menuChildren: <MenuItemButton>[
+        MenuItemButton(
+          onPressed: () async {
+            String? query = await _showSearchDialog(context);
 
-                  if (query != null) {
-                    if (!context.mounted) return;
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        fullscreenDialog: true,
-                        maintainState: true,
-                        builder: (context) => FutureSearchResultsScreen(
-                          search: Search.search(
-                            searchParameters: SearchParameters(
-                              query: "$query id:${widget.item.id}",
-                              type: {
-                                SearchType.values.byName(
-                                  widget.item.runtimeType
-                                      .toString()
-                                      .toLowerCase(),
-                                ),
-                                SearchType.comment,
-                              },
-                              sort: 'date',
-                            ),
+            if (query != null) {
+              if (!context.mounted) return;
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  fullscreenDialog: true,
+                  maintainState: true,
+                  builder: (context) => FutureSearchResultsScreen(
+                    search: Search.search(
+                      searchParameters: SearchParameters(
+                        query: "$query id:${widget.item.id}",
+                        type: {
+                          SearchType.values.byName(
+                            widget.item.runtimeType.toString().toLowerCase(),
                           ),
-                        ),
+                          SearchType.comment,
+                        },
+                        sort: 'date',
                       ),
-                    );
-                  }
-                },
-                leadingIcon: const Icon(Icons.search),
-                child: Text("Find in ${widget.item.runtimeType}"),
-              ),
-              MenuItemButton(
-                onPressed: () => Share.shareUri(widget.item.selfUrl),
-                leadingIcon: Icon(Icons.adaptive.share),
-                child: const Text('Share'),
-              ),
-              MenuItemButton(
-                onPressed: _toggleSubscription,
-                leadingIcon: Icon(widget.item.flags.watched
-                    ? Icons.notifications_on
-                    : Icons.notification_add_outlined),
-                child: Text(widget.item.flags.watched
-                    ? "Unfollow ${widget.item.runtimeType}"
-                    : "Follow ${widget.item.runtimeType}"),
-              ),
-              MenuItemButton(
-                onPressed: () async {
-                  String? ret = await _showPageJumpDialog(context);
-
-                  if (ret != null) {
-                    int pageNo = int.parse(ret);
-                    if (!context.mounted) return;
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        fullscreenDialog: true,
-                        maintainState: true,
-                        builder: (context) => FutureScreen(
-                          item: widget.item.getByPageNo(pageNo),
-                        ),
-                      ),
-                    );
-                  }
-                },
-                leadingIcon: const Icon(Icons.numbers),
-                child: const Text('Jump to page'),
-              ),
-              MenuItemButton(
-                onPressed: () => launchUrl(
-                  widget.item.selfUrl,
-                  mode: LaunchMode.externalApplication,
+                    ),
+                  ),
                 ),
-                leadingIcon: const Icon(Icons.open_in_browser),
-                child: const Text('Open in browser'),
-              ),
-            ],
+              );
+            }
+          },
+          leadingIcon: const Icon(Icons.search),
+          child: Text("Find in ${widget.item.runtimeType}"),
+        ),
+        MenuItemButton(
+          onPressed: () =>
+              SharePlus.instance.share(ShareParams(uri: widget.item.selfUrl)),
+          leadingIcon: Icon(Icons.adaptive.share),
+          child: const Text('Share'),
+        ),
+        MenuItemButton(
+          onPressed: _toggleSubscription,
+          leadingIcon: Icon(widget.item.flags.watched
+              ? Icons.notifications_on
+              : Icons.notification_add_outlined),
+          child: Text(widget.item.flags.watched
+              ? "Unfollow ${widget.item.runtimeType}"
+              : "Follow ${widget.item.runtimeType}"),
+        ),
+        MenuItemButton(
+          onPressed: () async {
+            String? ret = await _showPageJumpDialog(context);
+
+            if (ret != null) {
+              int pageNo = int.parse(ret);
+              if (!context.mounted) return;
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  fullscreenDialog: true,
+                  maintainState: true,
+                  builder: (context) => FutureScreen(
+                    item: widget.item.getByPageNo(pageNo),
+                  ),
+                ),
+              );
+            }
+          },
+          leadingIcon: const Icon(Icons.numbers),
+          child: const Text('Jump to page'),
+        ),
+        MenuItemButton(
+          onPressed: () => launchUrl(
+            widget.item.selfUrl,
+            mode: LaunchMode.externalApplication,
           ),
-        ],
-        title: Text(widget.item.title),
-      ),
+          leadingIcon: const Icon(Icons.open_in_browser),
+          child: const Text('Open in browser'),
+        ),
+      ],
+    );
+
+    return Scaffold(
       body: MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (context) => CommentShuttle()),
@@ -253,15 +294,51 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
           child: Column(
             children: [
               Expanded(
-                child: CustomScrollView(
-                  center: forwardListKey,
-                  slivers: [
-                    if (hasCustomHeader)
-                      SliverToBoxAdapter(
-                        child: buildHeader(),
+                child: Stack(
+                  children: [
+                    CustomScrollView(
+                      controller: _scrollController,
+                      center: _forwardListKey,
+                      slivers: [
+                        if (hasCustomHeader)
+                          SliverToBoxAdapter(
+                            child: buildHeader(),
+                          ),
+                        reverseList,
+                        forwardList,
+                      ],
+                    ),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      child: ValueListenableBuilder<double>(
+                        valueListenable: _floatingHeaderTranslateY,
+                        child: RepaintBoundary(
+                          child: SizedBox(
+                            height: _floatingHeaderHeight,
+                            child: AppBar(
+                              primary: true,
+                              leading: null,
+                              automaticallyImplyLeading: false,
+                              title: Text(widget.item.title),
+                              actions: <Widget>[overflowMenu],
+                            ),
+                          ),
+                        ),
+                        builder: (context, translateY, child) {
+                          final floatingHeaderVisible =
+                              translateY > -_floatingHeaderHeight + 0.5;
+                          return IgnorePointer(
+                            ignoring: !floatingHeaderVisible,
+                            child: Transform.translate(
+                              offset: Offset(0, translateY),
+                              child: child,
+                            ),
+                          );
+                        },
                       ),
-                    reverseList,
-                    forwardList,
+                    ),
                   ],
                 ),
               ),
