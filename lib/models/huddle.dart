@@ -77,6 +77,10 @@ class Huddle implements CommentableItem {
       );
 
   @override
+  int? getCachedCommentIndex(int commentId) =>
+      _children.entries.firstWhereOrNull((entry) => entry.value.id == commentId)?.key;
+
+  @override
   Future<Huddle> getItemByCommentId(int commentId) =>
       Huddle.getByCommentId(commentId);
 

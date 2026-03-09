@@ -132,6 +132,10 @@ class Event implements CommentableItem {
       );
 
   @override
+  int? getCachedCommentIndex(int commentId) =>
+      _children.entries.firstWhereOrNull((entry) => entry.value.id == commentId)?.key;
+
+  @override
   Future<Event> getItemByCommentId(int commentId) =>
       Event.getByCommentId(commentId);
 

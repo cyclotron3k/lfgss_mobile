@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../constants.dart';
 import '../../core/commentable_item.dart';
 import '../../models/comment_shuttle.dart';
+import '../../models/conversation.dart';
 import '../../models/event.dart';
 import '../../models/huddle.dart';
 import '../../models/refresh_request_notifier.dart';
@@ -34,6 +35,7 @@ class CommentableItemScreen extends StatefulWidget {
 
 class _CommentableItemScreenState extends State<CommentableItemScreen> {
   bool refreshDisabled = false;
+  bool _didAutoScrollToHighlight = false;
   final TextEditingController _pageNoController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -49,6 +51,9 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     _floatingHeaderController = FloatingCommentHeaderController(
       scrollController: _scrollController,
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollHighlightedCommentIntoView();
+    });
   }
 
   @override
@@ -71,6 +76,69 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   }
 
   String get _itemTypeLabel => widget.item.runtimeType.toString();
+
+  int? get _highlightedCommentId {
+    return switch (widget.item) {
+      Conversation conversation =>
+        conversation.highlight > 0 ? conversation.highlight : null,
+      Event event => event.highlight > 0 ? event.highlight : null,
+      Huddle huddle => huddle.highlight > 0 ? huddle.highlight : null,
+      _ => null,
+    };
+  }
+
+  Future<void> _scrollHighlightedCommentIntoView() async {
+    if (_didAutoScrollToHighlight || !mounted) return;
+
+    final highlightId = _highlightedCommentId;
+    if (highlightId == null) return;
+
+    final targetIndex = widget.item.getCachedCommentIndex(highlightId);
+    if (targetIndex == null) return;
+
+    _didAutoScrollToHighlight = true;
+
+    const maxAttempts = 8;
+    for (var attempt = 0; attempt < maxAttempts && mounted; attempt++) {
+      final targetContext = _commentKeys[targetIndex]?.currentContext;
+      if (targetContext != null) {
+        await Scrollable.ensureVisible(
+          targetContext,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          alignment: 0.12,
+        );
+        return;
+      }
+
+      if (!_scrollController.hasClients) {
+        await Future<void>.delayed(const Duration(milliseconds: 16));
+        continue;
+      }
+
+      final visibleIndex = currentVisibleCommentIndex(
+        context: context,
+        commentKeys: _commentKeys,
+      );
+      final direction = (visibleIndex == null)
+          ? (targetIndex >= widget.item.startPage * PAGE_SIZE ? 1.0 : -1.0)
+          : (targetIndex > visibleIndex ? 1.0 : -1.0);
+
+      final currentOffset = _scrollController.offset;
+      final viewport = _scrollController.position.viewportDimension;
+      final nextOffset = (currentOffset + (viewport * 0.85 * direction)).clamp(
+        0.0,
+        _scrollController.position.maxScrollExtent,
+      );
+
+      if ((nextOffset - currentOffset).abs() < 1.0) {
+        return;
+      }
+
+      _scrollController.jumpTo(nextOffset);
+      await Future<void>.delayed(const Duration(milliseconds: 32));
+    }
+  }
 
   Widget _buildHeader() {
     if (widget.item is Event) {

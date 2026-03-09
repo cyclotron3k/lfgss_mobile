@@ -14,4 +14,5 @@ abstract class CommentableItem implements PaginatedItem<Comment>, Authored {
   Future<CommentableItem> getItemByCommentId(int commentId);
 
   Comment? getCachedComment(int commentId);
+  int? getCachedCommentIndex(int commentId);
 }

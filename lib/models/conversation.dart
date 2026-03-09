@@ -169,6 +169,10 @@ class Conversation implements CommentableItem {
       );
 
   @override
+  int? getCachedCommentIndex(int commentId) =>
+      _children.entries.firstWhereOrNull((entry) => entry.value.id == commentId)?.key;
+
+  @override
   Future<Conversation> getItemByCommentId(int commentId) =>
       Conversation.getByCommentId(commentId);
 

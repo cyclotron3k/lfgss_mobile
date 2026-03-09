@@ -4,6 +4,7 @@
 
 - Floating app bar on commentable item screen
 - Jump to relevant page & post when using "Open in browser"
+- Scroll highlighted comments into view
 
 ## v1.0.41
 
