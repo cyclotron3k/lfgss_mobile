@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:photo_view/photo_view.dart';
 
 import '../constants.dart';
+import '../services/attachment_cache_manager.dart';
 
 class ImageGallery extends ModalRoute {
   // variables passed from the parent widget
@@ -34,7 +34,7 @@ class ImageGallery extends ModalRoute {
   bool get barrierDismissible => false;
 
   @override
-  Color get barrierColor => Colors.black.withOpacity(0.8);
+  Color get barrierColor => Colors.black.withAlpha(204);
 
   @override
   String? get barrierLabel => null;
@@ -43,14 +43,9 @@ class ImageGallery extends ModalRoute {
   bool get maintainState => true;
 
   Future<void> _shareImage() async {
-    var file = await DefaultCacheManager().getSingleFile(
-      url,
-    );
+    var file = await AttachmentCacheManager.instance.getSingleFile(url);
     var xfile = XFile(file.path, name: fileName);
-    Share.shareXFiles(
-      [xfile],
-      //text: attachment.fileName,
-    );
+    SharePlus.instance.share(ShareParams(files: [xfile]));
   }
 
   @override

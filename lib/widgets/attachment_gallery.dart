@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../models/attachment.dart';
+import '../services/attachment_cache_manager.dart';
 
 class AttachmentGallery extends StatefulWidget {
   AttachmentGallery({
@@ -38,17 +38,14 @@ class _GalleryPhotoViewWrapperState extends State<AttachmentGallery> {
   }
 
   Future<void> shareImage() async {
-    var file = await DefaultCacheManager().getSingleFile(
+    var file = await AttachmentCacheManager.instance.getSingleFile(
       widget.attachments[currentIndex].url,
     );
     var xfile = XFile(
       file.path,
       name: widget.attachments[currentIndex].fileName,
     );
-    Share.shareXFiles(
-      [xfile],
-      //text: attachment.fileName,
-    );
+    SharePlus.instance.share(ShareParams(files: [xfile]));
   }
 
   @override

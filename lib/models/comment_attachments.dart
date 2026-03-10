@@ -100,7 +100,7 @@ class CommentAttachments {
                   context,
                   PageRouteBuilder(
                     opaque: false,
-                    barrierColor: Colors.black.withOpacity(0.8),
+                    barrierColor: Colors.black.withAlpha(204),
                     barrierDismissible: false,
                     pageBuilder: (context, _, __) => AttachmentGallery(
                       attachments: snapshot.data!,
