@@ -10,7 +10,7 @@ class FloatingCommentHeaderController {
   FloatingCommentHeaderController({
     required this.scrollController,
     this.headerHeight = kToolbarHeight,
-  }) : translateY = ValueNotifier<double>(-headerHeight) {
+  }) : translateY = ValueNotifier<double>(0.0) {
     scrollController.addListener(_handleScroll);
   }
 
