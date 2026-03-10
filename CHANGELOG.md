@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.43
+
+- Attachment file-type icons
+- Show video attachments
+
 ## v1.0.42
 
 - Floating app bar on commentable item screen

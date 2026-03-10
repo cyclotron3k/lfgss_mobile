@@ -1,7 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../models/attachment.dart';
@@ -56,15 +54,13 @@ class _GalleryPhotoViewWrapperState extends State<AttachmentGallery> {
         child: Stack(
           alignment: Alignment.bottomRight,
           children: <Widget>[
-            PhotoViewGallery.builder(
-              scrollPhysics: const BouncingScrollPhysics(),
-              builder: _buildItem,
-              itemCount: widget.attachments.length,
-              loadingBuilder: widget.loadingBuilder,
-              backgroundDecoration: const BoxDecoration(),
-              pageController: widget.pageController,
-              onPageChanged: onPageChanged,
+            PageView.builder(
               scrollDirection: widget.scrollDirection,
+              controller: widget.pageController,
+              physics: const BouncingScrollPhysics(),
+              onPageChanged: onPageChanged,
+              itemCount: widget.attachments.length,
+              itemBuilder: _buildItem,
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -98,12 +94,7 @@ class _GalleryPhotoViewWrapperState extends State<AttachmentGallery> {
     );
   }
 
-  PhotoViewGalleryPageOptions _buildItem(BuildContext context, int index) =>
-      PhotoViewGalleryPageOptions(
-        imageProvider: CachedNetworkImageProvider(
-          widget.attachments[index].url,
-        ),
-        initialScale: PhotoViewComputedScale.contained,
-        minScale: PhotoViewComputedScale.contained * 0.8,
-      );
+  Widget _buildItem(BuildContext context, int index) {
+    return widget.attachments[index].buildForGallery(context);
+  }
 }
