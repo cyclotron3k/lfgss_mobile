@@ -259,8 +259,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final topPadding =
-        MediaQuery.paddingOf(context).top + kToolbarHeight;
+    final topPadding = MediaQuery.paddingOf(context).top + kToolbarHeight;
     final forwardItemCount =
         widget.item.totalChildren - widget.item.startPage * PAGE_SIZE;
 
@@ -309,15 +308,17 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
                     controller: _scrollController,
                     center: _forwardListKey,
                     slivers: [
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: topPadding,
+                        ),
+                      ),
                       if (_hasCustomHeader)
                         SliverToBoxAdapter(
                           child: _buildHeader(),
                         ),
                       reverseList,
-                      SliverPadding(
-                        padding: EdgeInsets.only(top: topPadding),
-                        sliver: forwardList,
-                      ),
+                      forwardList,
                     ],
                   ),
                   FloatingCommentHeader(
