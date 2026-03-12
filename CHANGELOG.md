@@ -4,6 +4,7 @@
 
 - Attachment file-type icons
 - Show video attachments
+- Fix first comment hidden behind floating app bar
 
 ## v1.0.42
 
