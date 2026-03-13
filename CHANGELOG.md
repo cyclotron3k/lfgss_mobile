@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.44
+
+- Seek bar
+
 ## v1.0.43
 
 - Attachment file-type icons

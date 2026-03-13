@@ -21,6 +21,7 @@ import 'commentable_item/commentable_item_dialogs.dart';
 import 'commentable_item/commentable_item_overflow_menu.dart';
 import 'commentable_item/commentable_item_positioning.dart';
 import 'commentable_item/floating_comment_header.dart';
+import 'commentable_item/seek_bar.dart';
 import 'future_screen.dart';
 import 'future_search_results_screen.dart';
 
@@ -102,11 +103,21 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     for (var attempt = 0; attempt < maxAttempts && mounted; attempt++) {
       final targetContext = _commentKeys[targetIndex]?.currentContext;
       if (targetContext != null) {
+        final topPadding =
+            MediaQuery.paddingOf(targetContext).top + kToolbarHeight;
         await Scrollable.ensureVisible(
           targetContext,
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeOutCubic,
           alignment: 0.12,
+        );
+
+        final pos = _scrollController.position;
+        _scrollController.jumpTo(
+          (_scrollController.offset - topPadding).clamp(
+            pos.minScrollExtent,
+            pos.maxScrollExtent,
+          ),
         );
         return;
       }
@@ -203,6 +214,29 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     await SharePlus.instance.share(ShareParams(uri: widget.item.selfUrl));
   }
 
+  double _getSeekFraction() {
+    final index = currentVisibleCommentIndex(
+      context: context,
+      commentKeys: _commentKeys,
+    );
+    if (index == null || widget.item.totalChildren <= 1) return 0.0;
+    return (index / (widget.item.totalChildren - 1)).clamp(0.0, 1.0);
+  }
+
+  Future<void> _jumpToSpecificPage(int pageNo) async {
+    if (!context.mounted) return;
+    await Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        maintainState: true,
+        builder: (context) => FutureScreen(
+          item: widget.item.getByPageNo(pageNo),
+        ),
+      ),
+    );
+  }
+
   Future<void> _jumpToPage() async {
     final ret = await showPageJumpDialog(
       context: context,
@@ -211,18 +245,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     );
 
     if (ret != null) {
-      final pageNo = int.parse(ret);
-      if (!context.mounted) return;
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          fullscreenDialog: true,
-          maintainState: true,
-          builder: (context) => FutureScreen(
-            item: widget.item.getByPageNo(pageNo),
-          ),
-        ),
-      );
+      await _jumpToSpecificPage(int.parse(ret));
     }
   }
 
@@ -326,6 +349,13 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
                     action: overflowMenu,
                     translateY: _floatingHeaderController.translateY,
                     headerHeight: _floatingHeaderController.headerHeight,
+                  ),
+                  SeekBar(
+                    scrollController: _scrollController,
+                    totalChildren: widget.item.totalChildren,
+                    topPadding: topPadding,
+                    onSeek: _jumpToSpecificPage,
+                    getFraction: _getSeekFraction,
                   ),
                 ],
               ),

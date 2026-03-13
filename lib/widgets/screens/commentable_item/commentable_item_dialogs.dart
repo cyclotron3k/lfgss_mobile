@@ -16,6 +16,7 @@ Future<String?> showPageJumpDialog({
             width: 100,
             child: TextField(
               controller: controller,
+              autofocus: true,
               maxLength: 6,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -69,6 +70,7 @@ Future<String?> showThreadSearchDialog({
         width: 100,
         child: TextField(
           controller: controller,
+          autofocus: true,
           maxLength: 512,
           decoration: const InputDecoration(
             counterText: '',
