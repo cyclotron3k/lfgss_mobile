@@ -13,6 +13,7 @@ import '../../models/refresh_request_notifier.dart';
 import '../../models/search.dart';
 import '../../models/search_parameters.dart';
 import '../../services/microcosm_client.dart';
+import '../../services/settings.dart';
 import '../event_header.dart';
 import '../huddle_header.dart';
 import '../new_comment.dart';
@@ -283,6 +284,9 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.paddingOf(context).top + kToolbarHeight;
+    final seekBarSensitivity = SeekBarSensitivity.values.byName(
+      Provider.of<Settings>(context).getString("seekBarSensitivity") ?? "low",
+    );
     final forwardItemCount =
         widget.item.totalChildren - widget.item.startPage * PAGE_SIZE;
 
@@ -354,6 +358,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
                     scrollController: _scrollController,
                     totalChildren: widget.item.totalChildren,
                     topPadding: topPadding,
+                    sensitivity: seekBarSensitivity,
                     onSeek: _jumpToSpecificPage,
                     getFraction: _getSeekFraction,
                   ),

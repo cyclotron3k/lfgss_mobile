@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+enum SeekBarSensitivity { always, high, low, never }
+
 class SeekBar extends StatefulWidget {
   final ScrollController scrollController;
   final int totalChildren;
   final double topPadding;
+  final SeekBarSensitivity sensitivity;
   final void Function(int pageNo) onSeek;
   final double Function() getFraction;
 
@@ -14,6 +17,7 @@ class SeekBar extends StatefulWidget {
     required this.scrollController,
     required this.totalChildren,
     required this.topPadding,
+    this.sensitivity = SeekBarSensitivity.low,
     required this.onSeek,
     required this.getFraction,
   });
@@ -38,7 +42,9 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
   double _prevOffset = 0.0;
   int _prevTimeMs = 0;
 
-  static const double _velocityThreshold = 1200.0; // px/s
+  // px/s thresholds for velocity-triggered display.
+  static const double _velocityThresholdHigh = 1200.0;
+  static const double _velocityThresholdLow = 5000.0;
   static const Duration _hideDelay = Duration(seconds: 2);
   static const double _thumbRadius = 10.0;
   static const double _hitboxPadding = 30.0;
@@ -80,6 +86,23 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
     _slideCtrl.addStatusListener(_onSlideStatus);
     widget.scrollController.addListener(_onScroll);
     _prevTimeMs = DateTime.now().millisecondsSinceEpoch;
+
+    if (widget.sensitivity == SeekBarSensitivity.always) {
+      _slideCtrl.value = 1.0;
+    }
+  }
+
+  @override
+  void didUpdateWidget(SeekBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.sensitivity != widget.sensitivity) {
+      _hideTimer?.cancel();
+      if (widget.sensitivity == SeekBarSensitivity.always) {
+        _slideCtrl.forward();
+      } else if (widget.sensitivity == SeekBarSensitivity.never) {
+        _slideCtrl.reverse();
+      }
+    }
   }
 
   @override
@@ -101,13 +124,33 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
 
   void _onScroll() {
     if (!widget.scrollController.hasClients) return;
+    if (widget.sensitivity == SeekBarSensitivity.never) return;
+    if (widget.sensitivity == SeekBarSensitivity.always) return;
+
+    final position = widget.scrollController.position;
+    final offset = position.pixels;
+
+    // isScrollingNotifier is true only during user-driven activities
+    // (DragScrollActivity, BallisticScrollActivity). Programmatic position
+    // corrections — layout reflows after resetChildren, jumpTo calls, etc. —
+    // happen while the position is idle, so we reset the baseline and bail
+    // out without ever computing a velocity.
+    if (!position.isScrollingNotifier.value) {
+      _prevOffset = offset;
+      _prevTimeMs = DateTime.now().millisecondsSinceEpoch;
+      return;
+    }
+
     final now = DateTime.now().millisecondsSinceEpoch;
     final dt = now - _prevTimeMs;
-    final offset = widget.scrollController.offset;
+    final offsetDelta = (offset - _prevOffset).abs();
 
     if (dt > 0 && dt < 200) {
-      final velocity = (offset - _prevOffset).abs() / dt * 1000;
-      if (velocity > _velocityThreshold) _showBar();
+      final velocity = offsetDelta / dt * 1000;
+      final threshold = widget.sensitivity == SeekBarSensitivity.high
+          ? _velocityThresholdHigh
+          : _velocityThresholdLow;
+      if (velocity > threshold) _showBar();
     }
 
     _prevOffset = offset;
@@ -115,13 +158,14 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
   }
 
   void _showBar() {
+    if (widget.sensitivity == SeekBarSensitivity.never) return;
     _slideCtrl.forward();
     _scheduleHide();
   }
 
   void _scheduleHide() {
     _hideTimer?.cancel();
-    if (!_isDragging) {
+    if (!_isDragging && widget.sensitivity != SeekBarSensitivity.always) {
       _hideTimer = Timer(_hideDelay, () {
         if (mounted) _slideCtrl.reverse();
       });
@@ -290,7 +334,9 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
                     ),
                   ),
 
-                  // Label — always in tree, opacity-controlled.
+                  // Label — always in tree, opacity-controlled to keep the
+                  // Positioned slot stable so gesture reconciliation for the
+                  // thumb is never disrupted by an insertion/removal here.
                   Positioned(
                     right: _rightMargin + _thumbRadius * 2 + 12,
                     top: thumbCenterY - 14,
