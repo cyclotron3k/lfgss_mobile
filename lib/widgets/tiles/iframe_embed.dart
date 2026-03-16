@@ -21,6 +21,7 @@ class IframeEmbed extends StatefulWidget {
 
 class _IframeEmbedState extends State<IframeEmbed> {
   WebViewController? _controller;
+  AppLifecycleListener? _lifecycleListener;
 
   @override
   void initState() {
@@ -41,6 +42,27 @@ class _IframeEmbedState extends State<IframeEmbed> {
           'Referer': widget.referer,
         },
       );
+
+    _lifecycleListener = AppLifecycleListener(
+      onPause: _pauseMedia,
+    );
+  }
+
+  void _pauseMedia() {
+    // Pause all HTML5 <video> elements.
+    // Also send the YouTube Player API postMessage command for iframes.
+    _controller?.runJavaScript(
+      'document.querySelectorAll("video").forEach(function(v){ try{ v.pause(); }catch(e){} });'
+      'document.querySelectorAll("iframe").forEach(function(f){'
+      '  try{ f.contentWindow.postMessage(\'{"event":"command","func":"pauseVideo","args":[]}\', "*"); }catch(e){}'
+      '});',
+    );
+  }
+
+  @override
+  void dispose() {
+    _lifecycleListener?.dispose();
+    super.dispose();
   }
 
   @override

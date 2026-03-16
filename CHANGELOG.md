@@ -3,6 +3,7 @@
 ## v1.0.44
 
 - Seek bar
+- Fix embedded youtube videos hanging?
 
 ## v1.0.43
 
