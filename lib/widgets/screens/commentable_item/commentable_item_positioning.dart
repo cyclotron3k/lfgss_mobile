@@ -31,6 +31,7 @@ int? currentVisibleCommentIndex({
 
     final renderObject = currentContext.findRenderObject();
     if (renderObject is! RenderBox || !renderObject.attached) continue;
+    if (!renderObject.hasSize) continue;
 
     final topLeft = renderObject.localToGlobal(Offset.zero);
     final rect = topLeft & renderObject.size;

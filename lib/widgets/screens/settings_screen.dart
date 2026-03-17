@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/settings.dart';
+import 'commentable_item/seek_bar.dart';
 
 enum DarkMode { system, light, dark }
 
@@ -32,6 +33,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _notifyReplies = true;
   bool _notifyMentions = true;
   bool _notifyHuddles = true;
+  SeekBarSensitivity _seekBarSensitivity = SeekBarSensitivity.low;
 
   @override
   void initState() {
@@ -61,6 +63,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _notifyReplies = settings.getBool("notifyReplies") ?? true;
     _notifyMentions = settings.getBool("notifyMentions") ?? true;
     _notifyHuddles = settings.getBool("notifyHuddles") ?? true;
+    _seekBarSensitivity = SeekBarSensitivity.values.byName(
+      settings.getString("seekBarSensitivity") ?? "low",
+    );
   }
 
   @override
@@ -253,6 +258,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
             secondary: const Icon(Icons.chat_bubble),
           ),
           const Divider(),
+          const SettingsSectionTitle(title: "Reading"),
+          PopupMenuButton(
+            initialValue: _seekBarSensitivity,
+            onSelected: (SeekBarSensitivity item) {
+              setState(() {
+                settings
+                    .setString("seekBarSensitivity", item.name)
+                    .ignore();
+                _seekBarSensitivity = item;
+              });
+            },
+            itemBuilder: (BuildContext context) =>
+                <PopupMenuEntry<SeekBarSensitivity>>[
+              const PopupMenuItem<SeekBarSensitivity>(
+                value: SeekBarSensitivity.always,
+                child: Text('Always visible'),
+              ),
+              const PopupMenuItem<SeekBarSensitivity>(
+                value: SeekBarSensitivity.high,
+                child: Text('High sensitivity'),
+              ),
+              const PopupMenuItem<SeekBarSensitivity>(
+                value: SeekBarSensitivity.low,
+                child: Text('Low sensitivity'),
+              ),
+              const PopupMenuItem<SeekBarSensitivity>(
+                value: SeekBarSensitivity.never,
+                child: Text('Never'),
+              ),
+            ],
+            child: ListTile(
+              title: const Text('Seek bar'),
+              subtitle: Text(_seekBarSensitivityLabel(_seekBarSensitivity)),
+              leading: const Icon(Icons.linear_scale),
+            ),
+          ),
+          const Divider(),
           const SettingsSectionTitle(title: "Notifications"),
           SwitchListTile(
             title: const Text('Direct messages (huddles)'),
@@ -316,6 +358,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
+
+String _seekBarSensitivityLabel(SeekBarSensitivity s) => switch (s) {
+      SeekBarSensitivity.always => 'Always visible',
+      SeekBarSensitivity.high => 'High sensitivity',
+      SeekBarSensitivity.low => 'Low sensitivity',
+      SeekBarSensitivity.never => 'Never',
+    };
 
 class SettingsSectionTitle extends StatelessWidget {
   final String title;
