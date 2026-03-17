@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.45
+
+- Fox profile comments rendering in search results
+
 ## v1.0.44
 
 - Seek bar

@@ -4,8 +4,10 @@ import '../../models/comment.dart';
 import '../core/commentable_item.dart';
 import '../core/item.dart';
 import '../widgets/tiles/comment_tile.dart';
+import '../widgets/tiles/profile_comment_tile.dart';
 import 'flags.dart';
 import 'item_parser.dart' hide Json;
+import 'profile.dart';
 
 class SearchResult implements Item {
   final Item child;
@@ -45,10 +47,17 @@ class SearchResult implements Item {
     bool? isReply,
     bool? mentioned,
   }) {
-    if (parent != null && child is Comment) {
+    if (parent is CommentableItem && child is Comment) {
       return CommentTile(
         comment: child as Comment,
         contextItem: parent as CommentableItem,
+        highlight: highlight,
+        overrideUnreadFlag: overrideUnreadFlag ?? unread,
+      );
+    } else if (parent is Profile && child is Comment) {
+      return ProfileCommentTile(
+        comment: child as Comment,
+        profile: parent as Profile,
         highlight: highlight,
         overrideUnreadFlag: overrideUnreadFlag ?? unread,
       );
