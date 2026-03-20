@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:intl/intl.dart';
 
+import 'package:provider/provider.dart';
+
 import '../../models/event.dart';
+import '../../services/comment_draft_service.dart';
 import '../screens/future_screen.dart';
 import '../time_ago.dart';
 
@@ -19,6 +22,7 @@ class EventTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final unescape = HtmlUnescape();
+    final hasDraft = context.watch<CommentDraftService>().load('event', event.id) != null;
 
     return Card(
       key: ValueKey(event.id),
@@ -65,6 +69,11 @@ class EventTile extends StatelessWidget {
                   maxLines: 2,
                 ),
               ),
+              if (hasDraft)
+                const Padding(
+                  padding: EdgeInsets.only(left: 4.0),
+                  child: Icon(Icons.edit_note, size: 16.0, color: Colors.grey),
+                ),
             ],
           ),
           subtitle: Row(

@@ -2,7 +2,8 @@
 
 ## v1.0.45
 
-- Fox profile comments rendering in search results
+- Fix profile comments breaking search results and "today" page
+- Remember draft comments
 
 ## v1.0.44
 

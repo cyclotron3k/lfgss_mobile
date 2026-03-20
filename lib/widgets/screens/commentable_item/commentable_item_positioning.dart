@@ -29,7 +29,16 @@ int? currentVisibleCommentIndex({
     final currentContext = entry.value.currentContext;
     if (currentContext == null) continue;
 
-    final renderObject = currentContext.findRenderObject();
+    // findRenderObject() throws for inactive elements (deactivated during
+    // layout changes, e.g. when the keyboard appears). Element.mounted is
+    // _widget != null, which is true for both active and inactive elements,
+    // so we can't use it as a guard — catch the error instead.
+    RenderObject? renderObject;
+    try {
+      renderObject = currentContext.findRenderObject();
+    } catch (_) {
+      continue;
+    }
     if (renderObject is! RenderBox || !renderObject.attached) continue;
     if (!renderObject.hasSize) continue;
 

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../constants.dart';
 import '../models/comment.dart';
 import '../models/comment_shuttle.dart';
+import '../services/comment_draft_service.dart';
 import '../services/microcosm_client.dart';
 import '../services/profile_aware_input_controller.dart';
 import 'attachment_thumbnail.dart';
@@ -44,19 +45,30 @@ class _NewCommentState extends State<NewComment> {
   Comment? _editing;
   bool _sending = false;
   CommentShuttle? _commentShuttle;
+  CommentDraftService? _draftService;
   final _commentInputKey = GlobalKey();
 
   final FocusNode _focusNode = FocusNode();
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
 
+  String get _draftItemType => widget.itemType.name;
+  int get _draftItemId => widget.itemId;
+
   @override
   void initState() {
     super.initState();
     _controller.text = widget.initialState;
     _commentShuttle = context.read<CommentShuttle?>();
+    _draftService = context.read<CommentDraftService?>();
+
+    // Restore draft BEFORE adding the shuttle listener so that
+    // _handleReplyUpdate doesn't fire and overwrite the restored text.
+    _restoreDraft();
+
     _commentShuttle?.addListener(_handleReplyUpdate);
     _controller.addListener(_handleTypingEvent);
+    _controller.addListener(_saveDraft);
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         // _showOverlay();
@@ -66,10 +78,61 @@ class _NewCommentState extends State<NewComment> {
     });
   }
 
+  void _restoreDraft() {
+    final draft = _draftService?.load(_draftItemType, _draftItemId);
+    if (draft == null || draft.isEmpty) return;
+
+    _controller.text = draft.text;
+
+    if (draft.attachmentPaths.isNotEmpty) {
+      _attachments.addAll(draft.attachmentPaths.map(XFile.new));
+    }
+
+    if (draft.editId != null) {
+      final stub = Comment.stub(
+        id: draft.editId!,
+        markdown: draft.editMarkdown ?? '',
+        authorName: '',
+        itemType: _draftItemType,
+        itemId: _draftItemId,
+      );
+      // setEditTarget calls notifyListeners() but our listener isn't
+      // registered yet, so _handleReplyUpdate won't fire here.
+      _commentShuttle?.setEditTarget(stub);
+    } else if (draft.replyToId != null) {
+      final stub = Comment.stub(
+        id: draft.replyToId!,
+        markdown: draft.replyToMarkdown ?? '',
+        authorName: draft.replyToAuthor ?? '',
+        itemType: _draftItemType,
+        itemId: _draftItemId,
+      );
+      _commentShuttle?.setReplyTarget(stub);
+    }
+  }
+
+  void _saveDraft() {
+    final replyTarget = _commentShuttle?.replyTarget;
+    final editTarget = _commentShuttle?.editTarget;
+
+    final draft = CommentDraft(
+      text: _controller.text,
+      attachmentPaths: _attachments.map((f) => f.path).toList(),
+      replyToId: replyTarget?.id,
+      replyToAuthor: replyTarget?.createdBy.profileName,
+      replyToMarkdown: replyTarget?.markdown,
+      editId: editTarget?.id,
+      editMarkdown: editTarget?.markdown,
+    );
+
+    _draftService?.save(_draftItemType, _draftItemId, draft);
+  }
+
   @override
   void dispose() {
     _commentShuttle?.removeListener(_handleReplyUpdate);
     _controller.removeListener(_handleTypingEvent);
+    _controller.removeListener(_saveDraft);
     _controller.dispose();
     _hideOverlay();
     super.dispose();
@@ -199,6 +262,7 @@ class _NewCommentState extends State<NewComment> {
     } else {
       _controller.text = "";
     }
+    _saveDraft();
   }
 
   @override
@@ -272,6 +336,7 @@ class _NewCommentState extends State<NewComment> {
                         image: attachment,
                         onRemoveItem: (XFile image) {
                           setState(() => _attachments.remove(image));
+                          _saveDraft();
                         },
                       ),
                   ],
@@ -348,6 +413,7 @@ class _NewCommentState extends State<NewComment> {
     final List<XFile> images = await picker.pickMultiImage();
     if (images.isNotEmpty) {
       setState(() => _attachments.addAll(images));
+      _saveDraft();
     }
   }
 
@@ -359,6 +425,7 @@ class _NewCommentState extends State<NewComment> {
     );
     if (photo != null) {
       setState(() => _attachments.add(photo));
+      _saveDraft();
     }
   }
 
@@ -439,6 +506,8 @@ class _NewCommentState extends State<NewComment> {
       if (_attachments.isNotEmpty) {
         await _linkAttachments(comment!["id"], fileHashes);
       }
+
+      await _draftService?.clear(_draftItemType, _draftItemId);
 
       setState(() {
         int? id = _editing?.id;

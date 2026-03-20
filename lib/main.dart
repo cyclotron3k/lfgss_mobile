@@ -8,6 +8,7 @@ import 'package:timezone/timezone.dart';
 import 'models/full_profile.dart';
 import 'models/user_provider.dart';
 import 'notifications.dart';
+import 'services/comment_draft_service.dart';
 import 'services/microcosm_client.dart';
 import 'services/observer_utils.dart';
 import 'services/settings.dart';
@@ -25,9 +26,9 @@ void main() async {
     getLocation((await FlutterTimezone.getLocalTimezone()).identifier),
   );
 
-  var settings = Settings(
-    await SharedPreferences.getInstance(),
-  );
+  final prefs = await SharedPreferences.getInstance();
+  var settings = Settings(prefs);
+  final draftService = CommentDraftService(prefs);
 
   var userProvider = UserProvider();
   await MicrocosmClient().updateAccessToken();
@@ -42,6 +43,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => settings),
         ChangeNotifierProvider(create: (context) => userProvider),
+        ChangeNotifierProvider<CommentDraftService>(create: (context) => draftService),
       ],
       child: const LfgssMobile(),
     ),
