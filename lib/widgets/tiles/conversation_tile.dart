@@ -3,7 +3,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:intl/intl.dart';
 
+import 'package:provider/provider.dart';
+
 import '../../models/conversation.dart';
+import '../../services/comment_draft_service.dart';
 import '../screens/future_screen.dart';
 import '../time_ago.dart';
 
@@ -28,6 +31,7 @@ class ConversationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final unescape = HtmlUnescape();
     final unread = overrideUnreadFlag ?? conversation.flags.unread;
+    final hasDraft = context.watch<CommentDraftService>().load('conversation', conversation.id) != null;
 
     return Card(
       key: ValueKey(conversation.id),
@@ -66,6 +70,11 @@ class ConversationTile extends StatelessWidget {
                   maxLines: 2,
                 ),
               ),
+              if (hasDraft)
+                const Padding(
+                  padding: EdgeInsets.only(left: 4.0),
+                  child: Icon(Icons.edit_note, size: 16.0, color: Colors.grey),
+                ),
             ],
           ),
           subtitle: Row(

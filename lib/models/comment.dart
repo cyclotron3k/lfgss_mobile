@@ -99,6 +99,26 @@ class Comment implements Item, Authored {
         inert: hideReply,
       );
 
+  Comment.stub({
+    required this.id,
+    required this.markdown,
+    required String authorName,
+    required this.itemType,
+    required this.itemId,
+  })  : revisions = 0,
+        attachments = 0,
+        inReplyTo = null,
+        html = '',
+        created = DateTime.fromMillisecondsSinceEpoch(0),
+        createdBy = Profile(
+          id: 0,
+          profileName: authorName,
+          visible: false,
+          avatar: '',
+        ),
+        flags = Flags(),
+        links = Links.fromJson(json: null);
+
   Comment.fromJson({required Json json})
       : id = json["id"],
         itemType = json["itemType"], //  "conversation", "profile", etc
