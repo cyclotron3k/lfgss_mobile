@@ -9,7 +9,7 @@ class ProfileAwareInputController extends TextEditingController {
   }) =>
       TextSpan(children: _splitString(style), style: style);
 
-  List<TextSpan> _splitString(style) {
+  List<TextSpan> _splitString(TextStyle? style) {
     int startIndex = selection.baseOffset;
     int endIndex = selection.baseOffset;
     final nonSpace = RegExp(r'[^\s]');

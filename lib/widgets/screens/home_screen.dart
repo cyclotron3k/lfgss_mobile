@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' show log;
 
@@ -42,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   List<ScrollController> _scrollControllers = [];
   int _currentIndex = 0;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  StreamSubscription<List<SharedMediaFile>>? _sharedMediaSubscription;
 
   Future<FullProfile>? profile;
   String? profileName;
@@ -66,9 +68,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _runWhileAppIsTerminated();
 
     // For sharing images coming from outside the app while the app is in the memory
-    ReceiveSharingIntent.instance.getMediaStream().listen(
+    _sharedMediaSubscription = ReceiveSharingIntent.instance.getMediaStream().listen(
       (List<SharedMediaFile> value) {
-        if (value.isEmpty) return;
+        if (!mounted || value.isEmpty) return;
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -89,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     // For sharing images coming from outside the app while the app is closed
     ReceiveSharingIntent.instance.getInitialMedia().then(
       (List<SharedMediaFile> value) {
-        if (value.isEmpty) return;
+        if (!mounted || value.isEmpty) return;
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -111,6 +113,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _sharedMediaSubscription?.cancel();
     for (var sc in _scrollControllers) {
       sc.dispose();
     }

@@ -13,6 +13,9 @@ class RelaxedJpegDecoder extends BaseDecoder {
   String get decoderName => 'jpeg';
 
   @override
+  List<String> get supportedExtensions => const ['jpg', 'jpeg'];
+
+  @override
   Size getSize(ImageInput input) {
     int start = 2;
     BlockEntity? block;
