@@ -47,6 +47,7 @@ class _NewCommentState extends State<NewComment> {
   CommentShuttle? _commentShuttle;
   CommentDraftService? _draftService;
   final _commentInputKey = GlobalKey();
+  String? _lastDraftText;
 
   final FocusNode _focusNode = FocusNode();
   OverlayEntry? _overlayEntry;
@@ -65,10 +66,11 @@ class _NewCommentState extends State<NewComment> {
     // Restore draft BEFORE adding the shuttle listener so that
     // _handleReplyUpdate doesn't fire and overwrite the restored text.
     _restoreDraft();
+    _lastDraftText = _controller.text;
 
     _commentShuttle?.addListener(_handleReplyUpdate);
     _controller.addListener(_handleTypingEvent);
-    _controller.addListener(_saveDraft);
+    _controller.addListener(_saveDraftIfTextChanged);
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         // _showOverlay();
@@ -111,7 +113,19 @@ class _NewCommentState extends State<NewComment> {
     }
   }
 
+  // TextEditingController fires on both text and selection changes.
+  // We only want to persist when the text content itself changes, not when
+  // the cursor moves or focus is lost (which would fire notifyListeners on
+  // CommentDraftService and trigger spurious rebuilds across the app).
+  void _saveDraftIfTextChanged() {
+    if (_controller.text == _lastDraftText) return;
+    _lastDraftText = _controller.text;
+    _saveDraft();
+  }
+
   void _saveDraft() {
+    _lastDraftText = _controller.text;
+
     final replyTarget = _commentShuttle?.replyTarget;
     final editTarget = _commentShuttle?.editTarget;
 
@@ -132,8 +146,9 @@ class _NewCommentState extends State<NewComment> {
   void dispose() {
     _commentShuttle?.removeListener(_handleReplyUpdate);
     _controller.removeListener(_handleTypingEvent);
-    _controller.removeListener(_saveDraft);
+    _controller.removeListener(_saveDraftIfTextChanged);
     _controller.dispose();
+    _focusNode.dispose();
     _hideOverlay();
     super.dispose();
   }

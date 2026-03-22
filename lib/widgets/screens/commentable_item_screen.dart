@@ -103,7 +103,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     const maxAttempts = 8;
     for (var attempt = 0; attempt < maxAttempts && mounted; attempt++) {
       final targetContext = _commentKeys[targetIndex]?.currentContext;
-      if (targetContext != null) {
+      if (targetContext != null && targetContext.mounted) {
         final topPadding =
             MediaQuery.paddingOf(targetContext).top + kToolbarHeight;
         await Scrollable.ensureVisible(
@@ -112,6 +112,9 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
           curve: Curves.easeOutCubic,
           alignment: 0.12,
         );
+        if (!mounted || !targetContext.mounted || !_scrollController.hasClients) {
+          return;
+        }
 
         final pos = _scrollController.position;
         _scrollController.jumpTo(
@@ -127,6 +130,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
         await Future<void>.delayed(const Duration(milliseconds: 16));
         continue;
       }
+      if (!mounted) return;
 
       final visibleIndex = currentVisibleCommentIndex(
         context: context,
@@ -186,7 +190,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     );
 
     if (query != null) {
-      if (!context.mounted) return;
+      if (!mounted) return;
       await Navigator.push(
         context,
         MaterialPageRoute(
@@ -285,7 +289,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.paddingOf(context).top + kToolbarHeight;
     final seekBarSensitivity = SeekBarSensitivity.values.byName(
-      Provider.of<Settings>(context).getString("seekBarSensitivity") ?? "low",
+      Provider.of<Settings>(context, listen: false).getString("seekBarSensitivity") ?? "low",
     );
     final forwardItemCount =
         widget.item.totalChildren - widget.item.startPage * PAGE_SIZE;

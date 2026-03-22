@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.46
+
+- Fix draft-save listener firing on keyboard dismiss, causing spurious thread reload
+
 ## v1.0.45
 
 - Fix profile comments breaking search results and "today" page
