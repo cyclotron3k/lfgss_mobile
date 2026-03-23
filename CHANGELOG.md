@@ -2,7 +2,8 @@
 
 ## v1.0.46
 
-- Fix draft-save listener firing on keyboard dismiss, causing spurious thread reload
+- BBCode/markdown/HTML formatting helpers
+- Fix nav issue
 
 ## v1.0.45
 
