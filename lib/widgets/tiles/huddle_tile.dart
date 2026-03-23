@@ -24,7 +24,9 @@ class HuddleTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final unescape = HtmlUnescape();
-    final hasDraft = context.watch<CommentDraftService>().load('huddle', huddle.id) != null;
+    final hasDraft = context.select<CommentDraftService, bool>(
+      (service) => service.hasDraft('huddle', huddle.id),
+    );
 
     return Card(
       key: ValueKey(huddle.id),

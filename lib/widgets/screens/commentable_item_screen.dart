@@ -229,6 +229,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   }
 
   Future<void> _jumpToSpecificPage(int pageNo) async {
+    if (pageNo == widget.item.startPage + 1) return;
     if (!context.mounted) return;
     await Navigator.pushReplacement(
       context,
@@ -289,7 +290,11 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.paddingOf(context).top + kToolbarHeight;
     final seekBarSensitivity = SeekBarSensitivity.values.byName(
-      Provider.of<Settings>(context, listen: false).getString("seekBarSensitivity") ?? "low",
+      Provider.of<Settings>(
+            context,
+            listen: false,
+          ).getString("seekBarSensitivity") ??
+          "low",
     );
     final forwardItemCount =
         widget.item.totalChildren - widget.item.startPage * PAGE_SIZE;

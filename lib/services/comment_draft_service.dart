@@ -59,12 +59,18 @@ class CommentDraftService extends ChangeNotifier {
 
   String _key(String itemType, int itemId) => '$_keyPrefix${itemType}_$itemId';
 
+  bool hasDraft(String itemType, int itemId) =>
+      _prefs.containsKey(_key(itemType, itemId));
+
   Future<void> save(String itemType, int itemId, CommentDraft draft) async {
     if (draft.isEmpty) {
       await clear(itemType, itemId);
       return;
     }
-    await _prefs.setString(_key(itemType, itemId), jsonEncode(draft.toJson()));
+    final key = _key(itemType, itemId);
+    final encoded = jsonEncode(draft.toJson());
+    if (_prefs.getString(key) == encoded) return;
+    await _prefs.setString(key, encoded);
     notifyListeners();
   }
 
@@ -79,7 +85,9 @@ class CommentDraftService extends ChangeNotifier {
   }
 
   Future<void> clear(String itemType, int itemId) async {
-    await _prefs.remove(_key(itemType, itemId));
+    final key = _key(itemType, itemId);
+    if (!_prefs.containsKey(key)) return;
+    await _prefs.remove(key);
     notifyListeners();
   }
 }
