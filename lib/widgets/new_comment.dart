@@ -20,6 +20,16 @@ enum CommentableType {
   event,
 }
 
+enum _CommentFormatAction {
+  bold,
+  italic,
+  spoiler,
+  quote,
+  link,
+  image,
+  code,
+}
+
 class NewComment extends StatefulWidget {
   final int itemId;
   final CommentableType itemType;
@@ -47,6 +57,7 @@ class _NewCommentState extends State<NewComment> {
   CommentShuttle? _commentShuttle;
   CommentDraftService? _draftService;
   final _commentInputKey = GlobalKey();
+  String? _lastDraftText;
 
   final FocusNode _focusNode = FocusNode();
   OverlayEntry? _overlayEntry;
@@ -65,10 +76,11 @@ class _NewCommentState extends State<NewComment> {
     // Restore draft BEFORE adding the shuttle listener so that
     // _handleReplyUpdate doesn't fire and overwrite the restored text.
     _restoreDraft();
+    _lastDraftText = _controller.text;
 
     _commentShuttle?.addListener(_handleReplyUpdate);
     _controller.addListener(_handleTypingEvent);
-    _controller.addListener(_saveDraft);
+    _controller.addListener(_saveDraftIfTextChanged);
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         // _showOverlay();
@@ -111,7 +123,19 @@ class _NewCommentState extends State<NewComment> {
     }
   }
 
+  // TextEditingController fires on both text and selection changes.
+  // We only want to persist when the text content itself changes, not when
+  // the cursor moves or focus is lost (which would fire notifyListeners on
+  // CommentDraftService and trigger spurious rebuilds across the app).
+  void _saveDraftIfTextChanged() {
+    if (_controller.text == _lastDraftText) return;
+    _lastDraftText = _controller.text;
+    _saveDraft();
+  }
+
   void _saveDraft() {
+    _lastDraftText = _controller.text;
+
     final replyTarget = _commentShuttle?.replyTarget;
     final editTarget = _commentShuttle?.editTarget;
 
@@ -132,8 +156,9 @@ class _NewCommentState extends State<NewComment> {
   void dispose() {
     _commentShuttle?.removeListener(_handleReplyUpdate);
     _controller.removeListener(_handleTypingEvent);
-    _controller.removeListener(_saveDraft);
+    _controller.removeListener(_saveDraftIfTextChanged);
     _controller.dispose();
+    _focusNode.dispose();
     _hideOverlay();
     super.dispose();
   }
@@ -265,6 +290,291 @@ class _NewCommentState extends State<NewComment> {
     _saveDraft();
   }
 
+  Widget _buildContextMenu(
+    BuildContext context,
+    EditableTextState editableTextState,
+  ) {
+    final buttonItems = [
+      ...editableTextState.contextMenuButtonItems,
+      _buildFormatMenuButton(
+        label: 'Bold',
+        action: _CommentFormatAction.bold,
+      ),
+      _buildFormatMenuButton(
+        label: 'Italic',
+        action: _CommentFormatAction.italic,
+      ),
+      _buildFormatMenuButton(
+        label: 'URL',
+        action: _CommentFormatAction.link,
+      ),
+      _buildFormatMenuButton(
+        label: 'IMG',
+        action: _CommentFormatAction.image,
+      ),
+      _buildFormatMenuButton(
+        label: 'Spoiler',
+        action: _CommentFormatAction.spoiler,
+      ),
+      _buildFormatMenuButton(
+        label: 'Quote',
+        action: _CommentFormatAction.quote,
+      ),
+    ];
+
+    return AdaptiveTextSelectionToolbar(
+      anchors: editableTextState.contextMenuAnchors,
+      children:
+          AdaptiveTextSelectionToolbar.getAdaptiveButtons(context, buttonItems)
+              .toList(),
+    );
+  }
+
+  ContextMenuButtonItem _buildFormatMenuButton({
+    required String label,
+    required _CommentFormatAction action,
+  }) =>
+      ContextMenuButtonItem(
+        label: label,
+        onPressed: () {
+          ContextMenuController.removeAny();
+          _applyFormatAction(action);
+        },
+      );
+
+  void _applyFormatAction(_CommentFormatAction action) {
+    switch (action) {
+      case _CommentFormatAction.bold:
+        _wrapSelection(
+          prefix: '**',
+          suffix: '**',
+          placeholder: 'bold text',
+        );
+      case _CommentFormatAction.italic:
+        _wrapSelection(
+          prefix: '*',
+          suffix: '*',
+          placeholder: 'italic text',
+        );
+      case _CommentFormatAction.spoiler:
+        _insertSpoilerTemplate();
+      case _CommentFormatAction.quote:
+        _prefixSelectedLines('> ');
+      case _CommentFormatAction.link:
+        _insertLinkTemplate();
+      case _CommentFormatAction.image:
+        _insertImageTemplate();
+      case _CommentFormatAction.code:
+        _insertCodeTemplate();
+    }
+  }
+
+  void _wrapSelection({
+    required String prefix,
+    required String suffix,
+    required String placeholder,
+  }) {
+    final value = _controller.value;
+    final selection = _normalizedSelection(value);
+    final selectedText = selection.textInside(value.text);
+    final replacement = selectedText.isEmpty ? placeholder : selectedText;
+    final newText = selection.textBefore(value.text) +
+        prefix +
+        replacement +
+        suffix +
+        selection.textAfter(value.text);
+
+    final selectionStart = selection.start + prefix.length;
+    final selectionEnd = selectionStart + replacement.length;
+
+    _controller.value = value.copyWith(
+      text: newText,
+      selection: TextSelection(
+        baseOffset: selectionStart,
+        extentOffset: selectionEnd,
+      ),
+      composing: TextRange.empty,
+    );
+    _focusNode.requestFocus();
+  }
+
+  void _prefixSelectedLines(String prefix) {
+    final value = _controller.value;
+    final selection = _normalizedSelection(value);
+    final text = value.text;
+    final lineStart = text.lastIndexOf('\n', selection.start - 1) + 1;
+    final lineEndIndex = text.indexOf('\n', selection.end);
+    final lineEnd = lineEndIndex == -1 ? text.length : lineEndIndex;
+    final target = text.substring(lineStart, lineEnd);
+    final lines = target.split('\n');
+    final formatted = lines.map((line) => '$prefix$line').join('\n');
+    final newText = text.replaceRange(
+        lineStart, lineEnd, formatted.isEmpty ? prefix : formatted);
+
+    _controller.value = value.copyWith(
+      text: newText,
+      selection: TextSelection(
+        baseOffset: lineStart,
+        extentOffset: lineStart + formatted.length,
+      ),
+      composing: TextRange.empty,
+    );
+    _focusNode.requestFocus();
+  }
+
+  void _insertLinkTemplate() {
+    final value = _controller.value;
+    final selection = _normalizedSelection(value);
+    final selectedText = selection.textInside(value.text);
+    const defaultLabel = 'link text';
+    const defaultUrl = 'https://example.com';
+
+    late final String replacement;
+    late final TextSelection nextSelection;
+
+    if (selectedText.isEmpty) {
+      replacement = '[$defaultLabel]($defaultUrl)';
+      final labelStart = selection.start + 1;
+      nextSelection = TextSelection(
+        baseOffset: labelStart,
+        extentOffset: labelStart + defaultLabel.length,
+      );
+    } else if (_looksLikeUrl(selectedText)) {
+      replacement = '[$defaultLabel](${selectedText.trim()})';
+      final labelStart = selection.start + 1;
+      nextSelection = TextSelection(
+        baseOffset: labelStart,
+        extentOffset: labelStart + defaultLabel.length,
+      );
+    } else {
+      replacement = '[$selectedText]($defaultUrl)';
+      final urlStart = selection.start + selectedText.length + 3;
+      nextSelection = TextSelection(
+        baseOffset: urlStart,
+        extentOffset: urlStart + defaultUrl.length,
+      );
+    }
+
+    _replaceSelection(
+      replacement,
+      selection: nextSelection,
+    );
+  }
+
+  void _insertImageTemplate() {
+    final value = _controller.value;
+    final selection = _normalizedSelection(value);
+    final selectedText = selection.textInside(value.text);
+    const defaultAltText = 'alt text';
+    const defaultUrl = 'https://example.com/image.jpg';
+
+    late final String replacement;
+    late final TextSelection nextSelection;
+
+    if (selectedText.isEmpty) {
+      replacement = '![$defaultAltText]($defaultUrl)';
+      final altStart = selection.start + 2;
+      nextSelection = TextSelection(
+        baseOffset: altStart,
+        extentOffset: altStart + defaultAltText.length,
+      );
+    } else if (_looksLikeUrl(selectedText)) {
+      replacement = '![$defaultAltText](${selectedText.trim()})';
+      final altStart = selection.start + 2;
+      nextSelection = TextSelection(
+        baseOffset: altStart,
+        extentOffset: altStart + defaultAltText.length,
+      );
+    } else {
+      replacement = '![$selectedText]($defaultUrl)';
+      final urlStart = selection.start + selectedText.length + 4;
+      nextSelection = TextSelection(
+        baseOffset: urlStart,
+        extentOffset: urlStart + defaultUrl.length,
+      );
+    }
+
+    _replaceSelection(
+      replacement,
+      selection: nextSelection,
+    );
+  }
+
+  void _insertCodeTemplate() {
+    final value = _controller.value;
+    final selection = _normalizedSelection(value);
+    final selectedText = selection.textInside(value.text);
+
+    if (selectedText.contains('\n')) {
+      _wrapSelection(
+        prefix: '```\n',
+        suffix: '\n```',
+        placeholder: 'code',
+      );
+      return;
+    }
+
+    _wrapSelection(
+      prefix: '`',
+      suffix: '`',
+      placeholder: 'code',
+    );
+  }
+
+  void _insertSpoilerTemplate() {
+    final value = _controller.value;
+    final selection = _normalizedSelection(value);
+    final selectedText = selection.textInside(value.text);
+    const placeholder = 'spoiler text';
+    final body = selectedText.isEmpty ? placeholder : selectedText;
+    final replacement =
+        '<details>\n<summary>Click to reveal ...</summary>\n$body\n</details>';
+    final bodyStart =
+        selection.start + '<details>\n<summary>Click to reveal ...</summary>\n'.length;
+
+    _replaceSelection(
+      replacement,
+      selection: TextSelection(
+        baseOffset: bodyStart,
+        extentOffset: bodyStart + body.length,
+      ),
+    );
+  }
+
+  void _replaceSelection(String replacement,
+      {required TextSelection selection}) {
+    final value = _controller.value;
+    final normalized = _normalizedSelection(value);
+    final newText = normalized.textBefore(value.text) +
+        replacement +
+        normalized.textAfter(value.text);
+
+    _controller.value = value.copyWith(
+      text: newText,
+      selection: selection,
+      composing: TextRange.empty,
+    );
+    _focusNode.requestFocus();
+  }
+
+  TextSelection _normalizedSelection(TextEditingValue value) {
+    final selection = value.selection;
+    if (!selection.isValid) {
+      return TextSelection.collapsed(offset: value.text.length);
+    }
+    final start = selection.start.clamp(0, value.text.length);
+    final end = selection.end.clamp(0, value.text.length);
+    return TextSelection(baseOffset: start, extentOffset: end);
+  }
+
+  bool _looksLikeUrl(String text) {
+    final trimmed = text.trim();
+    final uri = Uri.tryParse(trimmed);
+    return uri != null &&
+        (uri.scheme == 'http' || uri.scheme == 'https') &&
+        uri.host.isNotEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
     _inReplyTo = context.watch<CommentShuttle>().replyTarget;
@@ -353,6 +663,7 @@ class _NewCommentState extends State<NewComment> {
                         key: _commentInputKey,
                         focusNode: _focusNode,
                         controller: _controller,
+                        contextMenuBuilder: _buildContextMenu,
                         autofocus: false,
                         maxLines: 5,
                         minLines: 1,

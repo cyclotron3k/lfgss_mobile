@@ -122,8 +122,6 @@ Future<FlutterLocalNotificationsPlugin> initNotifications(
 Future<void> initTasks() async {
   Workmanager().initialize(
     callbackDispatcher, // The top level function, aka callbackDispatcher
-    // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-    isInDebugMode: false,
   );
 
   Workmanager().registerPeriodicTask(

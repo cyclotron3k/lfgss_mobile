@@ -5,7 +5,7 @@ import '../../core/item.dart';
 import '../../models/comment.dart';
 import 'comment_shimmer.dart';
 
-class FutureCommentTile extends StatelessWidget {
+class FutureCommentTile extends StatefulWidget {
   final Future<Comment> comment;
   final CommentableItem contextItem;
   final int highlight;
@@ -17,18 +17,35 @@ class FutureCommentTile extends StatelessWidget {
   });
 
   @override
+  State<FutureCommentTile> createState() => _FutureCommentTileState();
+}
+
+class _FutureCommentTileState extends State<FutureCommentTile> {
+  // Capture the future once in state so that parent rebuilds passing a new
+  // Future object (from getChild(i) being called again during a rebuild of
+  // CommentThreadSliver) do not cause FutureBuilder to reset to the loading
+  // state and re-trigger the network fetch.
+  late Future<Comment> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = widget.comment;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnimatedSize(
       duration: const Duration(milliseconds: 150),
       curve: Curves.easeInOut,
       child: FutureBuilder<Item>(
-        future: comment,
+        future: _future,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             Comment comment = snapshot.data! as Comment;
             return comment.renderAsSingleComment(
-              highlight: comment.id == highlight,
-              contextItem: contextItem,
+              highlight: comment.id == widget.highlight,
+              contextItem: widget.contextItem,
             );
           } else if (snapshot.hasError) {
             return Column(
@@ -38,11 +55,6 @@ class FutureCommentTile extends StatelessWidget {
                   color: Theme.of(context).colorScheme.error,
                   size: 64.0,
                 ),
-                // ElevatedButton.icon(
-                //   onPressed: () {},
-                //   icon: const Icon(Icons.refresh),
-                //   label: const Text('Retry'),
-                // ),
               ],
             );
           } else {

@@ -260,9 +260,12 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
     return AnimatedBuilder(
       animation: _slideAnim,
       builder: (context, child) {
-        return Transform.translate(
-          offset: Offset((1.0 - _slideAnim.value) * _slideDistance, 0),
-          child: child,
+        return IgnorePointer(
+          ignoring: _slideCtrl.isDismissed && !_isDragging,
+          child: Transform.translate(
+            offset: Offset((1.0 - _slideAnim.value) * _slideDistance, 0),
+            child: child,
+          ),
         );
       },
       child: LayoutBuilder(

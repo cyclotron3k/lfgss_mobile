@@ -23,9 +23,9 @@ class ProfilePickerPopup extends StatefulWidget {
 }
 
 class _ProfilePickerPopupState extends State<ProfilePickerPopup> {
-  final cache = LruMap<String, Future<Profiles>>();
-  String? currentQuery;
-  Profiles? displayProfiles;
+  final _cache = LruMap<String, Future<Profiles>>();
+  String? _currentQuery;
+  Profiles? _displayProfiles;
   final ScrollController _controller = ScrollController();
 
   @override
@@ -43,40 +43,40 @@ class _ProfilePickerPopupState extends State<ProfilePickerPopup> {
   }
 
   Future<void> _update(String word) async {
-    currentQuery = word;
+    _currentQuery = word;
     await _searchFor(word);
   }
 
-  Future<void> _searchFor(word) async {
-    if (!cache.containsKey(word)) {
-      cache[word] = Profiles.search(query: word);
+  Future<void> _searchFor(String word) async {
+    if (!_cache.containsKey(word)) {
+      _cache[word] = Profiles.search(query: word);
     }
 
     _scrolltoTop();
-    Profiles profiles = await cache[word]!;
+    Profiles profiles = await _cache[word]!;
 
     // current search may have changed by the time we get a response...
-    if (currentQuery == word) {
+    if (_currentQuery == word) {
       log("Search for $word completed");
-      if (mounted) setState(() => displayProfiles = profiles);
+      if (mounted) setState(() => _displayProfiles = profiles);
     } else {
-      log("Search for $word completed, but the current search term is now $currentQuery, so I'm ignoring it");
+      log("Search for $word completed, but the current search term is now $_currentQuery, so I'm ignoring it");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (displayProfiles == null) {
+    if (_displayProfiles == null) {
       return const Center(child: CircularProgressIndicator());
     } else {
       return ListView.builder(
         shrinkWrap: true,
         controller: _controller,
         padding: const EdgeInsets.all(8.0),
-        itemCount: displayProfiles!.totalChildren,
+        itemCount: _displayProfiles!.totalChildren,
         itemBuilder: (BuildContext context, int index) {
           return FutureBuilder(
-            future: displayProfiles!.getChild(index),
+            future: _displayProfiles!.getChild(index),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 final profile = snapshot.data!;

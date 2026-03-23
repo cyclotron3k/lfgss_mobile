@@ -15,7 +15,7 @@ class ImageGallery extends ModalRoute {
 
   // constructor
   ImageGallery({
-    required url,
+    required String url,
     required this.heroTag,
     this.fileName,
   }) : _url = url;

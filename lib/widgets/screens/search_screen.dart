@@ -138,25 +138,26 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             const SizedBox(height: 16.0),
             const SectionTitle(title: "Order by"),
-            RadioListTile(
-              title: const Text('Recency'),
+            RadioGroup<Ordering>(
+              groupValue: _sortBy,
               onChanged: (Ordering? value) {
+                if (value == null) return;
                 setState(() {
                   _sortBy = value;
                 });
               },
-              value: Ordering.recency,
-              groupValue: _sortBy,
-            ),
-            RadioListTile(
-              title: const Text('Relevancy'),
-              value: Ordering.relevancy,
-              groupValue: _sortBy,
-              onChanged: (Ordering? value) {
-                setState(() {
-                  _sortBy = value;
-                });
-              },
+              child: Column(
+                children: const [
+                  RadioListTile<Ordering>(
+                    title: Text('Recency'),
+                    value: Ordering.recency,
+                  ),
+                  RadioListTile<Ordering>(
+                    title: Text('Relevancy'),
+                    value: Ordering.relevancy,
+                  ),
+                ],
+              ),
             ),
           ],
         ),

@@ -257,7 +257,7 @@ class MicrocosmClient {
   int _scaleImage(File file) {
     log("Getting image size of ${file.path}");
     ImageSizeGetter.registerDecoder(const RelaxedJpegDecoder());
-    final size = ImageSizeGetter.getSize(FileInput(file));
+    final size = ImageSizeGetter.getSizeResult(FileInput(file)).size;
 
     log("Image width: ${size.width}, height: ${size.height}");
     return _scale(size.width, size.height);

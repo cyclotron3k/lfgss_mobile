@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.46
+
+- BBCode/markdown/HTML formatting helpers
+- Fix nav issue
+
 ## v1.0.45
 
 - Fix profile comments breaking search results and "today" page

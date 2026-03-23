@@ -31,7 +31,9 @@ class ConversationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final unescape = HtmlUnescape();
     final unread = overrideUnreadFlag ?? conversation.flags.unread;
-    final hasDraft = context.watch<CommentDraftService>().load('conversation', conversation.id) != null;
+    final hasDraft = context.select<CommentDraftService, bool>(
+      (service) => service.hasDraft('conversation', conversation.id),
+    );
 
     return Card(
       key: ValueKey(conversation.id),

@@ -22,7 +22,9 @@ class EventTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final unescape = HtmlUnescape();
-    final hasDraft = context.watch<CommentDraftService>().load('event', event.id) != null;
+    final hasDraft = context.select<CommentDraftService, bool>(
+      (service) => service.hasDraft('event', event.id),
+    );
 
     return Card(
       key: ValueKey(event.id),

@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lfgss_mobile/core/commentable_item.dart';
 
-import '../constants.dart';
 import '../models/full_profile.dart';
 import '../models/profile.dart';
 import '../models/search.dart';
 import '../models/search_parameters.dart';
-import '../services/microcosm_client.dart';
 import 'adaptable_form.dart';
 import 'screens/future_search_results_screen.dart';
 import 'time_ago.dart';
@@ -29,7 +27,6 @@ class ProfileSheet extends StatefulWidget {
 
 class _ProfileSheetState extends State<ProfileSheet> {
   late Future<FullProfile> fullProfile;
-  bool _active = false;
 
   @override
   void initState() {
@@ -93,81 +90,6 @@ class _ProfileSheetState extends State<ProfileSheet> {
         ),
       ),
     );
-    return;
-  }
-
-  Future<void> _unignore(BuildContext context, FullProfile fullProfile) async {
-    setState(() => _active = true);
-    await widget.profile.unignore();
-    if (!context.mounted) return;
-    setState(() {
-      _active = false;
-      fullProfile.flags.ignored = false;
-      MicrocosmClient().clearCache();
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Successfully unignored ${widget.profile.profileName}"),
-        duration: TOAST_DURATION,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-
-    // Hide bottom sheet
-    // Navigator.pop(context);
-
-    return;
-  }
-
-  Future<void> _ignore(BuildContext context, FullProfile fullProfile) async {
-    bool? ignore = await showDialog<bool>(
-      context: context,
-      barrierDismissible: true, // user must tap button!
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Ignore user'),
-        content: Text(
-          'Are you sure you want to ignore ${widget.profile.profileName}?',
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('CANCEL'),
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-          ),
-          TextButton(
-            child: const Text('YES'),
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-          ),
-        ],
-      ),
-    );
-
-    if (ignore != true) return;
-
-    setState(() => _active = true);
-    await widget.profile.ignore();
-    if (!context.mounted) return;
-    setState(() {
-      _active = false;
-      fullProfile.flags.ignored = true;
-      MicrocosmClient().clearCache();
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Successfully ignored ${widget.profile.profileName}"),
-        duration: TOAST_DURATION,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-
-    // Hide bottom sheet:
-    // Navigator.pop(context);
-
     return;
   }
 
