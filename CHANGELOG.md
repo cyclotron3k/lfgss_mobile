@@ -4,6 +4,7 @@
 
 - Add Instagram post embeds
 - Add setting to enable Instagram embeds, off by default
+- Make embedded tweet webview background transparent
 
 ## v1.0.46
 

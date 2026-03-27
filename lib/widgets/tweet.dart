@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -19,11 +18,11 @@ class Tweet extends StatefulWidget {
 
 class _TweetState extends State<Tweet>
     with AutomaticKeepAliveClientMixin<Tweet> {
-  late Future<Map<String, dynamic>> payload;
   late WebViewController controller;
   bool loading = true;
   bool error = false;
   double height = 256.0;
+  bool _embedRequested = false;
 
   String get normalizedUrl {
     if (widget.url.startsWith("https://x.com/")) {
@@ -65,14 +64,19 @@ class _TweetState extends State<Tweet>
           }
         },
       )
-      ..setJavaScriptMode(JavaScriptMode.unrestricted);
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.transparent);
+  }
 
-    // TODO: Don't ignore the setting override
-    var brightness =
-        SchedulerBinding.instance.platformDispatcher.platformBrightness;
-    bool isDarkMode = brightness == Brightness.dark;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_embedRequested) return;
+    _embedRequested = true;
 
-    Uri oembed = Uri.https("publish.twitter.com", "/oembed", {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    final oembed = Uri.https("publish.twitter.com", "/oembed", {
       "url": normalizedUrl,
       "dnt": "true",
       "theme": isDarkMode ? "dark" : "light",
@@ -89,7 +93,7 @@ class _TweetState extends State<Tweet>
           <title>Twitter Publish</title>
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimal-ui">
         </head>
-        <body style="background-color:#${isDarkMode ? "1c1b1f" : "fdfbff"};">
+        <body>
         ${response["html"]}
         </body>
         </html>
