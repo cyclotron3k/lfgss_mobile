@@ -169,6 +169,8 @@ class UpdateTile extends StatelessWidget {
                       selectable: false,
                       embedTweets: settings.getBool("embedTweets") ?? true,
                       embedYouTube: settings.getBool("embedYouTube") ?? true,
+                      embedInstagram:
+                          settings.getBool("embedInstagram") ?? false,
                       replyTarget: comment,
                     ),
                   ),

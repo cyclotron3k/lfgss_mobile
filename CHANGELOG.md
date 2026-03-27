@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.47
+
+- Add Instagram post embeds
+- Add setting to enable Instagram embeds, off by default
+
 ## v1.0.46
 
 - BBCode/markdown/HTML formatting helpers

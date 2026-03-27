@@ -158,6 +158,7 @@ class _SingleCommentState extends State<SingleComment> {
         selectable: true,
         embedTweets: settings.getBool("embedTweets") ?? true,
         embedYouTube: settings.getBool("embedYouTube") ?? true,
+        embedInstagram: settings.getBool("embedInstagram") ?? false,
         replyTarget: widget.comment,
       ),
     );

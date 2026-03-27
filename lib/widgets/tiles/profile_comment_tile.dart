@@ -124,6 +124,7 @@ class ProfileCommentTile extends StatelessWidget {
           selectable: false,
           embedTweets: settings.getBool("embedTweets") ?? true,
           embedYouTube: settings.getBool("embedYouTube") ?? true,
+          embedInstagram: settings.getBool("embedInstagram") ?? false,
         ),
       );
     }
@@ -133,6 +134,7 @@ class ProfileCommentTile extends StatelessWidget {
       selectable: false,
       embedTweets: false,
       embedYouTube: false,
+      embedInstagram: false,
     );
   }
 }
