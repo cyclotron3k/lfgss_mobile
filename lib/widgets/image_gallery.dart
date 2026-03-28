@@ -69,7 +69,10 @@ class ImageGallery extends ModalRoute {
                   //transitionOnUserGestures: true,
                 ),
                 minScale: PhotoViewComputedScale.contained * 0.8,
-                imageProvider: CachedNetworkImageProvider(url),
+                imageProvider: CachedNetworkImageProvider(
+                  url,
+                  cacheManager: AttachmentCacheManager.instance,
+                ),
               ),
             ),
             Padding(

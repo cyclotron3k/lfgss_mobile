@@ -12,6 +12,7 @@ import '../../models/comment.dart';
 import '../../models/comment_shuttle.dart';
 import '../../services/link_parser.dart';
 import 'iframe_embed.dart';
+import 'instagram_embed.dart';
 import '../image_gallery.dart';
 import '../maybe_image.dart';
 import '../missing_image.dart';
@@ -21,6 +22,7 @@ class CommentHtml extends StatefulWidget {
   final bool selectable;
   final bool embedTweets;
   final bool embedYouTube;
+  final bool embedInstagram;
   final String html;
   final Comment? replyTarget;
 
@@ -30,6 +32,7 @@ class CommentHtml extends StatefulWidget {
     this.selectable = false,
     this.embedTweets = false,
     this.embedYouTube = false,
+    this.embedInstagram = false,
     this.replyTarget,
   });
 
@@ -55,18 +58,28 @@ class _CommentHtmlState extends State<CommentHtml> {
     _doc.querySelectorAll("li > br:last-child").forEach((ele) => ele.remove());
 
     final tweetMatcher = RegExp(r'^https://(twitter|x)\.com/\w+/status/\d+');
+    final instagramMatcher = RegExp(
+      r'^https?://(?:www\.)?instagram\.com/(?:p|reel|reels)/[A-Za-z0-9_-]+/?(?:\?.*)?$',
+    );
 
-    if (widget.embedTweets) {
+    if (widget.embedTweets || widget.embedInstagram) {
       final anchors = _doc.querySelectorAll('a');
       for (final anchor in anchors) {
         // There are soft hyphens in the text, to help web
         // layout, but it doesn't help us
-        final cleaned = anchor.text.replaceAll('\xad', '');
-        if (!tweetMatcher.hasMatch(cleaned)) continue;
-        // _tweetsPresent = true;
-        anchor.replaceWith(
-          Element.html('<tweet>$cleaned</tweet>'),
-        );
+        final cleanedText = anchor.text.replaceAll('\xad', '');
+        final cleanedHref =
+            (anchor.attributes["href"] ?? "").replaceAll('\xad', '');
+        final candidate = cleanedHref.isNotEmpty ? cleanedHref : cleanedText;
+
+        if (widget.embedTweets && tweetMatcher.hasMatch(candidate)) {
+          anchor.replaceWith(Element.tag('tweet')..text = candidate);
+          continue;
+        }
+
+        if (widget.embedInstagram && instagramMatcher.hasMatch(candidate)) {
+          anchor.replaceWith(Element.tag('instagram')..text = candidate);
+        }
       }
     }
   }
@@ -162,6 +175,14 @@ class _CommentHtmlState extends State<CommentHtml> {
             TagExtension(
               tagsToExtend: {"tweet"},
               builder: (context) => Tweet(url: context.innerHtml),
+            ),
+          if (widget.embedInstagram)
+            TagExtension(
+              tagsToExtend: {"instagram"},
+              builder: (context) => Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: InstagramEmbed(url: context.innerHtml),
+              ),
             ),
         ],
         style: {

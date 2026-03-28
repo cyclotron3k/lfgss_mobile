@@ -7,6 +7,7 @@ import '../models/full_profile.dart';
 import '../models/profile.dart';
 import '../models/search.dart';
 import '../models/search_parameters.dart';
+import '../services/avatar_cache_manager.dart';
 import 'adaptable_form.dart';
 import 'screens/future_search_results_screen.dart';
 import 'time_ago.dart';
@@ -108,6 +109,7 @@ class _ProfileSheetState extends State<ProfileSheet> {
               const SizedBox(width: 12.0),
               CachedNetworkImage(
                 imageUrl: widget.profile.avatar,
+                cacheManager: AvatarCacheManager.instance,
                 width: 98.0,
                 height: 98.0,
                 errorWidget: (context, url, error) => const Icon(

@@ -28,6 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _downloadThirdParty = true;
   bool _embedYouTube = true;
   bool _embedTweets = true;
+  bool _embedInstagram = false;
   bool _notifyNewComments = true;
   bool _notifyNewConversations = true;
   bool _notifyReplies = true;
@@ -57,6 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _downloadThirdParty = settings.getBool("downloadThirdParty") ?? true;
     _embedYouTube = settings.getBool("embedYouTube") ?? true;
     _embedTweets = settings.getBool("embedTweets") ?? true;
+    _embedInstagram = settings.getBool("embedInstagram") ?? false;
     _notifyNewComments = settings.getBool("notifyNewComments") ?? true;
     _notifyNewConversations =
         settings.getBool("notifyNewConversations") ?? true;
@@ -256,6 +258,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               });
             },
             secondary: const Icon(Icons.chat_bubble),
+          ),
+          SwitchListTile(
+            title: const Text('Embed Instagram posts'),
+            value: _embedInstagram,
+            onChanged: (bool value) {
+              setState(() {
+                settings.setBool("embedInstagram", value).ignore();
+                _embedInstagram = value;
+              });
+            },
+            secondary: const Icon(Icons.photo_library_outlined),
           ),
           const Divider(),
           const SettingsSectionTitle(title: "Reading"),

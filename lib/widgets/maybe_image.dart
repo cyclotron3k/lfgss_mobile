@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
@@ -114,7 +113,7 @@ class _MaybeImageState extends State<MaybeImage> {
   }
 
   Future<bool> get _precached async {
-    final file = await DefaultCacheManager().getFileFromCache(
+    final file = await AttachmentCacheManager.instance.getFileFromCache(
       widget.cni.imageUrl,
     );
     return file != null;

@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.47
+
+- Remember recent search terms in the search screen
+- Add Instagram post embeds
+- Add setting to enable Instagram embeds, off by default
+- Make embedded tweet webview background transparent
+- Upload progress indicator
+
 ## v1.0.46
 
 - BBCode/markdown/HTML formatting helpers

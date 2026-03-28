@@ -19,6 +19,7 @@ import '../../models/microcosm.dart';
 import '../../models/search.dart';
 import '../../models/updates.dart';
 import '../../notifications.dart';
+import '../../services/avatar_cache_manager.dart';
 import '../../services/microcosm_client.dart';
 import '../adaptable_form.dart';
 import '../login_to_see.dart';
@@ -333,6 +334,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               currentAccountPicture: CachedNetworkImage(
                 imageUrl: profileAvatar ??
                     "https://lfgss.microcosm.app/api/v1/files/3967bb6b279adca3d4b8a174c1021f3d642c32fc.png",
+                cacheManager: AvatarCacheManager.instance,
               ),
               decoration: BoxDecoration(
                 image: DecorationImage(

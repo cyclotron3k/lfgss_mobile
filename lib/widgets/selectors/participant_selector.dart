@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/profile.dart';
+import '../../services/avatar_cache_manager.dart';
 import 'profile_selector.dart';
 
 class ParticipantSelector extends StatefulWidget {
@@ -49,6 +50,7 @@ class _ParticipantSelectorState extends State<ParticipantSelector> {
                     key: ValueKey(participant.id),
                     avatar: CachedNetworkImage(
                       imageUrl: participant.avatar,
+                      cacheManager: AvatarCacheManager.instance,
                       imageBuilder: (context, imageProvider) => ClipRRect(
                         borderRadius: BorderRadius.circular(4.0),
                         child: Image(image: imageProvider),

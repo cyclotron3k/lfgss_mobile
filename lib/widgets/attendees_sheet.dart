@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../models/attendee.dart';
 import '../models/attendees.dart';
+import '../services/avatar_cache_manager.dart';
 
 class AttendeesSheet extends StatefulWidget {
   const AttendeesSheet({
@@ -50,6 +51,7 @@ class _ProfileSheetState extends State<AttendeesSheet> {
               children: [
                 CachedNetworkImage(
                   imageUrl: attendee.profile.avatar,
+                  cacheManager: AvatarCacheManager.instance,
                   width: 22,
                   height: 22,
                   errorWidget: (context, url, error) => const Icon(

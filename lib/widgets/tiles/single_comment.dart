@@ -9,6 +9,7 @@ import '../../core/commentable_item.dart';
 import '../../models/comment.dart';
 import '../../models/comment_shuttle.dart';
 import '../../models/user_provider.dart';
+import '../../services/avatar_cache_manager.dart';
 import '../../services/settings.dart';
 import '../profile_sheet.dart';
 import '../swipeable.dart';
@@ -158,6 +159,7 @@ class _SingleCommentState extends State<SingleComment> {
         selectable: true,
         embedTweets: settings.getBool("embedTweets") ?? true,
         embedYouTube: settings.getBool("embedYouTube") ?? true,
+        embedInstagram: settings.getBool("embedInstagram") ?? false,
         replyTarget: widget.comment,
       ),
     );
@@ -171,6 +173,7 @@ class _SingleCommentState extends State<SingleComment> {
             padding: const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 8.0),
             child: CachedNetworkImage(
               imageUrl: widget.comment.createdBy.avatar,
+              cacheManager: AvatarCacheManager.instance,
               width: 22,
               height: 22,
               errorWidget: (context, url, error) => const Icon(
