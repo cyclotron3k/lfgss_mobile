@@ -51,6 +51,7 @@ class NewComment extends StatefulWidget {
 class _NewCommentState extends State<NewComment> {
   final _controller = ProfileAwareInputController();
   final List<XFile> _attachments = [];
+  final Map<String, double> _uploadProgressByPath = {};
   Comment? _inReplyTo;
   Comment? _editing;
   bool _sending = false;
@@ -150,6 +151,53 @@ class _NewCommentState extends State<NewComment> {
     );
 
     _draftService?.save(_draftItemType, _draftItemId, draft);
+  }
+
+  void _setAttachmentUploadProgress(
+    List<XFile> attachments,
+    List<int> fileLengths,
+    int sentBytes,
+    int totalBytes,
+  ) {
+    if (!mounted || totalBytes <= 0) return;
+
+    final totalFileBytes =
+        fileLengths.fold<int>(0, (sum, length) => sum + length);
+    if (totalFileBytes <= 0) return;
+
+    final uploadedFileBytes = (sentBytes / totalBytes) * totalFileBytes;
+    var cumulativeBytes = 0.0;
+    final nextProgress = <String, double>{};
+
+    for (var i = 0; i < attachments.length; i++) {
+      final fileLength = fileLengths[i].toDouble();
+      final localProgress = fileLength <= 0
+          ? 1.0
+          : ((uploadedFileBytes - cumulativeBytes) / fileLength)
+              .clamp(0.0, 1.0)
+              .toDouble();
+      nextProgress[attachments[i].path] = localProgress;
+      cumulativeBytes += fileLength;
+    }
+
+    var changed = nextProgress.length != _uploadProgressByPath.length;
+    if (!changed) {
+      for (final entry in nextProgress.entries) {
+        final existing = _uploadProgressByPath[entry.key];
+        if (existing == null || (existing - entry.value).abs() >= 0.02) {
+          changed = true;
+          break;
+        }
+      }
+    }
+
+    if (!changed) return;
+
+    setState(() {
+      _uploadProgressByPath
+        ..clear()
+        ..addAll(nextProgress);
+    });
   }
 
   @override
@@ -644,8 +692,12 @@ class _NewCommentState extends State<NewComment> {
                       AttachmentThumbnail(
                         key: ObjectKey(attachment),
                         image: attachment,
+                        uploadProgress: _uploadProgressByPath[attachment.path],
                         onRemoveItem: (XFile image) {
-                          setState(() => _attachments.remove(image));
+                          setState(() {
+                            _attachments.remove(image);
+                            _uploadProgressByPath.remove(image.path);
+                          });
                           _saveDraft();
                         },
                       ),
@@ -743,18 +795,38 @@ class _NewCommentState extends State<NewComment> {
   Future<Map<String, String>> _uploadAttachments() async {
     if (_attachments.isEmpty) return {};
 
-    List<File> files = _attachments
+    final attachments = List<XFile>.from(_attachments);
+    List<File> files = attachments
         .map<File>(
           (attachment) => File(attachment.path),
         )
         .toList();
+    final fileLengths = await Future.wait(files.map((file) => file.length()));
 
     var uri = Uri.https(
       API_HOST,
       "/api/v1/files",
     );
 
-    List<dynamic> response = await MicrocosmClient().uploadImages(uri, files);
+    setState(() {
+      _uploadProgressByPath
+        ..clear()
+        ..addEntries(
+          attachments.map((attachment) => MapEntry(attachment.path, 0.0)),
+        );
+    });
+    List<dynamic> response = await MicrocosmClient().uploadImages(
+      uri,
+      files,
+      onProgress: (sentBytes, totalBytes) {
+        _setAttachmentUploadProgress(
+          attachments,
+          fileLengths,
+          sentBytes,
+          totalBytes,
+        );
+      },
+    );
     return {
       for (var file in response)
         file["fileHash"] as String: file["fileName"] as String,
@@ -825,6 +897,7 @@ class _NewCommentState extends State<NewComment> {
         _sending = false;
         _controller.text = "";
         _attachments.clear();
+        _uploadProgressByPath.clear();
         _inReplyTo = null;
         _editing = null;
         if (context.mounted) {
@@ -842,7 +915,10 @@ class _NewCommentState extends State<NewComment> {
         ),
       );
     } catch (error) {
-      setState(() => _sending = false);
+      setState(() {
+        _sending = false;
+        _uploadProgressByPath.clear();
+      });
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

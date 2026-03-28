@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' show log;
 import 'dart:io';
@@ -15,6 +16,7 @@ import '../constants.dart';
 import 'relaxed_jpeg_decoder.dart';
 
 typedef Json = Map<String, dynamic>;
+typedef UploadProgressCallback = void Function(int sentBytes, int totalBytes);
 
 class _ExpiringResponse {
   int expiresAt;
@@ -28,6 +30,40 @@ class _ExpiringResponse {
   bool get expired {
     if (expiresAt == 0) return false;
     return expiresAt < DateTime.now().millisecondsSinceEpoch;
+  }
+}
+
+class _ProgressMultipartRequest extends http.MultipartRequest {
+  _ProgressMultipartRequest(
+    super.method,
+    super.url, {
+    this.onProgress,
+  });
+
+  final UploadProgressCallback? onProgress;
+
+  @override
+  http.ByteStream finalize() {
+    final stream = super.finalize();
+
+    if (onProgress == null) {
+      return stream;
+    }
+
+    final totalBytes = contentLength;
+    var sentBytes = 0;
+
+    return http.ByteStream(
+      stream.transform(
+        StreamTransformer.fromHandlers(
+          handleData: (chunk, sink) {
+            sentBytes += chunk.length;
+            onProgress!(sentBytes, totalBytes);
+            sink.add(chunk);
+          },
+        ),
+      ),
+    );
   }
 }
 
@@ -279,10 +315,18 @@ class MicrocosmClient {
     return minLength.round();
   }
 
-  Future<dynamic> uploadImages(Uri uri, List<File> images) async {
+  Future<dynamic> uploadImages(
+    Uri uri,
+    List<File> images, {
+    UploadProgressCallback? onProgress,
+  }) async {
     log("Uploading ${images.length} file(s)");
 
-    var request = http.MultipartRequest('POST', uri);
+    var request = _ProgressMultipartRequest(
+      'POST',
+      uri,
+      onProgress: onProgress,
+    );
     request.headers['User-Agent'] = userAgent;
     request.headers['Authorization'] = "Bearer $accessToken";
 
