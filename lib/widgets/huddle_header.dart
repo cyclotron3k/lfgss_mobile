@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../models/huddle.dart';
+import '../services/avatar_cache_manager.dart';
 
 class HuddleHeader extends StatelessWidget {
   const HuddleHeader({
@@ -29,6 +30,7 @@ class HuddleHeader extends StatelessWidget {
                     key: ValueKey(participant.id),
                     avatar: CachedNetworkImage(
                       imageUrl: participant.avatar,
+                      cacheManager: AvatarCacheManager.instance,
                       imageBuilder: (context, imageProvider) {
                         log("${participant.profileName}: ${participant.avatar}");
                         return ClipRRect(

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/commentable_item.dart';
 import '../../models/comment.dart';
+import '../../services/avatar_cache_manager.dart';
 import '../../services/settings.dart';
 import '../profile_sheet.dart';
 import '../screens/future_screen.dart';
@@ -90,6 +91,7 @@ class CommentTile extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: CachedNetworkImage(
                   imageUrl: comment.createdBy.avatar,
+                  cacheManager: AvatarCacheManager.instance,
                   width: 22,
                   height: 22,
                   errorWidget: (context, url, error) => const Icon(

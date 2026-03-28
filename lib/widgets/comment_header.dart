@@ -5,6 +5,7 @@ import 'package:lfgss_mobile/models/comment.dart';
 
 import '../core/commentable_item.dart';
 import '../models/profile.dart';
+import '../services/avatar_cache_manager.dart';
 import 'profile_sheet.dart';
 import 'thread_view.dart';
 import 'time_ago.dart';
@@ -92,6 +93,7 @@ class _CommentHeaderState extends State<CommentHeader> {
                     const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 8.0),
                 child: CachedNetworkImage(
                   imageUrl: widget.createdBy.avatar,
+                  cacheManager: AvatarCacheManager.instance,
                   width: 22,
                   height: 22,
                   errorWidget: (context, url, error) => const Icon(
@@ -201,6 +203,7 @@ class _CommentHeaderState extends State<CommentHeader> {
                               const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 8.0),
                           child: CachedNetworkImage(
                             imageUrl: widget.createdBy.avatar,
+                            cacheManager: AvatarCacheManager.instance,
                             width: 22,
                             height: 22,
                             errorWidget: (context, url, error) => const Icon(

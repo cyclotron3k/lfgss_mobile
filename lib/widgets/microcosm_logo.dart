@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../models/microcosm.dart';
+import '../services/attachment_cache_manager.dart';
 
 class MicrocosmLogo extends StatelessWidget {
   final Microcosm microcosm;
@@ -43,6 +44,7 @@ class MicrocosmLogo extends StatelessWidget {
                         ]),
                   child: CachedNetworkImage(
                     imageUrl: microcosm.logoUrl,
+                    cacheManager: AttachmentCacheManager.instance,
                     width: 28,
                     height: 28,
                     errorWidget: (context, url, error) => const Icon(

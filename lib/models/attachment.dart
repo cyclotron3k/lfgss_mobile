@@ -110,7 +110,10 @@ class Attachment {
   Widget buildForGallery(BuildContext context) {
     if (isImage) {
       return PhotoView(
-        imageProvider: CachedNetworkImageProvider(url),
+        imageProvider: CachedNetworkImageProvider(
+          url,
+          cacheManager: AttachmentCacheManager.instance,
+        ),
         initialScale: PhotoViewComputedScale.contained,
         minScale: PhotoViewComputedScale.contained * 0.8,
         backgroundDecoration: const BoxDecoration(),

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../models/attendee.dart';
+import '../services/avatar_cache_manager.dart';
 import 'profile_sheet.dart';
 
 class AttendeeChip extends StatelessWidget {
@@ -20,7 +21,10 @@ class AttendeeChip extends StatelessWidget {
           ),
         ),
         avatar: CircleAvatar(
-          foregroundImage: CachedNetworkImageProvider(attendee.profile.avatar),
+          foregroundImage: CachedNetworkImageProvider(
+            attendee.profile.avatar,
+            cacheManager: AvatarCacheManager.instance,
+          ),
           backgroundColor: Colors.grey.shade800,
         ),
         label: Text(attendee.profile.profileName),
