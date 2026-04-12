@@ -367,6 +367,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
       appBar: AppBar(
         title: Text(widget.item.title),
         actions: [overflowMenu],
+        automaticallyImplyLeading: false,
       ),
       body: MultiProvider(
         providers: [
