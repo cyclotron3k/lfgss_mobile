@@ -1,25 +1,28 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 enum SeekBarSensitivity { always, high, low, never }
 
 class SeekBar extends StatefulWidget {
-  final ScrollController scrollController;
+  final ValueListenable<double> scrollOffsetListenable;
+  final ValueListenable<bool> isUserScrollingListenable;
+  final ValueListenable<double> fractionListenable;
   final int totalChildren;
   final double topPadding;
   final SeekBarSensitivity sensitivity;
   final void Function(int pageNo) onSeek;
-  final double Function() getFraction;
 
   const SeekBar({
     super.key,
-    required this.scrollController,
+    required this.scrollOffsetListenable,
+    required this.isUserScrollingListenable,
+    required this.fractionListenable,
     required this.totalChildren,
     required this.topPadding,
     this.sensitivity = SeekBarSensitivity.low,
     required this.onSeek,
-    required this.getFraction,
   });
 
   @override
@@ -84,8 +87,9 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
     );
     _rippleAnim = CurvedAnimation(parent: _rippleCtrl, curve: Curves.easeOut);
     _slideCtrl.addStatusListener(_onSlideStatus);
-    widget.scrollController.addListener(_onScroll);
+    widget.scrollOffsetListenable.addListener(_onScroll);
     _prevTimeMs = DateTime.now().millisecondsSinceEpoch;
+    _prevOffset = widget.scrollOffsetListenable.value;
 
     if (widget.sensitivity == SeekBarSensitivity.always) {
       _slideCtrl.value = 1.0;
@@ -95,6 +99,12 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
   @override
   void didUpdateWidget(SeekBar oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.scrollOffsetListenable != widget.scrollOffsetListenable) {
+      oldWidget.scrollOffsetListenable.removeListener(_onScroll);
+      widget.scrollOffsetListenable.addListener(_onScroll);
+      _prevOffset = widget.scrollOffsetListenable.value;
+      _prevTimeMs = DateTime.now().millisecondsSinceEpoch;
+    }
     if (oldWidget.sensitivity != widget.sensitivity) {
       _hideTimer?.cancel();
       if (widget.sensitivity == SeekBarSensitivity.always) {
@@ -107,7 +117,7 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    widget.scrollController.removeListener(_onScroll);
+    widget.scrollOffsetListenable.removeListener(_onScroll);
     _hideTimer?.cancel();
     _rippleCtrl.dispose();
     _snapCtrl.dispose();
@@ -123,19 +133,12 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
   }
 
   void _onScroll() {
-    if (!widget.scrollController.hasClients) return;
     if (widget.sensitivity == SeekBarSensitivity.never) return;
     if (widget.sensitivity == SeekBarSensitivity.always) return;
 
-    final position = widget.scrollController.position;
-    final offset = position.pixels;
+    final offset = widget.scrollOffsetListenable.value;
 
-    // isScrollingNotifier is true only during user-driven activities
-    // (DragScrollActivity, BallisticScrollActivity). Programmatic position
-    // corrections — layout reflows after resetChildren, jumpTo calls, etc. —
-    // happen while the position is idle, so we reset the baseline and bail
-    // out without ever computing a velocity.
-    if (!position.isScrollingNotifier.value) {
+    if (!widget.isUserScrollingListenable.value) {
       _prevOffset = offset;
       _prevTimeMs = DateTime.now().millisecondsSinceEpoch;
       return;
@@ -180,7 +183,7 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
     if (_dragFraction != null) {
       return _snapCtrl.isAnimating ? _snapAnim.value : _dragFraction!;
     }
-    return widget.getFraction();
+    return widget.fractionListenable.value;
   }
 
   void _triggerSnap(double from, double to) {
@@ -228,7 +231,8 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
   }
 
   void _onDragEnd() {
-    final targetPage = _pageForFraction(_dragFraction ?? widget.getFraction());
+    final targetPage =
+        _pageForFraction(_dragFraction ?? widget.fractionListenable.value);
     _snapCtrl.stop();
     _rippleCtrl.reverse();
     // Keep _dragFraction alive so the thumb doesn't snap back to the scroll
@@ -276,13 +280,18 @@ class _SeekBarState extends State<SeekBar> with TickerProviderStateMixin {
               widget.topPadding + (availHeight - trackHeight) / 2;
 
           return AnimatedBuilder(
-            animation: Listenable.merge(
-                [widget.scrollController, _snapCtrl, _rippleCtrl]),
+            animation: Listenable.merge([
+              widget.fractionListenable,
+              widget.scrollOffsetListenable,
+              _snapCtrl,
+              _rippleCtrl,
+            ]),
             builder: (context, _) {
               final fraction = _thumbFraction.clamp(0.0, 1.0);
               final thumbCenterY = trackTopAbs + fraction * trackHeight;
-              final page =
-                  _pageForFraction(_dragFraction ?? widget.getFraction());
+              final page = _pageForFraction(
+                _dragFraction ?? widget.fractionListenable.value,
+              );
 
               return Stack(
                 children: [

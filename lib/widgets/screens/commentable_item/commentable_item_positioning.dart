@@ -1,68 +1,41 @@
-import 'package:flutter/material.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../constants.dart';
 import '../../../core/commentable_item.dart';
 
-GlobalKey commentKeyForIndex(Map<int, GlobalKey> commentKeys, int index) {
-  return commentKeys.putIfAbsent(
-    index,
-    () => GlobalKey(debugLabel: 'comment-$index'),
-  );
-}
-
 int? currentVisibleCommentIndex({
-  required BuildContext context,
-  required Map<int, GlobalKey> commentKeys,
+  required Iterable<ItemPosition> itemPositions,
+  required int commentListStartIndex,
+  required int totalChildren,
+  double viewportAnchor = 0.35,
 }) {
-  final mediaQuery = MediaQuery.of(context);
-  final topInset = mediaQuery.padding.top + kToolbarHeight;
-  final bottomInset = mediaQuery.padding.bottom;
-  final viewportHeight = mediaQuery.size.height - topInset - bottomInset;
-
-  if (viewportHeight <= 0) return null;
-
-  final viewportCenterY = topInset + (viewportHeight / 2);
   int? bestIndex;
   double bestDistance = double.infinity;
 
-  for (final entry in commentKeys.entries) {
-    final currentContext = entry.value.currentContext;
-    if (currentContext == null) continue;
+  for (final position in itemPositions) {
+    final commentIndex = position.index - commentListStartIndex;
+    if (commentIndex < 0 || commentIndex >= totalChildren) continue;
 
-    // findRenderObject() throws for inactive elements (deactivated during
-    // layout changes, e.g. when the keyboard appears). Element.mounted is
-    // _widget != null, which is true for both active and inactive elements,
-    // so we can't use it as a guard — catch the error instead.
-    RenderObject? renderObject;
-    try {
-      renderObject = currentContext.findRenderObject();
-    } catch (_) {
-      continue;
-    }
-    if (renderObject is! RenderBox || !renderObject.attached) continue;
-    if (!renderObject.hasSize) continue;
+    final visibleTop = position.itemLeadingEdge.clamp(0.0, 1.0);
+    final visibleBottom = position.itemTrailingEdge.clamp(0.0, 1.0);
+    if (visibleBottom <= 0.0 || visibleTop >= 1.0) continue;
 
-    final topLeft = renderObject.localToGlobal(Offset.zero);
-    final rect = topLeft & renderObject.size;
-    final isVisible =
-        rect.bottom > topInset && rect.top < topInset + viewportHeight;
-    if (!isVisible) continue;
-
-    final distance = (rect.center.dy - viewportCenterY).abs();
+    final distance =
+        (((visibleTop + visibleBottom) / 2) - viewportAnchor).abs();
     if (distance < bestDistance) {
       bestDistance = distance;
-      bestIndex = entry.key;
+      bestIndex = commentIndex;
     }
   }
 
   return bestIndex;
 }
 
-Future<Uri> webUrlForCurrentPosition({
-  required BuildContext context,
+Uri webUrlForCurrentPosition({
   required CommentableItem item,
-  required Map<int, GlobalKey> commentKeys,
-}) async {
+  required int? visibleIndex,
+  required int? visibleCommentId,
+}) {
   final selfUrl = item.selfUrl;
   final pathWithoutNewest = selfUrl.path.replaceFirst(
     RegExp(r'/newest/?$'),
@@ -72,28 +45,9 @@ Future<Uri> webUrlForCurrentPosition({
       ? pathWithoutNewest
       : '$pathWithoutNewest/';
 
-  final visibleIndex = currentVisibleCommentIndex(
-    context: context,
-    commentKeys: commentKeys,
-  );
   final fallbackOffset = ((item.startPage * PAGE_SIZE) ~/ 25) * 25;
   final offset =
       visibleIndex == null ? fallbackOffset : (visibleIndex ~/ 25) * 25;
-
-  int? visibleCommentId;
-  if (visibleIndex != null) {
-    try {
-      visibleCommentId = await item
-          .getChild(visibleIndex)
-          .then<int?>((comment) => comment.id)
-          .timeout(
-            const Duration(milliseconds: 150),
-            onTimeout: () => null,
-          );
-    } catch (_) {
-      visibleCommentId = null;
-    }
-  }
 
   return Uri(
     scheme: selfUrl.scheme,
