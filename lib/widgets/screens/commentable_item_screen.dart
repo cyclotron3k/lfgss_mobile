@@ -129,13 +129,14 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     );
   }
 
-  int _commentIndexForItemIndex(int itemIndex) {
-    return itemIndex - _threadListLeadingItems;
-  }
+  int _commentIndexForItemIndex(int itemIndex) =>
+      itemIndex - _threadListLeadingItems;
 
-  int _itemIndexForCommentIndex(int commentIndex) {
-    return _threadListLeadingItems + commentIndex;
-  }
+  int _itemIndexForCommentIndex(int commentIndex) =>
+      _threadListLeadingItems + commentIndex;
+
+  double get _preferredScrollAlignment =>
+      _initialCommentIndex == 0 ? 0.0 : 0.12;
 
   void _handleItemPositionsChanged() {
     final visibleIndex = currentVisibleCommentIndex(
@@ -160,12 +161,15 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
         index: targetIndex,
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
-        alignment: 0.12,
+        alignment: _preferredScrollAlignment,
       );
       return;
     }
 
-    _itemScrollController.jumpTo(index: targetIndex, alignment: 0.12);
+    _itemScrollController.jumpTo(
+      index: targetIndex,
+      alignment: _preferredScrollAlignment,
+    );
   }
 
   Future<void> _centerOnPage(int pageNo) async {
@@ -387,7 +391,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
                       itemPositionsListener: _itemPositionsListener,
                       initialScrollIndex:
                           _itemIndexForCommentIndex(_initialCommentIndex),
-                      initialAlignment: 0.12,
+                      initialAlignment: _preferredScrollAlignment,
                       itemBuilder: _buildThreadListItem,
                     ),
                   ),
