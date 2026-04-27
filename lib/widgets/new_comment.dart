@@ -6,7 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
+import '../models/attachment.dart';
 import '../models/comment.dart';
+import '../models/comment_attachments.dart';
 import '../models/comment_shuttle.dart';
 import '../services/comment_draft_service.dart';
 import '../services/microcosm_client.dart';
@@ -51,14 +53,19 @@ class NewComment extends StatefulWidget {
 class _NewCommentState extends State<NewComment> {
   final _controller = ProfileAwareInputController();
   final List<XFile> _attachments = [];
+  final List<Attachment> _existingAttachments = [];
   final Map<String, double> _uploadProgressByPath = {};
+  final Map<String, Attachment> _removedExistingAttachmentsByHash = {};
+  final Set<String> _removedExistingAttachmentHashes = {};
   Comment? _inReplyTo;
   Comment? _editing;
   bool _sending = false;
+  bool _loadingExistingAttachments = false;
   CommentShuttle? _commentShuttle;
   CommentDraftService? _draftService;
   final _commentInputKey = GlobalKey();
   String? _lastDraftText;
+  int? _loadedEditCommentId;
 
   final FocusNode _focusNode = FocusNode();
   OverlayEntry? _overlayEntry;
@@ -80,6 +87,9 @@ class _NewCommentState extends State<NewComment> {
     _lastDraftText = _controller.text;
 
     _commentShuttle?.addListener(_handleReplyUpdate);
+    if (_commentShuttle?.editTarget != null) {
+      _loadExistingAttachmentsForEditing(_commentShuttle!.editTarget!);
+    }
     _controller.addListener(_handleTypingEvent);
     _controller.addListener(_saveDraftIfTextChanged);
     _focusNode.addListener(() {
@@ -329,13 +339,121 @@ class _NewCommentState extends State<NewComment> {
   void _handleReplyUpdate() {
     if (_commentShuttle!.editTarget != null) {
       _controller.text = _commentShuttle!.editTarget!.markdown;
+      _loadExistingAttachmentsForEditing(_commentShuttle!.editTarget!);
     } else if (_commentShuttle!.replyText != null &&
         _commentShuttle!.replyText != "") {
       _controller.text += "> ${_commentShuttle!.replyText}";
+      _clearExistingAttachments();
     } else {
       _controller.text = "";
+      _clearAllAttachments();
     }
     _saveDraft();
+  }
+
+  void _clearAllAttachments() {
+    if (_attachments.isEmpty &&
+        _uploadProgressByPath.isEmpty &&
+        _loadedEditCommentId == null &&
+        _existingAttachments.isEmpty &&
+        _removedExistingAttachmentHashes.isEmpty &&
+        !_loadingExistingAttachments) {
+      return;
+    }
+
+    setState(() {
+      _attachments.clear();
+      _uploadProgressByPath.clear();
+      _loadedEditCommentId = null;
+      _loadingExistingAttachments = false;
+      _existingAttachments.clear();
+      _removedExistingAttachmentsByHash.clear();
+      _removedExistingAttachmentHashes.clear();
+    });
+  }
+
+  void _clearExistingAttachments() {
+    if (_loadedEditCommentId == null &&
+        _existingAttachments.isEmpty &&
+        _removedExistingAttachmentHashes.isEmpty &&
+        !_loadingExistingAttachments) {
+      return;
+    }
+
+    setState(() {
+      _loadedEditCommentId = null;
+      _loadingExistingAttachments = false;
+      _existingAttachments.clear();
+      _removedExistingAttachmentsByHash.clear();
+      _removedExistingAttachmentHashes.clear();
+    });
+  }
+
+  Future<void> _loadExistingAttachmentsForEditing(Comment comment) async {
+    if (_loadedEditCommentId == comment.id) return;
+
+    setState(() {
+      _loadedEditCommentId = comment.id;
+      _loadingExistingAttachments = true;
+      _existingAttachments.clear();
+      _removedExistingAttachmentsByHash.clear();
+      _removedExistingAttachmentHashes.clear();
+    });
+
+    try {
+      final uri = Uri.https(
+        API_HOST,
+        "/api/v1/comments/${comment.id}",
+      );
+      final json = await MicrocosmClient().getJson(uri, ignoreCache: true);
+      final attachmentCount = json["attachments"] ?? 0;
+
+      List<Attachment> attachments = [];
+      if (attachmentCount > 0) {
+        attachments = await CommentAttachments(
+          commentId: comment.id,
+          attachments: attachmentCount,
+        ).getAttachmentList();
+      }
+
+      if (!mounted || _loadedEditCommentId != comment.id) return;
+
+      setState(() {
+        _existingAttachments
+          ..clear()
+          ..addAll(attachments);
+        _loadingExistingAttachments = false;
+      });
+    } catch (error) {
+      log("Failed to load existing attachments for comment ${comment.id}: $error");
+      if (!mounted || _loadedEditCommentId != comment.id) return;
+      setState(() => _loadingExistingAttachments = false);
+    }
+  }
+
+  void _removeExistingAttachment(Attachment attachment) {
+    setState(() {
+      _existingAttachments.removeWhere(
+        (item) => item.fileHash == attachment.fileHash,
+      );
+      _removedExistingAttachmentsByHash[attachment.fileHash] = attachment;
+      _removedExistingAttachmentHashes.add(attachment.fileHash);
+    });
+  }
+
+  Future<void> _deleteExistingAttachments(int commentId) async {
+    if (_removedExistingAttachmentHashes.isEmpty) return;
+
+    for (final attachment in _removedExistingAttachmentsByHash.values) {
+      log("Deleting existing attachment ${attachment.fileHash} from comment $commentId");
+      await MicrocosmClient().deleteJson(
+        Uri.https(
+          API_HOST,
+          "/api/v1/comments/$commentId/attachments/${attachment.fileHash}",
+        ),
+        followRedirects: false,
+      );
+    }
   }
 
   Widget _buildContextMenu(
@@ -577,8 +695,8 @@ class _NewCommentState extends State<NewComment> {
     final body = selectedText.isEmpty ? placeholder : selectedText;
     final replacement =
         '<details>\n<summary>Click to reveal ...</summary>\n$body\n</details>';
-    final bodyStart =
-        selection.start + '<details>\n<summary>Click to reveal ...</summary>\n'.length;
+    final bodyStart = selection.start +
+        '<details>\n<summary>Click to reveal ...</summary>\n'.length;
 
     _replaceSelection(
       replacement,
@@ -680,14 +798,35 @@ class _NewCommentState extends State<NewComment> {
                 ],
               ),
             ],
-            if (_attachments.isNotEmpty)
+            if (_loadingExistingAttachments ||
+                _existingAttachments.isNotEmpty ||
+                _attachments.isNotEmpty)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 4.0,
+                ),
                 child: Wrap(
                   runSpacing: 8.0,
                   spacing: 8.0,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
+                    if (_loadingExistingAttachments)
+                      const SizedBox(
+                        height: 48.0,
+                        width: 48.0,
+                        child: Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    for (final attachment in _existingAttachments)
+                      ExistingAttachmentThumbnail(
+                        key: ValueKey(attachment.fileHash),
+                        attachment: attachment,
+                        onRemove: () => _removeExistingAttachment(attachment),
+                      ),
                     for (final attachment in _attachments)
                       AttachmentThumbnail(
                         key: ObjectKey(attachment),
@@ -889,6 +1028,7 @@ class _NewCommentState extends State<NewComment> {
       if (_attachments.isNotEmpty) {
         await _linkAttachments(comment!["id"], fileHashes);
       }
+      await _deleteExistingAttachments(comment!["id"]);
 
       await _draftService?.clear(_draftItemType, _draftItemId);
 
@@ -897,9 +1037,14 @@ class _NewCommentState extends State<NewComment> {
         _sending = false;
         _controller.text = "";
         _attachments.clear();
+        _existingAttachments.clear();
         _uploadProgressByPath.clear();
+        _removedExistingAttachmentsByHash.clear();
+        _removedExistingAttachmentHashes.clear();
         _inReplyTo = null;
         _editing = null;
+        _loadedEditCommentId = null;
+        _loadingExistingAttachments = false;
         if (context.mounted) {
           context.read<CommentShuttle>().clear();
         }

@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.48
+
+- Allow management of old attachments
+- Better attachment UI
+
 ## v1.0.47
 
 - Remember recent search terms in the search screen

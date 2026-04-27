@@ -10,6 +10,7 @@ import 'package:video_player/video_player.dart';
 import '../constants.dart';
 import '../services/attachment_cache_manager.dart';
 import '../widgets/maybe_image.dart';
+import 'links.dart';
 
 class Attachment {
   final int profileId;
@@ -18,6 +19,7 @@ class Attachment {
   final String fileExt;
   final DateTime created;
   final String _url;
+  final Links links;
 
   Attachment.fromJson({required Map<String, dynamic> json})
       : profileId = json["profileId"],
@@ -25,7 +27,8 @@ class Attachment {
         fileName = json["fileName"],
         fileExt = json["fileExt"],
         created = DateTime.parse(json["created"]),
-        _url = json["meta"]["links"][0]["href"]; // TODO: be more robust
+        _url = json["meta"]["links"][0]["href"], // TODO: be more robust
+        links = Links.fromJson(json: json["meta"]["links"]);
 
   String get url => _url.startsWith('/') ? "https://$API_HOST$_url" : _url;
 

@@ -279,15 +279,64 @@ class MicrocosmClient {
   }
 
   Future<http.Response> delete(Uri url, [Object? body]) async {
+    final headers = <String, String>{
+      'User-Agent': userAgent,
+      if (accessToken != null) 'Authorization': "Bearer $accessToken",
+    };
+
+    if (body != null) {
+      headers['Content-Type'] = 'application/json';
+    }
+
     return http.delete(
       url,
-      headers: <String, String>{
-        'User-Agent': userAgent,
-        'Content-Type': 'application/json',
-        'Authorization': "Bearer $accessToken",
-      },
-      body: jsonEncode(body),
+      headers: headers,
+      body: body == null ? null : jsonEncode(body),
     );
+  }
+
+  Future<Json?> deleteJson(
+    Uri url, {
+    Object? body,
+    bool followRedirects = true,
+  }) async {
+    log("DELETEing: $url");
+    final response = await delete(url, body);
+
+    if (response.statusCode == 302) {
+      if (followRedirects) {
+        Uri redirect = Uri.parse(response.headers['location']!);
+        if (!redirect.isAbsolute) {
+          redirect = redirect.replace(
+            scheme: "https",
+            host: API_HOST,
+          );
+        }
+        log("Completed DELETE. Redirecting to: $redirect");
+        return getJson(redirect, ignoreCache: true);
+      } else {
+        return {};
+      }
+    }
+
+    if (response.body.isEmpty) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return {};
+      }
+      log("Failed to DELETE: $url");
+      throw "Couldn't DELETE: $url";
+    }
+
+    final String page = const Utf8Decoder().convert(response.body.codeUnits);
+    final Json data = json.decode(page);
+
+    if (data["status"] != 200) {
+      log("Failed to DELETE: $url");
+      log("Error: ${data["error"]}");
+      throw "Couldn't DELETE: $url";
+    }
+
+    return data["data"];
   }
 
   int _scaleImage(File file) {

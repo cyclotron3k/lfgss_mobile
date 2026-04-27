@@ -1,7 +1,11 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../models/attachment.dart';
+import '../services/attachment_cache_manager.dart';
 
 class AttachmentThumbnail extends StatefulWidget {
   final XFile image;
@@ -20,18 +24,14 @@ class AttachmentThumbnail extends StatefulWidget {
 }
 
 class _AttachmentThumbnailState extends State<AttachmentThumbnail> {
-  bool remove = false;
-  double? dx;
-  double? dy;
-
   @override
   Widget build(BuildContext context) {
     final uploading = widget.uploadProgress != null;
-
-    Widget image = SizedBox(
+    return SizedBox(
       height: 72.0,
       width: 72.0,
       child: Stack(
+        clipBehavior: Clip.none,
         fit: StackFit.expand,
         children: [
           ClipRRect(
@@ -56,51 +56,119 @@ class _AttachmentThumbnailState extends State<AttachmentThumbnail> {
                 strokeWidth: 3.0,
               ),
             ),
+          Positioned(
+            top: -8.0,
+            right: -8.0,
+            child: Material(
+              color: Colors.transparent,
+              child: IconButton(
+                icon: Icon(
+                  Icons.close,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                iconSize: 18.0,
+                visualDensity: VisualDensity.compact,
+                style: IconButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                ),
+                onPressed:
+                    uploading ? null : () => widget.onRemoveItem(widget.image),
+              ),
+            ),
+          ),
         ],
       ),
     );
+  }
+}
 
-    return Draggable(
-      // affinity: Axis.horizontal,
-      // axis: Axis.vertical,
-      maxSimultaneousDrags: uploading ? 0 : null,
-      onDragEnd: (details) {
-        dx = null;
-        dy = null;
-        if (remove) {
-          widget.onRemoveItem(widget.image);
-        }
-      },
-      onDragUpdate: (details) {
-        dx ??= details.localPosition.dx;
-        dy ??= details.localPosition.dy;
+class ExistingAttachmentThumbnail extends StatelessWidget {
+  final Attachment attachment;
+  final VoidCallback onRemove;
 
-        bool newRemove = ((dx! - details.localPosition.dx).abs() +
-                (dy! - details.localPosition.dy).abs()) >
-            80.0;
-        if (remove ^ newRemove) {
-          setState(() => remove = newRemove);
-        }
-      },
-      feedback: image,
-      childWhenDragging: Stack(
+  const ExistingAttachmentThumbnail({
+    super.key,
+    required this.attachment,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 72.0,
+      width: 72.0,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Opacity(
-            opacity: remove ? 0.4 : 0.8,
-            child: image,
-          ),
-          if (!uploading)
-            Positioned.fill(
-              child: Center(
-                child: Icon(
-                  remove ? Icons.delete : Icons.delete_outline,
-                  color: remove ? Colors.red : Colors.white,
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 ),
+                child: _preview(context),
               ),
             ),
+          ),
+          Positioned(
+            top: -8.0,
+            right: -8.0,
+            child: Material(
+              color: Colors.transparent,
+              child: IconButton(
+                icon: Icon(
+                  Icons.close,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                iconSize: 18.0,
+                visualDensity: VisualDensity.compact,
+                style: IconButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                ),
+                onPressed: onRemove,
+              ),
+            ),
+          ),
         ],
       ),
-      child: image,
+    );
+  }
+
+  Widget _preview(BuildContext context) {
+    if (attachment.isImage) {
+      return CachedNetworkImage(
+        imageUrl: attachment.url,
+        cacheManager: AttachmentCacheManager.instance,
+        fit: BoxFit.cover,
+        errorWidget: (context, url, error) => _filePreview(context),
+      );
+    }
+
+    return _filePreview(context);
+  }
+
+  Widget _filePreview(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(6.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            attachment.fileTypeIcon,
+            size: 24.0,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: 4.0),
+          Text(
+            attachment.fileName,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
+        ],
+      ),
     );
   }
 }
