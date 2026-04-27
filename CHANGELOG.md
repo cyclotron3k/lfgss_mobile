@@ -4,6 +4,7 @@
 
 - Allow management of old attachments
 - Better attachment UI
+- Layout tweaks
 
 ## v1.0.47
 
