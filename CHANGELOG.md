@@ -2,6 +2,7 @@
 
 ## v1.0.49
 
+- Fix attachment deletion sometimes showing the wrong attachment as removed
 - Long-press comment images to copy their URL or share them
 
 ## v1.0.48
