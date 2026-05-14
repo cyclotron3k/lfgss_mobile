@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.49
+
+- Long-press comment images to copy their URL or share them
+
 ## v1.0.48
 
 - Allow management of old attachments
