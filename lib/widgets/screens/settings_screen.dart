@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../notifications.dart';
 import '../../services/settings.dart';
 import 'commentable_item/seek_bar.dart';
 
@@ -35,6 +36,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _notifyMentions = true;
   bool _notifyHuddles = true;
   SeekBarSensitivity _seekBarSensitivity = SeekBarSensitivity.low;
+
+  Future<void> _setNotificationPreference(
+    Settings settings,
+    String key,
+    bool value,
+    void Function(bool value) updateState,
+  ) async {
+    setState(() {
+      updateState(value);
+    });
+
+    await settings.setBool(key, value);
+    await syncNotificationTask(settings.prefs);
+  }
 
   @override
   void initState() {
@@ -276,9 +291,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             initialValue: _seekBarSensitivity,
             onSelected: (SeekBarSensitivity item) {
               setState(() {
-                settings
-                    .setString("seekBarSensitivity", item.name)
-                    .ignore();
+                settings.setString("seekBarSensitivity", item.name).ignore();
                 _seekBarSensitivity = item;
               });
             },
@@ -313,10 +326,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Direct messages (huddles)'),
             value: _notifyHuddles,
             onChanged: (bool value) {
-              setState(() {
-                settings.setBool("notifyHuddles", value).ignore();
-                _notifyHuddles = value;
-              });
+              _setNotificationPreference(
+                settings,
+                "notifyHuddles",
+                value,
+                (value) => _notifyHuddles = value,
+              ).ignore();
             },
             secondary: const Icon(Icons.email),
           ),
@@ -324,10 +339,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Replies'),
             value: _notifyReplies,
             onChanged: (bool value) {
-              setState(() {
-                settings.setBool("notifyReplies", value).ignore();
-                _notifyReplies = value;
-              });
+              _setNotificationPreference(
+                settings,
+                "notifyReplies",
+                value,
+                (value) => _notifyReplies = value,
+              ).ignore();
             },
             secondary: const Icon(Icons.reply),
           ),
@@ -335,10 +352,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Mentions'),
             value: _notifyMentions,
             onChanged: (bool value) {
-              setState(() {
-                settings.setBool("notifyMentions", value).ignore();
-                _notifyMentions = value;
-              });
+              _setNotificationPreference(
+                settings,
+                "notifyMentions",
+                value,
+                (value) => _notifyMentions = value,
+              ).ignore();
             },
             secondary: const Icon(Icons.alternate_email),
           ),
@@ -347,10 +366,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: const Text("in a followed conversation"),
             value: _notifyNewComments,
             onChanged: (bool value) {
-              setState(() {
-                settings.setBool("notifyNewComments", value).ignore();
-                _notifyNewComments = value;
-              });
+              _setNotificationPreference(
+                settings,
+                "notifyNewComments",
+                value,
+                (value) => _notifyNewComments = value,
+              ).ignore();
             },
             secondary: const Icon(Icons.chat_bubble),
           ),
@@ -359,10 +380,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: const Text("in a followed microcosm"),
             value: _notifyNewConversations,
             onChanged: (bool value) {
-              setState(() {
-                settings.setBool("notifyNewConversations", value).ignore();
-                _notifyNewConversations = value;
-              });
+              _setNotificationPreference(
+                settings,
+                "notifyNewConversations",
+                value,
+                (value) => _notifyNewConversations = value,
+              ).ignore();
             },
             secondary: const Icon(Icons.forum),
           ),

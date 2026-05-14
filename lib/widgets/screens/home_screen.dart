@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../constants.dart';
@@ -69,7 +70,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _runWhileAppIsTerminated();
 
     // For sharing images coming from outside the app while the app is in the memory
-    _sharedMediaSubscription = ReceiveSharingIntent.instance.getMediaStream().listen(
+    _sharedMediaSubscription =
+        ReceiveSharingIntent.instance.getMediaStream().listen(
       (List<SharedMediaFile> value) {
         if (!mounted || value.isEmpty) return;
         Navigator.push(
@@ -370,6 +372,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               onTap: () async {
                 if (MicrocosmClient().loggedIn) {
                   await MicrocosmClient().logout();
+                  final prefs = await SharedPreferences.getInstance();
+                  await syncNotificationTask(prefs);
                   _initProfile();
                   _refresh();
                   _buildTabs();
