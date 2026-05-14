@@ -84,6 +84,10 @@ class MicrocosmClient {
     _inFlight.removeWhere((key, value) => true);
   }
 
+  void clearCacheForPath(String path) {
+    _inFlight.removeWhere((key, value) => key.path == path);
+  }
+
   bool get loggedIn {
     return accessToken != null;
   }

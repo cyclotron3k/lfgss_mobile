@@ -413,6 +413,7 @@ class _NewCommentState extends State<NewComment> {
         attachments = await CommentAttachments(
           commentId: comment.id,
           attachments: attachmentCount,
+          ignoreCache: true,
         ).getAttachmentList();
       }
 
@@ -454,6 +455,8 @@ class _NewCommentState extends State<NewComment> {
         followRedirects: false,
       );
     }
+
+    _invalidateCommentAttachmentCache(commentId);
   }
 
   Widget _buildContextMenu(
@@ -990,6 +993,14 @@ class _NewCommentState extends State<NewComment> {
         followRedirects: false,
       );
     }
+
+    _invalidateCommentAttachmentCache(commentId);
+  }
+
+  void _invalidateCommentAttachmentCache(int commentId) {
+    MicrocosmClient().clearCacheForPath(
+      "/api/v1/comments/$commentId/attachments",
+    );
   }
 
   Future<void> _postComment() async {
