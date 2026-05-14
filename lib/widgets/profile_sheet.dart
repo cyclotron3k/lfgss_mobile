@@ -9,8 +9,8 @@ import '../models/search.dart';
 import '../models/search_parameters.dart';
 import '../services/avatar_cache_manager.dart';
 import 'adaptable_form.dart';
+import 'profile_last_active.dart';
 import 'screens/future_search_results_screen.dart';
-import 'time_ago.dart';
 
 class ProfileSheet extends StatefulWidget {
   const ProfileSheet({
@@ -170,7 +170,7 @@ class _ProfileSheetState extends State<ProfileSheet> {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-            TimeAgo(
+            ProfileLastActive(
               fp.lastActive,
               color: Colors.grey,
             ),
