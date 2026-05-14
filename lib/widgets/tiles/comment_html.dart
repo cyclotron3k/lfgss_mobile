@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart' hide Element;
+import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
 import 'package:html/dom.dart' show Document, Element;
@@ -41,6 +42,8 @@ class CommentHtml extends StatefulWidget {
 }
 
 class _CommentHtmlState extends State<CommentHtml> {
+  static const _webSearchChannel =
+      MethodChannel("com.lfgss.lfgss_mobile/web_search");
   String _selectedText = "";
   late final Document _doc;
   static const _iframeReferer = 'https://$WEB_HOST/';
@@ -100,6 +103,16 @@ class _CommentHtmlState extends State<CommentHtml> {
             innerContext,
             [
               ...selectableRegionState.contextMenuButtonItems,
+              if (_selectedText.trim().isNotEmpty)
+                ContextMenuButtonItem(
+                    label: "Search web",
+                    onPressed: () async {
+                      await _webSearchChannel.invokeMethod(
+                        "search",
+                        {"query": _selectedText.trim()},
+                      );
+                      ContextMenuController.removeAny();
+                    }),
               if (widget.replyTarget != null)
                 ContextMenuButtonItem(
                     label: "Reply",
