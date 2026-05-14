@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
@@ -45,6 +46,12 @@ class Attachment {
 
   bool get isImage => imageExtMatcher.hasMatch(fileExt);
   bool get isVideo => videoExtMatcher.hasMatch(fileExt);
+
+  Future<void> share() async {
+    var file = await AttachmentCacheManager.instance.getSingleFile(url);
+    var xfile = XFile(file.path, name: fileName);
+    await SharePlus.instance.share(ShareParams(files: [xfile]));
+  }
 
   IconData get fileTypeIcon {
     final ext = fileExt.toLowerCase();

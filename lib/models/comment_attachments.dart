@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:developer' show log;
 
@@ -94,6 +95,7 @@ class CommentAttachments {
         future: getAttachmentList(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            final attachment = snapshot.data![index];
             return GestureDetector(
               onTap: () async {
                 await Navigator.push(
@@ -109,7 +111,13 @@ class CommentAttachments {
                   ),
                 );
               },
-              child: snapshot.data![index].build(context),
+              onLongPress: attachment.isImage
+                  ? () async => _showImageActions(
+                        context,
+                        attachment,
+                      )
+                  : null,
+              child: attachment.build(context),
             );
           } else if (snapshot.hasError) {
             log(snapshot.error.toString());
@@ -142,6 +150,48 @@ class CommentAttachments {
             );
           }
         },
+      ),
+    );
+  }
+
+  Future<void> _showImageActions(
+    BuildContext context,
+    Attachment attachment,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (bottomSheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.link),
+              title: const Text('Copy URL'),
+              onTap: () async {
+                await Clipboard.setData(ClipboardData(text: attachment.url));
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Attachment URL copied')),
+                  );
+                }
+                if (bottomSheetContext.mounted) {
+                  Navigator.pop(bottomSheetContext);
+                }
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.adaptive.share),
+              title: const Text('Share'),
+              onTap: () async {
+                if (bottomSheetContext.mounted) {
+                  Navigator.pop(bottomSheetContext);
+                }
+                await attachment.share();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
