@@ -9,6 +9,20 @@ import 'models/update_type.dart';
 import 'models/updates.dart';
 import 'services/microcosm_client.dart';
 
+const _notificationTaskUniqueName = "periodic-task-identifier";
+const _notificationTaskName = "updateChecker";
+const notificationPreferenceKeys = [
+  "notifyNewComments",
+  "notifyNewConversations",
+  "notifyReplies",
+  "notifyMentions",
+  "notifyHuddles",
+];
+
+bool notificationsEnabled(SharedPreferences prefs) {
+  return notificationPreferenceKeys.any((key) => prefs.getBool(key) ?? true);
+}
+
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
@@ -16,11 +30,17 @@ void callbackDispatcher() {
     final sp = await SharedPreferences.getInstance(); // Initialize dependency
 
     try {
+      if (!notificationsEnabled(sp)) {
+        await cancelNotificationTask();
+        log("Notifications disabled");
+        return true;
+      }
+
       final client = MicrocosmClient();
       await client.updateAccessToken();
       if (!client.loggedIn) {
         log("Not logged in");
-        // TODO: actually delete the scheduled task, and only rebuild it on log-in
+        await cancelNotificationTask();
         return true;
       }
 
@@ -120,13 +140,40 @@ Future<FlutterLocalNotificationsPlugin> initNotifications(
 }
 
 Future<void> initTasks() async {
-  Workmanager().initialize(
+  await Workmanager().initialize(
     callbackDispatcher, // The top level function, aka callbackDispatcher
   );
 
-  Workmanager().registerPeriodicTask(
-    "periodic-task-identifier",
-    "updateChecker",
+  final prefs = await SharedPreferences.getInstance();
+  await syncNotificationTask(prefs, requestPermission: true);
+}
+
+Future<void> syncNotificationTask(
+  SharedPreferences prefs, {
+  bool requestPermission = false,
+}) async {
+  final client = MicrocosmClient();
+  await client.updateAccessToken();
+
+  if (client.loggedIn && notificationsEnabled(prefs)) {
+    await registerNotificationTask();
+
+    if (requestPermission) {
+      final plugin = await initNotifications(null);
+      await plugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+    }
+  } else {
+    await cancelNotificationTask();
+  }
+}
+
+Future<void> registerNotificationTask() async {
+  await Workmanager().registerPeriodicTask(
+    _notificationTaskUniqueName,
+    _notificationTaskName,
     existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
     constraints: Constraints(
       networkType: NetworkType.connected,
@@ -139,34 +186,32 @@ Future<void> initTasks() async {
     // backoffPolicy: BackoffPolicy.exponential,
     // frequency: Duration(minutes: 15),
   );
-
-  final plugin = await initNotifications(null);
-  plugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.requestNotificationsPermission();
 }
 
-  // // DELETE START
-  // const AndroidNotificationDetails androidNotificationDetails =
-  //     AndroidNotificationDetails(
-  //   'lfgss_updates',
-  //   'LFGSS Updates',
-  //   channelDescription: 'Updates from LFGSS',
-  //   importance: Importance.max,
-  //   priority: Priority.high,
-  //   ticker: 'ticker',
-  // );
+Future<void> cancelNotificationTask() async {
+  await Workmanager().cancelByUniqueName(_notificationTaskUniqueName);
+}
 
-  // const NotificationDetails notificationDetails = NotificationDetails(
-  //   android: androidNotificationDetails,
-  // );
+// // DELETE START
+// const AndroidNotificationDetails androidNotificationDetails =
+//     AndroidNotificationDetails(
+//   'lfgss_updates',
+//   'LFGSS Updates',
+//   channelDescription: 'Updates from LFGSS',
+//   importance: Importance.max,
+//   priority: Priority.high,
+//   ticker: 'ticker',
+// );
 
-  // flutterLocalNotificationsPlugin.show(
-  //   12345,
-  //   "Test Notification",
-  //   "Body text",
-  //   notificationDetails,
-  //   payload: "253639",
-  // );
-  // // DELETE END
+// const NotificationDetails notificationDetails = NotificationDetails(
+//   android: androidNotificationDetails,
+// );
+
+// flutterLocalNotificationsPlugin.show(
+//   12345,
+//   "Test Notification",
+//   "Body text",
+//   notificationDetails,
+//   payload: "253639",
+// );
+// // DELETE END

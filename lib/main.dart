@@ -20,7 +20,7 @@ void main() async {
   initializeTimeZones();
 
   WidgetsFlutterBinding.ensureInitialized();
-  initTasks();
+  await initTasks();
 
   setLocalLocation(
     getLocation((await FlutterTimezone.getLocalTimezone()).identifier),
@@ -43,7 +43,8 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => settings),
         ChangeNotifierProvider(create: (context) => userProvider),
-        ChangeNotifierProvider<CommentDraftService>(create: (context) => draftService),
+        ChangeNotifierProvider<CommentDraftService>(
+            create: (context) => draftService),
       ],
       child: const LfgssMobile(),
     ),

@@ -5,6 +5,7 @@
 - Fix attachment deletion sometimes showing the wrong attachment as removed
 - Long-press comment images to copy their URL or share them
 - Web search for text
+- Disable timer when notifications are disabled
 
 ## v1.0.48
 

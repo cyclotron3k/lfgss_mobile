@@ -6,6 +6,7 @@ import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../constants.dart';
+import '../../notifications.dart';
 import '../../services/microcosm_client.dart';
 import '../../services/settings.dart';
 
@@ -49,6 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
           if (accessToken != null) {
             await settings.setString("accessToken", accessToken);
             await MicrocosmClient().updateAccessToken();
+            await syncNotificationTask(settings.prefs, requestPermission: true);
 
             if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
