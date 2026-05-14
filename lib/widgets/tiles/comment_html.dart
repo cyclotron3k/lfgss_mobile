@@ -96,36 +96,51 @@ class _CommentHtmlState extends State<CommentHtml> {
 
   Widget withSelection(BuildContext context) => SelectionArea(
         onSelectionChanged: (value) => _selectedText = value?.plainText ?? "",
-        contextMenuBuilder: (innerContext, selectableRegionState) =>
-            AdaptiveTextSelectionToolbar(
-          anchors: selectableRegionState.contextMenuAnchors,
-          children: AdaptiveTextSelectionToolbar.getAdaptiveButtons(
-            innerContext,
-            [
-              ...selectableRegionState.contextMenuButtonItems,
-              if (_selectedText.trim().isNotEmpty)
-                ContextMenuButtonItem(
-                    label: "Search web",
-                    onPressed: () async {
-                      await _webSearchChannel.invokeMethod(
-                        "search",
-                        {"query": _selectedText.trim()},
-                      );
-                      ContextMenuController.removeAny();
-                    }),
-              if (widget.replyTarget != null)
-                ContextMenuButtonItem(
-                    label: "Reply",
-                    onPressed: () {
-                      context.read<CommentShuttle?>()?.setReplyTarget(
-                            widget.replyTarget!,
-                            text: _selectedText,
-                          );
-                      ContextMenuController.removeAny();
-                    }),
-            ],
-          ).toList(),
-        ),
+        contextMenuBuilder: (innerContext, selectableRegionState) {
+          final standardButtonItems =
+              selectableRegionState.contextMenuButtonItems;
+          final primaryStandardButtonTypes = {
+            ContextMenuButtonType.selectAll,
+            ContextMenuButtonType.copy,
+          };
+          final primaryStandardButtonItems = standardButtonItems.where(
+            (item) => primaryStandardButtonTypes.contains(item.type),
+          );
+          final remainingStandardButtonItems = standardButtonItems.where(
+            (item) => !primaryStandardButtonTypes.contains(item.type),
+          );
+
+          return AdaptiveTextSelectionToolbar(
+            anchors: selectableRegionState.contextMenuAnchors,
+            children: AdaptiveTextSelectionToolbar.getAdaptiveButtons(
+              innerContext,
+              [
+                ...primaryStandardButtonItems,
+                if (_selectedText.trim().isNotEmpty)
+                  ContextMenuButtonItem(
+                      label: "Web search",
+                      onPressed: () async {
+                        await _webSearchChannel.invokeMethod(
+                          "search",
+                          {"query": _selectedText.trim()},
+                        );
+                        ContextMenuController.removeAny();
+                      }),
+                if (widget.replyTarget != null)
+                  ContextMenuButtonItem(
+                      label: "Reply",
+                      onPressed: () {
+                        context.read<CommentShuttle?>()?.setReplyTarget(
+                              widget.replyTarget!,
+                              text: _selectedText,
+                            );
+                        ContextMenuController.removeAny();
+                      }),
+                ...remainingStandardButtonItems,
+              ],
+            ).toList(),
+          );
+        },
         child: withoutSelection(context),
       );
 
