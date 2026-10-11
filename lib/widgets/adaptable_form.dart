@@ -101,7 +101,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
 
     _selectedMicrocosm = widget.initialMicrocosm;
     _attachments = widget.initialAttachments.map((e) => XFile(e.path)).toList();
-    _selectedParticipants = widget.initialParticipants;
+    _selectedParticipants = Set<Profile>.of(widget.initialParticipants);
   }
 
   void _updateItemTypeSelector() {
@@ -274,16 +274,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
                         padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
                         child: Row(
                           children: [
-                            Text("Attachments (${_attachments.length})"),
-                            Text(
-                              " • drag to remove",
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
+                            Text("Attachments (${_attachments.length})")
                           ],
                         ),
                       ),
@@ -675,7 +666,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
           fullscreenDialog: true,
           maintainState: true,
           builder: (context) => FutureScreen(
-            item: item.resetChildren(force: true).then((_) => item),
+            item: item.getItemByCommentId(comment.id),
           ),
         ),
       );
@@ -688,6 +679,7 @@ class _AdaptableFormState extends State<AdaptableForm> {
         ),
       );
     } catch (error) {
+      log("There was an error posting", error: error);
       setState(() {
         _sending = false;
         _uploadProgressByPath.clear();
