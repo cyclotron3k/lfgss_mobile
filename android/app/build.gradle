@@ -31,17 +31,13 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "com.lfgss.lfgss_mobile"
-    compileSdkVersion Math.max(flutter.compileSdkVersion, 36)
+    compileSdkVersion Math.max(flutter.compileSdkVersion, 37)
     ndkVersion flutter.ndkVersion
 
     compileOptions {
         coreLibraryDesugaringEnabled true // flutter_local_notifications
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = '17'
     }
 
     sourceSets {
@@ -73,6 +69,12 @@ android {
            signingConfig signingConfigs.release
        }
    }
+}
+
+android {
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 }
 
 flutter {

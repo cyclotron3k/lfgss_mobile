@@ -9,8 +9,8 @@ allprojects {
         afterEvaluate { project ->
             if (project.hasProperty('android')) {
                 project.android {
-                    // Force all modules to use compileSdk of the current flutter version
-                    compileSdkVersion flutter.compileSdkVersion
+                    // Keep every Android module compatible with dependencies requiring API 37.
+                    compileSdkVersion Math.max(flutter.compileSdkVersion, 37)
                 }
             }
         }

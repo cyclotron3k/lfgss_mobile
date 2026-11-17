@@ -10,7 +10,7 @@ import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:quiver/collection.dart' show LruMap;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:webview_cookie_manager/webview_cookie_manager.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import '../constants.dart';
 import 'relaxed_jpeg_decoder.dart';
@@ -122,8 +122,7 @@ class MicrocosmClient {
 
     clearCache();
 
-    final cookieManager = WebviewCookieManager();
-    cookieManager.clearCookies();
+    await WebViewCookieManager().clearCookies();
   }
 
   Future<http.Response> get(Uri url) async {
