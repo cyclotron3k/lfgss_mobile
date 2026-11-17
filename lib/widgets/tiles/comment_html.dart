@@ -243,9 +243,13 @@ class _CommentHtmlState extends State<CommentHtml> {
           ),
           "pre": Style(
             backgroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            color: Theme.of(context).colorScheme.onSurface,
             padding: HtmlPaddings.only(
               left: 4.0,
             ),
+          ),
+          "code": Style(
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           "body": Style(
             // TODO: Workaround for the above issue. Remove when resolved
