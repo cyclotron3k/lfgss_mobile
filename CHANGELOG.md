@@ -2,6 +2,7 @@
 
 ## v1.0.51
 
+- Load comment attachments from embedded attachment details when available
 - Fix code styling in comments on the Following screen
 - Bump Flutter from 3.38.4 to 3.50.0 and Dart from 3.10.3 to 3.14.0
 - Bump dependencies and Android build tooling
