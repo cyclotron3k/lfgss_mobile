@@ -53,8 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
           }
 
           if (accessToken != null) {
-            await settings.setString("accessToken", accessToken);
-            await MicrocosmClient().updateAccessToken();
+            await MicrocosmClient().saveAccessToken(accessToken);
             await syncNotificationTask(settings.prefs, requestPermission: true);
 
             if (!mounted) return;
