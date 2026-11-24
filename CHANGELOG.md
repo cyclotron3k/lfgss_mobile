@@ -2,6 +2,7 @@
 
 ## v1.0.52
 
+- Replace scroll bar with buttons
 - Align the "last activity" indicator with the website
 
 ## v1.0.51

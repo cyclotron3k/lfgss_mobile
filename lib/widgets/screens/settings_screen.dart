@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../notifications.dart';
 import '../../services/settings.dart';
-import 'commentable_item/seek_bar.dart';
 
 enum DarkMode { system, light, dark }
 
@@ -35,7 +34,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _notifyReplies = true;
   bool _notifyMentions = true;
   bool _notifyHuddles = true;
-  SeekBarSensitivity _seekBarSensitivity = SeekBarSensitivity.low;
 
   Future<void> _setNotificationPreference(
     Settings settings,
@@ -80,9 +78,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _notifyReplies = settings.getBool("notifyReplies") ?? true;
     _notifyMentions = settings.getBool("notifyMentions") ?? true;
     _notifyHuddles = settings.getBool("notifyHuddles") ?? true;
-    _seekBarSensitivity = SeekBarSensitivity.values.byName(
-      settings.getString("seekBarSensitivity") ?? "low",
-    );
   }
 
   @override
@@ -92,9 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     late SwitchListTile exifSwitch;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
           const SettingsSectionTitle(title: "Theme"),
@@ -188,9 +181,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           scalingSwitch = SwitchListTile(
             title: const Text('Shrink large images'),
-            subtitle: const Text(
-              'Upload smaller files',
-            ),
+            subtitle: const Text('Upload smaller files'),
             value: _shrinkLargeImages,
             onChanged: (bool value) {
               setState(() {
@@ -226,9 +217,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SwitchListTile(
             title: const Text('Preview URLs'),
-            subtitle: const Text(
-              'Preview URLs before following',
-            ),
+            subtitle: const Text('Preview URLs before following'),
             value: _previewUrls,
             onChanged: (bool value) {
               setState(() {
@@ -240,9 +229,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SwitchListTile(
             title: const Text('Auto download 3rd party data'),
-            subtitle: const Text(
-              'E.g. Hotlinked images',
-            ),
+            subtitle: const Text('E.g. Hotlinked images'),
             value: _downloadThirdParty,
             onChanged: (bool value) {
               setState(() {
@@ -285,42 +272,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             secondary: const Icon(Icons.photo_library_outlined),
           ),
-          const Divider(),
-          const SettingsSectionTitle(title: "Reading"),
-          PopupMenuButton(
-            initialValue: _seekBarSensitivity,
-            onSelected: (SeekBarSensitivity item) {
-              setState(() {
-                settings.setString("seekBarSensitivity", item.name).ignore();
-                _seekBarSensitivity = item;
-              });
-            },
-            itemBuilder: (BuildContext context) =>
-                <PopupMenuEntry<SeekBarSensitivity>>[
-              const PopupMenuItem<SeekBarSensitivity>(
-                value: SeekBarSensitivity.always,
-                child: Text('Always visible'),
-              ),
-              const PopupMenuItem<SeekBarSensitivity>(
-                value: SeekBarSensitivity.high,
-                child: Text('High sensitivity'),
-              ),
-              const PopupMenuItem<SeekBarSensitivity>(
-                value: SeekBarSensitivity.low,
-                child: Text('Low sensitivity'),
-              ),
-              const PopupMenuItem<SeekBarSensitivity>(
-                value: SeekBarSensitivity.never,
-                child: Text('Never'),
-              ),
-            ],
-            child: ListTile(
-              title: const Text('Seek bar'),
-              subtitle: Text(_seekBarSensitivityLabel(_seekBarSensitivity)),
-              leading: const Icon(Icons.linear_scale),
-            ),
-          ),
-          const Divider(),
           const SettingsSectionTitle(title: "Notifications"),
           SwitchListTile(
             title: const Text('Direct messages (huddles)'),
@@ -395,19 +346,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-String _seekBarSensitivityLabel(SeekBarSensitivity s) => switch (s) {
-      SeekBarSensitivity.always => 'Always visible',
-      SeekBarSensitivity.high => 'High sensitivity',
-      SeekBarSensitivity.low => 'Low sensitivity',
-      SeekBarSensitivity.never => 'Never',
-    };
-
 class SettingsSectionTitle extends StatelessWidget {
   final String title;
-  const SettingsSectionTitle({
-    super.key,
-    required this.title,
-  });
+  const SettingsSectionTitle({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
