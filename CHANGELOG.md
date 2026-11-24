@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.51
+
+- Store the access token in Android Keystore-backed secure storage
+- Load comment attachments from embedded attachment details when available
+- Fix code styling in comments on the Following screen
+- Bump Flutter from 3.38.4 to 3.50.0 and Dart from 3.10.3 to 3.14.0
+- Bump dependencies and Android build tooling
+
+## v1.0.50
+
+- Improve navigation after opening the app with a shared attachment, taking you directly to the new post
+
 ## v1.0.49
 
 - Fix attachment deletion sometimes showing the wrong attachment as removed

@@ -19,6 +19,7 @@ class CommentAttachments {
   final bool ignoreCache;
   final int pages;
   final int pageSize = 100;
+  final List<Attachment>? initialAttachments;
   List<Attachment>? attachmentList;
   Future<List<Attachment>>? _attachmentListFuture;
 
@@ -26,7 +27,10 @@ class CommentAttachments {
     required this.commentId,
     required this.attachments,
     this.ignoreCache = true,
-  }) : pages = (attachments / 100).ceil();
+    this.initialAttachments,
+  }) : pages = (attachments / 100).ceil() {
+    attachmentList = initialAttachments;
+  }
 
   Future<List<Attachment>> getPageOfChildren(int pageId) async {
     Uri uri = Uri.https(
@@ -48,6 +52,10 @@ class CommentAttachments {
   }
 
   Future<List<Attachment>> getAttachmentList() {
+    if (attachmentList != null) {
+      return Future.value(attachmentList!);
+    }
+
     _attachmentListFuture ??= getPageOfChildren(0).then((items) {
       attachmentList = items;
       return items;

@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../constants.dart';
@@ -18,8 +18,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  static const cookieChannel = MethodChannel(
+    'com.lfgss.lfgss_mobile/web_cookies',
+  );
   late final WebViewController controller;
-  final WebviewCookieManager cookieManager = WebviewCookieManager();
   int loadingPercentage = 0;
   bool complete = false;
 
@@ -37,19 +39,21 @@ class _LoginScreenState extends State<LoginScreen> {
         onPageStarted: (url) async {
           var settings = Provider.of<Settings>(context, listen: false);
 
-          List<Cookie> cookies = await cookieManager.getCookies(WEB_HOST);
-
+          final cookieString = await cookieChannel.invokeMethod<String>(
+            'getCookies',
+            {'url': 'https://$WEB_HOST/'},
+          );
           String? accessToken;
-          for (Cookie cookie in cookies) {
-            if (cookie.name == "access_token") {
-              accessToken = cookie.value;
+          for (final cookie in (cookieString ?? '').split(';')) {
+            final pair = cookie.trim().split('=');
+            if (pair.length >= 2 && pair.first == 'access_token') {
+              accessToken = pair.skip(1).join('=');
               break;
             }
           }
 
           if (accessToken != null) {
-            await settings.setString("accessToken", accessToken);
-            await MicrocosmClient().updateAccessToken();
+            await MicrocosmClient().saveAccessToken(accessToken);
             await syncNotificationTask(settings.prefs, requestPermission: true);
 
             if (!mounted) return;

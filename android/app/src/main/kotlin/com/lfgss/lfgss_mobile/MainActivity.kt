@@ -11,6 +11,7 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterActivity() {
     private val channel = "com.lfgss.lfgss_mobile/web_search"
+    private val cookieChannel = "com.lfgss.lfgss_mobile/web_cookies"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (intent.getIntExtra("org.chromium.chrome.extra.TASK_ID", -1) == this.taskId) {
@@ -45,6 +46,23 @@ class MainActivity: FlutterActivity() {
                         result.success(true)
                     } catch (_: ActivityNotFoundException) {
                         result.success(false)
+                    }
+                }
+                else -> result.notImplemented()
+            }
+        }
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            cookieChannel
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "getCookies" -> {
+                    val url = call.argument<String>("url")
+                    if (url == null) {
+                        result.error("invalid_url", "A URL is required", null)
+                    } else {
+                        result.success(android.webkit.CookieManager.getInstance().getCookie(url))
                     }
                 }
                 else -> result.notImplemented()

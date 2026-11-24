@@ -7,6 +7,7 @@ import '../core/commentable_item.dart';
 import '../core/item.dart';
 import '../services/microcosm_client.dart' hide Json;
 import '../widgets/tiles/single_comment.dart';
+import 'attachment.dart';
 import 'comment_attachments.dart';
 import 'conversation.dart';
 import 'event.dart';
@@ -22,6 +23,7 @@ class Comment implements Item, Authored {
   final int itemId;
   final int revisions;
   final int attachments;
+  final List<Attachment>? attachmentDetails;
   final int? inReplyTo;
   final String markdown;
   final String html;
@@ -107,6 +109,7 @@ class Comment implements Item, Authored {
     required this.itemId,
   })  : revisions = 0,
         attachments = 0,
+        attachmentDetails = null,
         inReplyTo = null,
         html = '',
         created = DateTime.fromMillisecondsSinceEpoch(0),
@@ -124,7 +127,10 @@ class Comment implements Item, Authored {
         itemType = json["itemType"], //  "conversation", "profile", etc
         itemId = json["itemId"],
         revisions = json["revisions"],
-        attachments = json["attachments"] ?? 0,
+        attachments = json["attachmentDetails"]?.length ??
+            json["attachments"] ??
+            0,
+        attachmentDetails = _attachmentDetailsFromJson(json),
         markdown = HtmlUnescape().convert(json["markdown"]),
         inReplyTo = json["inReplyTo"],
         html = json["html"],
@@ -159,8 +165,20 @@ class Comment implements Item, Authored {
   }
 
   Widget getAttachments({required BuildContext context}) {
-    commentAttachments ??=
-        CommentAttachments(commentId: id, attachments: attachments);
+    commentAttachments ??= CommentAttachments(
+      commentId: id,
+      attachments: attachments,
+      initialAttachments: attachmentDetails,
+    );
     return commentAttachments!.build(context);
+  }
+
+  static List<Attachment>? _attachmentDetailsFromJson(Json json) {
+    final details = json["attachmentDetails"];
+    if (details == null) return null;
+
+    return (details as List)
+        .map((item) => Attachment.fromJson(json: item as Map<String, dynamic>))
+        .toList(growable: false);
   }
 }

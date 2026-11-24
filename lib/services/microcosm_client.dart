@@ -5,12 +5,13 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:quiver/collection.dart' show LruMap;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:webview_cookie_manager/webview_cookie_manager.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import '../constants.dart';
 import 'relaxed_jpeg_decoder.dart';
@@ -69,6 +70,9 @@ class _ProgressMultipartRequest extends http.MultipartRequest {
 
 class MicrocosmClient {
   static const String userAgent = USER_AGENT;
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(storageNamespace: 'lfgss_auth'),
+  );
   static final MicrocosmClient _singleton = MicrocosmClient._internal();
   String? accessToken;
 
@@ -93,11 +97,35 @@ class MicrocosmClient {
   }
 
   Future<void> updateAccessToken() async {
-    final sharedPreference = await SharedPreferences.getInstance();
-    final newAccessToken = sharedPreference.getString("accessToken");
+    var newAccessToken = await _secureStorage.read(key: 'accessToken');
+
+    // Move existing installations off the old unencrypted preference value.
+    if (newAccessToken == null) {
+      final sharedPreference = await SharedPreferences.getInstance();
+      final legacyAccessToken = sharedPreference.getString('accessToken');
+      if (legacyAccessToken != null) {
+        await _secureStorage.write(
+          key: 'accessToken',
+          value: legacyAccessToken,
+        );
+        await sharedPreference.remove('accessToken');
+        newAccessToken = legacyAccessToken;
+      }
+    }
+
     if (accessToken != newAccessToken) {
       clearCache();
       accessToken = newAccessToken;
+    }
+  }
+
+  Future<void> saveAccessToken(String value) async {
+    await _secureStorage.write(key: 'accessToken', value: value);
+    final sharedPreference = await SharedPreferences.getInstance();
+    await sharedPreference.remove('accessToken');
+    if (accessToken != value) {
+      clearCache();
+      accessToken = value;
     }
   }
 
@@ -116,14 +144,14 @@ class MicrocosmClient {
       (value) => log("Deleted access token: ${value.statusCode}"),
     );
 
+    await _secureStorage.delete(key: 'accessToken');
     final sharedPreference = await SharedPreferences.getInstance();
-    await sharedPreference.remove("accessToken");
+    await sharedPreference.remove('accessToken');
     accessToken = null;
 
     clearCache();
 
-    final cookieManager = WebviewCookieManager();
-    cookieManager.clearCookies();
+    await WebViewCookieManager().clearCookies();
   }
 
   Future<http.Response> get(Uri url) async {
