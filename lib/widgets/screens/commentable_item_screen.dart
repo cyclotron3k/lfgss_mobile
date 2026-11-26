@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -42,6 +44,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   final ValueNotifier<int> _navigationRevision = ValueNotifier<int>(0);
   bool _isAtTop = true;
   bool _isAtBottom = false;
+  bool _navigationHidden = false;
   late int maxPageNumber;
   int? _visibleCommentIndex;
 
@@ -291,6 +294,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     _isAtBottom =
         notification.metrics.pixels >=
         notification.metrics.maxScrollExtent - 1.0;
+    _navigationHidden = notification.metrics.extentAfter <= 180.0;
     _navigationRevision.value++;
 
     return false;
@@ -306,30 +310,38 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
         final canPageDown =
             currentIndex != null && ((currentIndex ~/ 25) + 1) * 25 < total;
         return Positioned(
-          left: 8,
+          right: 8,
           bottom: 12,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               _NavigationButton(
+                staggerOrder: 0,
+                hidden: _navigationHidden,
                 icon: Icons.first_page,
                 enabled: !_isAtTop && total > 0,
                 tooltip: 'Jump to top',
                 onPressed: _jumpToTop,
               ),
               _NavigationButton(
+                staggerOrder: 1,
+                hidden: _navigationHidden,
                 icon: Icons.navigate_before,
                 enabled: canPageUp,
                 tooltip: 'Go up one page',
                 onPressed: () => _moveOnePage(-1),
               ),
               _NavigationButton(
+                staggerOrder: 2,
+                hidden: _navigationHidden,
                 icon: Icons.navigate_next,
                 enabled: canPageDown,
                 tooltip: 'Go down one page',
                 onPressed: () => _moveOnePage(1),
               ),
               _NavigationButton(
+                staggerOrder: 3,
+                hidden: _navigationHidden,
                 icon: Icons.last_page,
                 enabled: !_isAtBottom && total > 0,
                 tooltip: 'Jump to bottom',
@@ -470,13 +482,17 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   }
 }
 
-class _NavigationButton extends StatelessWidget {
+class _NavigationButton extends StatefulWidget {
+  final int staggerOrder;
+  final bool hidden;
   final IconData icon;
   final bool enabled;
   final String tooltip;
   final VoidCallback onPressed;
 
   const _NavigationButton({
+    required this.staggerOrder,
+    required this.hidden,
     required this.icon,
     required this.enabled,
     required this.tooltip,
@@ -484,31 +500,74 @@ class _NavigationButton extends StatelessWidget {
   });
 
   @override
+  State<_NavigationButton> createState() => _NavigationButtonState();
+}
+
+class _NavigationButtonState extends State<_NavigationButton> {
+  late bool _visible;
+  Timer? _visibilityTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _visible = !widget.hidden;
+  }
+
+  @override
+  void didUpdateWidget(covariant _NavigationButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.hidden == widget.hidden) return;
+
+    _visibilityTimer?.cancel();
+    _visibilityTimer = Timer(
+      Duration(milliseconds: 55 * widget.staggerOrder),
+      () {
+        if (mounted) setState(() => _visible = !widget.hidden);
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _visibilityTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final foreground = enabled
+    final foreground = widget.enabled
         ? theme.colorScheme.onSurface
         : theme.disabledColor;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Tooltip(
-        message: tooltip,
-        child: Material(
-          color: theme.colorScheme.surface.withValues(alpha: 0.9),
-          shape: const CircleBorder(),
-          elevation: 2,
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: enabled ? onPressed : null,
-            child: SizedBox(
-              width: 40,
-              height: 40,
-              child: Center(
-                child: RotatedBox(
-                  quarterTurns: 1,
-                  child: Icon(
-                    icon,
-                    color: foreground,
+      child: IgnorePointer(
+        ignoring: !_visible,
+        child: AnimatedSlide(
+          offset: _visible ? Offset.zero : const Offset(1.5, 0),
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeInOut,
+          child: AnimatedOpacity(
+            opacity: _visible ? 1 : 0,
+            duration: const Duration(milliseconds: 180),
+            child: Tooltip(
+              message: widget.tooltip,
+              child: Material(
+                color: theme.colorScheme.surface.withValues(alpha: 0.9),
+                shape: const CircleBorder(),
+                elevation: 2,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: widget.enabled ? widget.onPressed : null,
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Center(
+                      child: RotatedBox(
+                        quarterTurns: 1,
+                        child: Icon(widget.icon, color: foreground),
+                      ),
+                    ),
                   ),
                 ),
               ),
