@@ -134,6 +134,23 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   int _itemIndexForCommentIndex(int commentIndex) =>
       _threadListLeadingItems + commentIndex;
 
+  int? get _firstVisibleCommentIndex {
+    int? firstVisibleIndex;
+    for (final position in _itemPositionsListener.itemPositions.value) {
+      final commentIndex = _commentIndexForItemIndex(position.index);
+      if (commentIndex < 0 || commentIndex >= widget.item.totalChildren) {
+        continue;
+      }
+      if (position.itemTrailingEdge <= 0 || position.itemLeadingEdge >= 1) {
+        continue;
+      }
+      if (firstVisibleIndex == null || commentIndex < firstVisibleIndex) {
+        firstVisibleIndex = commentIndex;
+      }
+    }
+    return firstVisibleIndex ?? _visibleCommentIndex;
+  }
+
   double get _preferredScrollAlignment =>
       _initialCommentIndex == 0 ? 0.0 : 0.12;
 
@@ -194,7 +211,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   }
 
   void _moveOnePage(int direction) {
-    final current = _visibleCommentIndex;
+    final current = _firstVisibleCommentIndex;
     if (current == null || widget.item.totalChildren == 0) return;
     final target = direction < 0
         ? ((current - 1) ~/ 25) * 25
@@ -304,7 +321,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     return ValueListenableBuilder<int>(
       valueListenable: _navigationRevision,
       builder: (context, current, child) {
-        final currentIndex = _visibleCommentIndex;
+        final currentIndex = _firstVisibleCommentIndex;
         final total = widget.item.totalChildren;
         final canPageUp = currentIndex != null && currentIndex >= 25;
         final canPageDown =
