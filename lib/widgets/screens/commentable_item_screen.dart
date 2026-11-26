@@ -312,25 +312,25 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               _NavigationButton(
-                symbol: '|<',
+                icon: Icons.first_page,
                 enabled: !_isAtTop && total > 0,
                 tooltip: 'Jump to top',
                 onPressed: _jumpToTop,
               ),
               _NavigationButton(
-                symbol: '<',
+                icon: Icons.navigate_before,
                 enabled: canPageUp,
                 tooltip: 'Go up one page',
                 onPressed: () => _moveOnePage(-1),
               ),
               _NavigationButton(
-                symbol: '>',
+                icon: Icons.navigate_next,
                 enabled: canPageDown,
                 tooltip: 'Go down one page',
                 onPressed: () => _moveOnePage(1),
               ),
               _NavigationButton(
-                symbol: '>|',
+                icon: Icons.last_page,
                 enabled: !_isAtBottom && total > 0,
                 tooltip: 'Jump to bottom',
                 onPressed: _jumpToBottom,
@@ -471,13 +471,13 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
 }
 
 class _NavigationButton extends StatelessWidget {
-  final String symbol;
+  final IconData icon;
   final bool enabled;
   final String tooltip;
   final VoidCallback onPressed;
 
   const _NavigationButton({
-    required this.symbol,
+    required this.icon,
     required this.enabled,
     required this.tooltip,
     required this.onPressed,
@@ -506,14 +506,9 @@ class _NavigationButton extends StatelessWidget {
               child: Center(
                 child: RotatedBox(
                   quarterTurns: 1,
-                  child: Text(
-                    symbol,
-                    style: TextStyle(
-                      color: foreground,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      height: 1,
-                    ),
+                  child: Icon(
+                    icon,
+                    color: foreground,
                   ),
                 ),
               ),
