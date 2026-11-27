@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.52
+
+- Replace scroll bar with buttons
+- Align the "last activity" indicator with the website
+
 ## v1.0.51
 
 - Store the access token in Android Keystore-backed secure storage

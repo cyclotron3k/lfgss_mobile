@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:share_plus/share_plus.dart';
@@ -15,14 +16,12 @@ import '../../models/refresh_request_notifier.dart';
 import '../../models/search.dart';
 import '../../models/search_parameters.dart';
 import '../../services/microcosm_client.dart';
-import '../../services/settings.dart';
 import '../event_header.dart';
 import '../huddle_header.dart';
 import '../new_comment.dart';
 import 'commentable_item/commentable_item_dialogs.dart';
 import 'commentable_item/commentable_item_overflow_menu.dart';
 import 'commentable_item/commentable_item_positioning.dart';
-import 'commentable_item/seek_bar.dart';
 import 'future_search_results_screen.dart';
 
 class CommentableItemScreen extends StatefulWidget {
@@ -42,9 +41,10 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   final ItemScrollController _itemScrollController = ItemScrollController();
   final ItemPositionsListener _itemPositionsListener =
       ItemPositionsListener.create();
-  final ValueNotifier<double> _scrollOffset = ValueNotifier<double>(0.0);
-  final ValueNotifier<bool> _isUserScrolling = ValueNotifier<bool>(false);
-  final ValueNotifier<double> _seekFraction = ValueNotifier<double>(0.0);
+  final ValueNotifier<int> _navigationRevision = ValueNotifier<int>(0);
+  bool _isAtTop = true;
+  bool _isAtBottom = false;
+  bool _navigationHidden = false;
   late int maxPageNumber;
   int? _visibleCommentIndex;
 
@@ -52,8 +52,9 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   void initState() {
     super.initState();
     maxPageNumber = (widget.item.totalChildren / 25).ceil();
-    _itemPositionsListener.itemPositions
-        .addListener(_handleItemPositionsChanged);
+    _itemPositionsListener.itemPositions.addListener(
+      _handleItemPositionsChanged,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollHighlightedCommentIntoView();
     });
@@ -64,9 +65,7 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     _itemPositionsListener.itemPositions.removeListener(
       _handleItemPositionsChanged,
     );
-    _scrollOffset.dispose();
-    _isUserScrolling.dispose();
-    _seekFraction.dispose();
+    _navigationRevision.dispose();
     _pageNoController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -135,6 +134,40 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   int _itemIndexForCommentIndex(int commentIndex) =>
       _threadListLeadingItems + commentIndex;
 
+  int? get _firstVisibleCommentIndex {
+    int? firstVisibleIndex;
+    for (final position in _itemPositionsListener.itemPositions.value) {
+      final commentIndex = _commentIndexForItemIndex(position.index);
+      if (commentIndex < 0 || commentIndex >= widget.item.totalChildren) {
+        continue;
+      }
+      if (position.itemTrailingEdge <= 0 || position.itemLeadingEdge >= 1) {
+        continue;
+      }
+      if (firstVisibleIndex == null || commentIndex < firstVisibleIndex) {
+        firstVisibleIndex = commentIndex;
+      }
+    }
+    return firstVisibleIndex ?? _visibleCommentIndex;
+  }
+
+  int? get _lastVisibleCommentIndex {
+    int? lastVisibleIndex;
+    for (final position in _itemPositionsListener.itemPositions.value) {
+      final commentIndex = _commentIndexForItemIndex(position.index);
+      if (commentIndex < 0 || commentIndex >= widget.item.totalChildren) {
+        continue;
+      }
+      if (position.itemTrailingEdge <= 0 || position.itemLeadingEdge >= 1) {
+        continue;
+      }
+      if (lastVisibleIndex == null || commentIndex > lastVisibleIndex) {
+        lastVisibleIndex = commentIndex;
+      }
+    }
+    return lastVisibleIndex ?? _visibleCommentIndex;
+  }
+
   double get _preferredScrollAlignment =>
       _initialCommentIndex == 0 ? 0.0 : 0.12;
 
@@ -147,12 +180,14 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     if (_visibleCommentIndex == visibleIndex) return;
 
     _visibleCommentIndex = visibleIndex;
-    _seekFraction.value = visibleIndex == null || widget.item.totalChildren <= 1
-        ? 0.0
-        : (visibleIndex / (widget.item.totalChildren - 1)).clamp(0.0, 1.0);
+    _navigationRevision.value++;
   }
 
-  void _scrollToCommentIndex(int commentIndex, {bool animate = false}) {
+  void _scrollToCommentIndex(
+    int commentIndex, {
+    bool animate = false,
+    double? alignment,
+  }) {
     final targetIndex = _itemIndexForCommentIndex(commentIndex);
     if (!_itemScrollController.isAttached) return;
 
@@ -161,14 +196,14 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
         index: targetIndex,
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
-        alignment: _preferredScrollAlignment,
+        alignment: alignment ?? _preferredScrollAlignment,
       );
       return;
     }
 
     _itemScrollController.jumpTo(
       index: targetIndex,
-      alignment: _preferredScrollAlignment,
+      alignment: alignment ?? _preferredScrollAlignment,
     );
   }
 
@@ -178,6 +213,31 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
       widget.item.totalChildren == 0 ? 0 : widget.item.totalChildren - 1,
     );
     _scrollToCommentIndex(commentIndex);
+  }
+
+  void _jumpToTop() {
+    if (!_itemScrollController.isAttached) return;
+    _itemScrollController.jumpTo(index: 0, alignment: 0.0);
+  }
+
+  void _jumpToBottom() {
+    if (!_itemScrollController.isAttached || widget.item.totalChildren == 0) {
+      return;
+    }
+    _itemScrollController.jumpTo(index: _threadItemCount - 1, alignment: 1.0);
+  }
+
+  void _moveOnePage(int direction) {
+    final current = direction < 0
+        ? _firstVisibleCommentIndex
+        : _lastVisibleCommentIndex;
+    if (current == null || widget.item.totalChildren == 0) return;
+    final target = direction < 0
+        ? ((current - 1) ~/ 25) * 25
+        : ((current ~/ 25) + 1) * 25;
+    if (target >= 0 && target < widget.item.totalChildren) {
+      _scrollToCommentIndex(target);
+    }
   }
 
   Future<void> _refresh() async {
@@ -248,12 +308,12 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
     final visibleCommentId = _visibleCommentIndex == null
         ? null
         : await widget.item
-            .getChild(_visibleCommentIndex!)
-            .then<int?>((comment) => comment.id)
-            .timeout(
-              const Duration(milliseconds: 150),
-              onTimeout: () => null,
-            );
+              .getChild(_visibleCommentIndex!)
+              .then<int?>((comment) => comment.id)
+              .timeout(
+                const Duration(milliseconds: 150),
+                onTimeout: () => null,
+              );
     final url = webUrlForCurrentPosition(
       item: widget.item,
       visibleIndex: _visibleCommentIndex,
@@ -264,25 +324,72 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
   }
 
   bool _handleScrollNotification(ScrollNotification notification) {
-    _scrollOffset.value = notification.metrics.pixels;
-
-    if (notification is ScrollStartNotification) {
-      _isUserScrolling.value = notification.dragDetails != null;
-    } else if (notification is ScrollUpdateNotification) {
-      if (notification.dragDetails != null) {
-        _isUserScrolling.value = true;
-      }
-    } else if (notification is UserScrollNotification) {
-      _isUserScrolling.value = notification.direction != ScrollDirection.idle;
-    } else if (notification is ScrollEndNotification) {
-      _isUserScrolling.value = false;
-    } else if (notification is OverscrollNotification) {
-      if (notification.dragDetails != null) {
-        _isUserScrolling.value = true;
-      }
-    }
+    _isAtTop =
+        notification.metrics.pixels <=
+        notification.metrics.minScrollExtent + 1.0;
+    _isAtBottom =
+        notification.metrics.pixels >=
+        notification.metrics.maxScrollExtent - 1.0;
+    _navigationHidden = notification.metrics.extentAfter <= 180.0;
+    _navigationRevision.value++;
 
     return false;
+  }
+
+  Widget _buildNavigationButtons() {
+    return ValueListenableBuilder<int>(
+      valueListenable: _navigationRevision,
+      builder: (context, current, child) {
+        final currentIndex = _firstVisibleCommentIndex;
+        final lastVisibleIndex = _lastVisibleCommentIndex;
+        final total = widget.item.totalChildren;
+        final canPageUp = currentIndex != null && currentIndex >= 25;
+        final canPageDown =
+            lastVisibleIndex != null &&
+            ((lastVisibleIndex ~/ 25) + 1) * 25 < total;
+        return Positioned(
+          right: 8,
+          bottom: 12,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _NavigationButton(
+                staggerOrder: 0,
+                hidden: _navigationHidden,
+                icon: Icons.first_page,
+                enabled: !_isAtTop && total > 0,
+                tooltip: 'Jump to top',
+                onPressed: _jumpToTop,
+              ),
+              _NavigationButton(
+                staggerOrder: 1,
+                hidden: _navigationHidden,
+                icon: Icons.navigate_before,
+                enabled: canPageUp,
+                tooltip: 'Go up one page',
+                onPressed: () => _moveOnePage(-1),
+              ),
+              _NavigationButton(
+                staggerOrder: 2,
+                hidden: _navigationHidden,
+                icon: Icons.navigate_next,
+                enabled: canPageDown,
+                tooltip: 'Go down one page',
+                onPressed: () => _moveOnePage(1),
+              ),
+              _NavigationButton(
+                staggerOrder: 3,
+                hidden: _navigationHidden,
+                icon: Icons.last_page,
+                enabled: !_isAtBottom && total > 0,
+                tooltip: 'Jump to bottom',
+                onPressed: _jumpToBottom,
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildThreadListItem(BuildContext context, int index) {
@@ -350,13 +457,6 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final seekBarSensitivity = SeekBarSensitivity.values.byName(
-      Provider.of<Settings>(
-            context,
-            listen: false,
-          ).getString("seekBarSensitivity") ??
-          "low",
-    );
     final overflowMenu = CommentableItemOverflowMenu(
       itemTypeLabel: _itemTypeLabel,
       watched: widget.item.flags.watched,
@@ -389,21 +489,14 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
                       itemCount: _threadItemCount,
                       itemScrollController: _itemScrollController,
                       itemPositionsListener: _itemPositionsListener,
-                      initialScrollIndex:
-                          _itemIndexForCommentIndex(_initialCommentIndex),
+                      initialScrollIndex: _itemIndexForCommentIndex(
+                        _initialCommentIndex,
+                      ),
                       initialAlignment: _preferredScrollAlignment,
                       itemBuilder: _buildThreadListItem,
                     ),
                   ),
-                  SeekBar(
-                    scrollOffsetListenable: _scrollOffset,
-                    isUserScrollingListenable: _isUserScrolling,
-                    fractionListenable: _seekFraction,
-                    totalChildren: widget.item.totalChildren,
-                    topPadding: 0.0,
-                    sensitivity: seekBarSensitivity,
-                    onSeek: _jumpToSpecificPage,
-                  ),
+                  _buildNavigationButtons(),
                 ],
               ),
             ),
@@ -419,8 +512,105 @@ class _CommentableItemScreenState extends State<CommentableItemScreen> {
                     setState(() {});
                   }
                 },
-              )
+              ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NavigationButton extends StatefulWidget {
+  final int staggerOrder;
+  final bool hidden;
+  final IconData icon;
+  final bool enabled;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  const _NavigationButton({
+    required this.staggerOrder,
+    required this.hidden,
+    required this.icon,
+    required this.enabled,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  @override
+  State<_NavigationButton> createState() => _NavigationButtonState();
+}
+
+class _NavigationButtonState extends State<_NavigationButton> {
+  late bool _visible;
+  Timer? _visibilityTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _visible = !widget.hidden;
+  }
+
+  @override
+  void didUpdateWidget(covariant _NavigationButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.hidden == widget.hidden) return;
+
+    _visibilityTimer?.cancel();
+    _visibilityTimer = Timer(
+      Duration(milliseconds: 55 * widget.staggerOrder),
+      () {
+        if (mounted) setState(() => _visible = !widget.hidden);
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _visibilityTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final foreground = widget.enabled
+        ? theme.colorScheme.onSurface
+        : theme.disabledColor;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: IgnorePointer(
+        ignoring: !_visible,
+        child: AnimatedSlide(
+          offset: _visible ? Offset.zero : const Offset(1.5, 0),
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeInOut,
+          child: AnimatedOpacity(
+            opacity: _visible ? 1 : 0,
+            duration: const Duration(milliseconds: 180),
+            child: Tooltip(
+              message: widget.tooltip,
+              child: Material(
+                color: theme.colorScheme.surface.withValues(alpha: 0.9),
+                shape: const CircleBorder(),
+                elevation: 2,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: widget.enabled ? widget.onPressed : null,
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Center(
+                      child: RotatedBox(
+                        quarterTurns: 1,
+                        child: Icon(widget.icon, color: foreground),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
